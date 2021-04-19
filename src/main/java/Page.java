@@ -1,14 +1,8 @@
-import java.io.Serializable;
+import java.io.*;
+import java.math.BigInteger;
 import java.util.Vector;
 
-/**
- * 
- */
 
-/**
- * @author peter
- *
- */
 public class Page extends Vector<Object> implements Serializable {
 
 	int max = 200;
@@ -16,6 +10,7 @@ public class Page extends Vector<Object> implements Serializable {
 	
 
 	public Page() {
+	tuple=0;
 
 	}
 
@@ -42,6 +37,7 @@ public class Page extends Vector<Object> implements Serializable {
 	}
 
 	public boolean isFull() {
+
 		if (tuple == max)
 			return true;
 		else
@@ -54,8 +50,50 @@ public class Page extends Vector<Object> implements Serializable {
 		else
 			return false;
 	}
-	/**
-	 * @param args
-	 */
+	public void serialP(String s){
+		try
+		{
+			String filename=s+".ser";
+
+
+			FileOutputStream file = new FileOutputStream(filename);
+			ObjectOutputStream out = new ObjectOutputStream(file);
+
+
+			out.writeObject(this);
+
+			out.close();
+			file.close();
+
+			System.out.println("Object has been serialized");
+
+		}
+		catch(IOException ex)
+		{
+			System.out.println("IOException is caught");
+		}
+
+	}
+
+	public static Page  deserialP(String s){
+		Page p;
+		try {
+			FileInputStream fileIn = new FileInputStream(s+".ser");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			p = (Page) in.readObject();
+			in.close();
+			fileIn.close();
+			return p;
+		} catch (IOException i) {
+			i.printStackTrace();
+			return null;
+		} catch (ClassNotFoundException c) {
+			System.out.println(" class not found");
+			c.printStackTrace();
+			return null;
+		}
+	}
+
+
 
 }
