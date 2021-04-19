@@ -1,27 +1,25 @@
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.io.*;
 import java.util.Vector;
 
-public class Table  implements Serializable {
-    ArrayList<Page> pages;
 
-    public Table(){
-        pages= new ArrayList<Page>();
+public class Table extends Vector<Page> implements Serializable {
 
+     String   name;
+
+    public Table(String name){
+        this.name=name;
 
     }
     public void serialT(){
         try
         {
-            String filename = "file.ser";
-            //Saving of object in a file
+            String filename = name+".ser";
+
+
             FileOutputStream file = new FileOutputStream(filename);
             ObjectOutputStream out = new ObjectOutputStream(file);
 
-            // Method for serialization of object
+
             out.writeObject(this);
 
             out.close();
@@ -37,16 +35,14 @@ public class Table  implements Serializable {
         }
 
     }
-    public void unSerialT(){
 
-    }
-    public static void main(String[]args){
-        Table t = new Table();
-        t.serialT();
-
-
+    public void serialP(){
+        for(int i =0; i<this.size();i++)
+        this.get(i).serialP(i+this.name);
     }
 
 
+    public static void main(String[]args) {
 
+    }
 }
