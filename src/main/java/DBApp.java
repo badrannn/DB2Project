@@ -223,7 +223,7 @@ public static int binarysearchtableint(String t1,int key){
 	int first=0;
 	String g;
 	while(first<=high){
-		g="test"+(mid);
+		g=t1+(mid);
 		if(key>((int)(Page.deserialP(g).firstElement()).getValue(0)) && key>((int)(Page.deserialP(g).lastElement().getValue(0))))
 		{
 		first=mid+1;
@@ -252,7 +252,7 @@ public static int binarysearchtablestring(String t1,String key){
 	int first=0;
 	String g;
 	while(first<=high){
-		g="test"+(mid);
+		g=t1+(mid);
 		int firstele=key.compareTo((String)(Page.deserialP(g).firstElement()).getValue(0));
 		int lastele= key.compareTo((String)(Page.deserialP(g).lastElement()).getValue(0));
 		if(firstele>0 && lastele>0){
@@ -282,7 +282,7 @@ public static int binarysearchtabledouble(String t1,Double key){
 	String g;
 	BigDecimal key1=BigDecimal.valueOf(key);
 	while(first<=high){
-		g="test"+(mid);
+		g=t1+(mid);
 		BigDecimal firstele=BigDecimal.valueOf((Double)(Page.deserialP(g).firstElement()).getValue(0));
 		BigDecimal lastele=BigDecimal.valueOf((Double)(Page.deserialP(g).lastElement()).getValue(0));
 		int comp1=key1.compareTo(firstele);
@@ -313,7 +313,7 @@ public static int binarysearchtabledate(String t1,Date key){
 	int first=0;
 	String g;
 	while(first<=high){
-		g="test"+(mid);
+		g=t1+(mid);
 		int firstele=key.compareTo((Date)(Page.deserialP(g).firstElement()).getValue(0));
 		int lastele= key.compareTo((Date)(Page.deserialP(g).lastElement()).getValue(0));
 		if(firstele>0 && lastele>0){
@@ -340,7 +340,7 @@ public static int[] searchtable(String t, Object key){
 	if (key.getClass() == Integer.class) {
 		int b1=binarysearchtableint(t, (int)key);
 		if(b1>=0){
-		Page p1=Page.deserialP("test"+b1);
+		Page p1=Page.deserialP(t+b1);
 		int b2=binarysearchint(p1,(int) key);
 		res[0]=b1;
 		res[1]=b2;
@@ -349,7 +349,7 @@ public static int[] searchtable(String t, Object key){
 	else if (key.getClass() == String.class) {
 		int b1=binarysearchtablestring(t, (String)key);
 		if(b1>=0){
-		Page p1=Page.deserialP("test"+b1);
+		Page p1=Page.deserialP(t+b1);
 		int b2=binarysearchstring(p1,(String) key);
 		res[0]=b1;
 		res[1]=b2;
@@ -359,7 +359,7 @@ public static int[] searchtable(String t, Object key){
 	else if (key.getClass() == Double.class) {
 		int b1=binarysearchtabledouble(t, (double)key);
 		if(b1>=0){
-		Page p1=Page.deserialP("test"+b1);
+		Page p1=Page.deserialP(t+b1);
 		int b2=binarysearchdouble(p1,(double) key);
 		res[0]=b1;
 		res[1]=b2;
@@ -369,7 +369,7 @@ public static int[] searchtable(String t, Object key){
 	else if(key.getClass() == Date.class){
 		int b1=binarysearchtabledate(t, (Date)key);
 		if(b1>=0){
-		Page p1=Page.deserialP("test"+b1);
+		Page p1=Page.deserialP(t+b1);
 		int b2=binarysearchdate(p1,(Date) key);
 		res[0]=b1;
 		res[1]=b2;
@@ -455,7 +455,7 @@ public static void main(String[]args) throws IOException {
 	test3.add(pair15);
 	test3.add(pair16);
 
-	Table t1 = new Table("tests");
+	Table t1 = new Table("test");
 	t1.add(test0);
 	t1.add(test1);
 	t1.add(test2);
@@ -465,7 +465,7 @@ public static void main(String[]args) throws IOException {
 	test2.serialP("test2");
 	test3.serialP("test3");
 	t1.serialT();
-System.out.println(Arrays.toString(searchtable("tests",12)));
+System.out.println(Arrays.toString(searchtable("test",14)));
 
 	
 
