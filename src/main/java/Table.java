@@ -42,9 +42,26 @@ public class Table extends Vector<Page> implements Serializable {
         for(int i =0; i<this.size();i++)
         this.get(i).serialP(i+this.name);
     }
+    public static int deserialT(String s){
+        Table t ;
+        try {
+            FileInputStream fileIn = new FileInputStream(s+".ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            t = (Table) in.readObject();
+            in.close();
+            fileIn.close();
+            return t.size();
+        } catch (IOException i) {
+            i.printStackTrace();
+            return -1;
+        } catch (ClassNotFoundException c) {
+            System.out.println(" class not found");
+            c.printStackTrace();
+            return -1;
+        }
+    }
 
 
     public static void main(String[]args) {
-        
     }
 }
