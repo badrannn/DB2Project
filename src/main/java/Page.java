@@ -1,3 +1,5 @@
+import org.javatuples.Tuple;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.util.Vector;
