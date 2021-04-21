@@ -40,7 +40,7 @@ public class Table extends Vector<Page> implements Serializable {
 
     public void serialP(){
         for(int i =0; i<this.size();i++)
-        this.get(i).serialP(i+this.name);
+        this.get(i).serialP(this.name+i);
     }
     public static int deserialT(String s){
         Table t ;
