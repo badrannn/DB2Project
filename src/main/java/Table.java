@@ -1,3 +1,5 @@
+import org.javatuples.Triplet;
+
 import java.io.*;
 import java.util.Vector;
 
@@ -61,19 +63,5 @@ public class Table extends Vector<Page> implements Serializable {
 
 
     public static void main(String[]args) {
-        Table t = new Table("test");
-        Page p1= new Page();
-        Page p2= new Page();
-        Page p3= new Page();
-        Page p4= new Page();
-        t.add(p1);
-        t.add(p2);
-        t.add(p3);
-        t.add(p4);
-        t.serialP();
-        t.serialT();
-        int i = deserialT("test");
-        System.out.println(i);
-
     }
 }
