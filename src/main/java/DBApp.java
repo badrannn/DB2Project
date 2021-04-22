@@ -1,17 +1,8 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Array;
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
-
-import org.javatuples.Pair;
-import org.javatuples.Tuple;
-
 import java.util.*;
 
 
@@ -19,7 +10,7 @@ import java.util.*;
 public class DBApp  implements DBAppInterface{
 
 	public void init( ) {
-		 try (PrintWriter writer = new PrintWriter(new File("metadata.csv"))) {
+		 try (PrintWriter writer = new PrintWriter(new File("src/main/resources/metadata.csv"))) {
 
 		    } catch (FileNotFoundException e) {
 		      System.out.println(e.getMessage());
@@ -27,17 +18,7 @@ public class DBApp  implements DBAppInterface{
 		
 	}
 	
-	// this does whatever initialization you would like
-	// or leave it empty if there is no code you want to
-	// execute at application startup 
-	// following method creates one table only
-	// strClusteringKeyColumn is the name of the column that will be the primary
-	// key and the clustering column as well. The data type of that column will
-	// be passed in htblColNameType
-	// htblColNameValue will have the column name as key and the data
-	// type as value
-	// htblColNameMin and htblColNameMax for passing minimum and maximum values
-	// for data in the column. Key is the name of the column
+
 	public void createTable(String strTableName,
 	String strClusteringKeyColumn,
 	Hashtable<String,String> htblColNameType,
@@ -46,99 +27,131 @@ public class DBApp  implements DBAppInterface{
 	throws DBAppException{
 		try {
 			this.appendCsv(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
+			Table t = new Table(strTableName);
+
+			t.cluster = strClusteringKeyColumn;
+
+			t.columns=  new String [htblColNameType.size()];
+			t.columns[0]=strClusteringKeyColumn;
+
+			htblColNameType.remove(strClusteringKeyColumn);
+			Enumeration<String> keys = htblColNameType.keys();
+			for(int i = 1; i<t.columns.length;i++){
+				t.columns[i]=keys.nextElement();
+			}
+
+			t.serialT();
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		
 	
 	}
-public void appendCsv(String name,
+	public void appendCsv(String name,
 		String cluster,Hashtable<String,String> htblColNameType,
 		Hashtable<String,String> htblColNameMin,
 		Hashtable<String,String> htblColNameMax) throws IOException,DBAppException {
 	
-FileWriter pw =  new FileWriter("metadata.csv",true);
-Enumeration<String> type = htblColNameType.keys();
+		FileWriter pw =  new FileWriter("src/main/resources/metadata.csv",true);
+		Enumeration<String> type = htblColNameType.keys();
 
-while(type.hasMoreElements()) {
-	Boolean clus = false;
-	StringBuilder builder = new StringBuilder();
-	String col = type.nextElement();
+	while(type.hasMoreElements()) {
+		Boolean clus = false;
+		StringBuilder builder = new StringBuilder();
+		String col = type.nextElement();
 	
-	String typ= htblColNameType.get(col);
-	String min =htblColNameMin.get(col);
-	String max = htblColNameMax.get(col);
+		String typ= htblColNameType.get(col);
+		String min =htblColNameMin.get(col);
+		String max = htblColNameMax.get(col);
 	
-	if(col.equals(cluster))
-		clus = true;
-	
-	
-	builder.append(name+","+col+","+typ+","+clus.toString()+","+"false,"+min+","+max+"\n");
-	System.out.println(clus.toString());
-	pw.write(builder.toString());
+		if(col.equals(cluster))
+			clus = true;
 	
 	
+		builder.append(name+","+col+","+typ+","+clus.toString()+","+"false,"+min+","+max+"\n");
+		System.out.println(clus.toString());
+		pw.write(builder.toString());
 	
+	}
+
+	pw.close();
+	System.out.print("done!");
+	}
+
+
+
+	public static String getType(String name,String col){
+		String s ="";
+		String line = "";
+		String splitBy = ",";
+		try
+		{
+			BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				String line0 = row[0];
+				String line1= row[1];
+
+				if (line0.equalsIgnoreCase(name) && line1.equalsIgnoreCase(col)){
+
+					s=row[2];
+					break;
+				}
+
+			}
+			return s;
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+
 	
-	
-}
-pw.close();
-System.out.print("done!");
 
-
-
-
-
-
-
-
-
-
-
-//String columnNamesList = "Id,name";
-//builder.append(columnNamesList +"\n");
-//builder.append("1"+",");
-//builder.append("opppssoeeee");
-
-	
-	
-}
-
-
-	
-
-@Override
-public void createIndex(String tableName, String[] columnNames) throws DBAppException {
+	@Override
+	public void createIndex(String tableName, String[] columnNames) throws DBAppException {
 	// TODO Auto-generated method stub
 	
-}
-@Override
-public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
-	Table t1;
-    
+	}
+	@Override
+	public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
+		String cluster= Table.returnCluster(tableName);
+		if((colNameValue.containsKey(cluster))==false){
+			throw  new DBAppException();
+		}
+		Object valu= colNameValue.get(cluster);
+		int[]index = searchtable(tableName,valu);
+		if(index[0]==-1 || index[1]==-1){
+			throw new DBAppException();
+		}
+		String columns []=Table.returnColumns(tableName);
 
-	
-}
-@Override
-public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
+
+	}
+	@Override
+	public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
 		throws DBAppException {
-	// TODO Auto-generated method stub
-	
-}
-@Override
-public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
-	// TODO Auto-generated method stub
-	
-}
-@Override
-public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
-	// TODO Auto-generated method stub
-	return null;
-}
 
-public static int binarysearchint(Page v1, int key){
-	int low = 0;
+
+	}
+	@Override
+	public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
+
+	}
+	@Override
+	public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
+
+		return null;
+	}
+
+	public static int binarysearchint(Page v1, int key){
+		int low = 0;
         int high = v1.size()-1;
 		int mid =  high/2;
         while (low <= high) {
@@ -154,9 +167,9 @@ public static int binarysearchint(Page v1, int key){
 			mid = (low + high) /2;
         }
         return - 1;  // key not found
-}
-public static int binarysearchstring(Page v1, String key){
-	int low = 0;
+	}
+	public static int binarysearchstring(Page v1, String key){
+		int low = 0;
         int high = v1.size()-1;
 		int mid = (low + high) /2;
         while (low <= high) {
@@ -173,9 +186,9 @@ public static int binarysearchstring(Page v1, String key){
 			mid = (low + high) /2;
         }
         return - 1;  // key not found
-}
-public static int binarysearchdate(Page v1, Date key){
-	int low = 0;
+	}
+	public static int binarysearchdate(Page v1, Date key){
+		int low = 0;
         int high = v1.size()-1;
 		int mid = (low + high) /2;
         while (low <= high) {
@@ -192,9 +205,9 @@ public static int binarysearchdate(Page v1, Date key){
 			mid = (low + high) /2;
         }
         return - 1;  // key not found
-}
-public static int binarysearchdouble(Page v1, Double key){
-	int low = 0;
+	}
+	public static int binarysearchdouble(Page v1, Double key){
+		int low = 0;
         int high = v1.size()-1;
 		int mid = (low + high) /2;
         while (low <= high) {
@@ -214,20 +227,20 @@ public static int binarysearchdouble(Page v1, Double key){
 			mid = (low + high) /2;
         }
         return - 1;  // key not found
-}
+	}
 
-public static int binarysearchtableint(String t1,int key){
-	int tablesize=Table.deserialT(t1);
-	int high=(tablesize-1);
-	int mid =(high)/2;
-	int first=0;
-	String g;
-	while(first<=high){
-		g=t1+(mid);
-		if(key>((int)(Page.deserialP(g).firstElement()).getValue(0)) && key>((int)(Page.deserialP(g).lastElement().getValue(0))))
-		{
-		first=mid+1;
-		}
+	public static int binarysearchtableint(String t1,int key){
+		int tablesize=Table.deserialT(t1);
+		int high=(tablesize-1);
+		int mid =(high)/2;
+		int first=0;
+		String g;
+		while(first<=high){
+			g=t1+(mid);
+			if(key>((int)(Page.deserialP(g).firstElement()).getValue(0)) && key>((int)(Page.deserialP(g).lastElement().getValue(0))))
+			{
+				first=mid+1;
+			}
 		else if(((int)(Page.deserialP(g).firstElement()).getValue(0))<=key && key<=((int)(Page.deserialP(g).lastElement().getValue(0)))){
 		break;
 		}
@@ -245,13 +258,14 @@ public static int binarysearchtableint(String t1,int key){
 	}	
 }
 
-public static int binarysearchtablestring(String t1,String key){
-	int tablesize=Table.deserialT(t1);
-	int high=(tablesize-1);
-	int mid =(high)/2;
-	int first=0;
-	String g;
-	while(first<=high){
+	public static int binarysearchtablestring(String t1,String key){
+		int tablesize=Table.deserialT(t1);
+		int high=(tablesize-1);
+		int mid =(high)/2;
+		int first=0;
+		String g;
+
+		while(first<=high){
 		g=t1+(mid);
 		int firstele=key.compareTo((String)(Page.deserialP(g).firstElement()).getValue(0));
 		int lastele= key.compareTo((String)(Page.deserialP(g).lastElement()).getValue(0));
@@ -272,15 +286,15 @@ public static int binarysearchtablestring(String t1,String key){
 	}
 	else {
 	 return mid;
-	}	
+	}
 }
-public static int binarysearchtabledouble(String t1,Double key){
-	int tablesize=Table.deserialT(t1);
-	int high=(tablesize-1);
-	int mid =(high)/2;
-	int first=0;
-	String g;
-	BigDecimal key1=BigDecimal.valueOf(key);
+	public static int binarysearchtabledouble(String t1,Double key){
+		int tablesize=Table.deserialT(t1);
+		int high=(tablesize-1);
+		int mid =(high)/2;
+		int first=0;
+		String g;
+		BigDecimal key1=BigDecimal.valueOf(key);
 	while(first<=high){
 		g=t1+(mid);
 		BigDecimal firstele=BigDecimal.valueOf((Double)(Page.deserialP(g).firstElement()).getValue(0));
@@ -382,143 +396,39 @@ public static int[] searchtable(String t, Object key){
 
 }
 
-@SuppressWarnings("unchecked")
-public static void main(String[]args) throws IOException {
 
-	 DBApp db = new DBApp();
-	 db.init();
-	 Hashtable htblColNameType = new Hashtable( );
-	 htblColNameType.put("id", "java.lang.Integer"); 
-	 htblColNameType.put("name", "java.lang.String");
-	 htblColNameType.put("gpa", "java.lang.double");
-	 
-	 Hashtable htblColNameMin = new Hashtable();
-	 htblColNameMin.put("id", "0");
-	 htblColNameMin.put("name", " ");
-	 htblColNameMin.put("gpa", "0");
-	 
-	 Hashtable htblColNameMax = new Hashtable();
-	 htblColNameMax.put("id", "213981");
-	 htblColNameMax.put("name", "ZZZZZZZZZZ");
-	 htblColNameMax.put("gpa", "5");
-	 
-	 try {
-		db.createTable("Test","id", htblColNameType, htblColNameMin, htblColNameMax);
-	} catch (DBAppException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+
+
+
+
+
+	public static void main(String[]args)  {
+		DBApp db = new DBApp();
+		db.init();
+		Hashtable htblColNameType = new Hashtable( );
+		htblColNameType.put("id", "java.lang.Integer");
+		htblColNameType.put("name", "java.lang.String");
+		htblColNameType.put("gpa", "java.lang.double");
+
+		Hashtable htblColNameMin = new Hashtable();
+		htblColNameMin.put("id", "0");
+		htblColNameMin.put("name", " ");
+		htblColNameMin.put("gpa", "0");
+
+		Hashtable htblColNameMax = new Hashtable();
+		htblColNameMax.put("id", "213981");
+		htblColNameMax.put("name", "ZZZZZZZZZZ");
+		htblColNameMax.put("gpa", "5");
+
+		try {
+			db.createTable("Test","id", htblColNameType, htblColNameMin, htblColNameMax);
+			System.out.println(DBApp.getType("test","id"));
+		} catch (DBAppException e) {
+
+
+			e.printStackTrace();
+		}
+
+
 	}
-	 
-	Page test0 = new Page();  
-	//Adding elements to a vector  
-	Pair<Integer, String> pair1 = new Pair<Integer, String>(Integer.valueOf(1), "Geeks");
-	Pair<Integer, String> pair2 = new Pair<Integer, String>(Integer.valueOf(2), "Geeks");
-	Pair<Integer, String> pair3 = new Pair<Integer, String>(Integer.valueOf(3), "Geeks");
-	Pair<Integer, String> pair4 = new Pair<Integer, String>(Integer.valueOf(4), "Geeks");
-	test0.add(pair1);
-	test0.add(pair2);
-	test0.add(pair3);
-	test0.add(pair4);
-	
-
-	Page test1 = new Page();  
-	//Adding elements to a vector  
-	Pair<Integer, String> pair5 = new Pair<Integer, String>(Integer.valueOf(5), "Geeks");
-	Pair<Integer, String> pair6 = new Pair<Integer, String>(Integer.valueOf(6), "Geeks");
-	Pair<Integer, String> pair7 = new Pair<Integer, String>(Integer.valueOf(7), "Geeks");
-	Pair<Integer, String> pair8 = new Pair<Integer, String>(Integer.valueOf(8), "Geeks");
-	test1.add(pair5);
-	test1.add(pair6);
-	test1.add(pair7);
-	test1.add(pair8);
-	
-
-	Page test2 = new Page();  
-	//Adding elements to a vector  
-	Pair<Integer, String> pair9 = new Pair<Integer, String>(Integer.valueOf(9), "Geeks");
-	Pair<Integer, String> pair10 = new Pair<Integer, String>(Integer.valueOf(10), "Geeks");
-	Pair<Integer, String> pair11 = new Pair<Integer, String>(Integer.valueOf(11), "Geeks");
-	Pair<Integer, String> pair12= new Pair<Integer, String>(Integer.valueOf(12), "Geeks");
-	test2.add(pair9);
-	test2.add(pair10);
-	test2.add(pair11);
-	test2.add(pair12);
-
-	Page test3 = new Page();  
-	//Adding elements to a vector  
-	Pair<Integer, String> pair13 = new Pair<Integer, String>(Integer.valueOf(13), "Geeks");
-	Pair<Integer, String> pair14= new Pair<Integer, String>(Integer.valueOf(14), "Geeks");
-	Pair<Integer, String> pair15= new Pair<Integer, String>(Integer.valueOf(15), "Geeks");
-	Pair<Integer, String> pair16= new Pair<Integer, String>(Integer.valueOf(16), "Geeks");
-	test3.add(pair13);
-	test3.add(pair14);
-	test3.add(pair15);
-	test3.add(pair16);
-
-	Table t1 = new Table("test");
-	t1.add(test0);
-	t1.add(test1);
-	t1.add(test2);
-	t1.add(test3);
-	test0.serialP("test0");
-	test1.serialP("test1");
-	test2.serialP("test2");
-	test3.serialP("test3");
-	t1.serialT();
-System.out.println(Arrays.toString(searchtable("test",14)));
-
-	
-
-	/*Page test1 = new Page();  
-	//Adding elements to a vector  
-	Object e=14;
-	Object f=15.0;
-	Object g=16.0;
-	Object h=17.0;
-	test1.add(e);
-	test1.add(f);
-	test1.add(g);
-	test1.add(h);
-
-	Page test2 = new Page();  
-	//Adding elements to a vector  
-	Object i=18.0;
-	Object j=19.0;
-	Object k=20.0;
-	Object l=21.0;
-	test2.add(i);
-	test2.add(j);
-	test2.add(k);
-	test2.add(l);
-	
-	Page test3 = new Page();  
-	//Adding elements to a vector  
-	Object m=22.0;
-	Object n=23.0;
-	Object o=24.0;
-	Object p=25.0;
-	test3.add(m);
-	test3.add(n);
-	test3.add(o);
-	test3.add(p);
-	
-	Table t1 = new Table("tests");
-	t1.add(test0);
-	t1.add(test1);
-	t1.add(test2);
-	t1.add(test3);
-	test0.serialP("test0");
-	test1.serialP("test1");
-	test2.serialP("test2");
-	test3.serialP("test3");
-	t1.serialT();
-System.out.println(binarysearchtabledouble("tests",25.0));*/
-
-	
-	
-	
-
 }
-}
-
-

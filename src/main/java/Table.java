@@ -7,6 +7,8 @@ import java.util.Vector;
 public class Table extends Vector<Page> implements Serializable {
 
      String   name;
+     String cluster;
+     String[] columns;
 
     public Table(String name){
         this.name=name;
@@ -42,7 +44,7 @@ public class Table extends Vector<Page> implements Serializable {
         for(int i =0; i<this.size();i++)
         this.get(i).serialP(this.name+i);
     }
-    public static int deserialT(String s){
+    public static int deserialT(String s){ //return size
         Table t ;
         try {
             FileInputStream fileIn = new FileInputStream(s+".ser");
@@ -60,8 +62,46 @@ public class Table extends Vector<Page> implements Serializable {
             return -1;
         }
     }
+    public static String returnCluster(String s){
+        Table t ;
+        try {
+            FileInputStream fileIn = new FileInputStream(s+".ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            t = (Table) in.readObject();
+            in.close();
+            fileIn.close();
+            return t.cluster;
+        } catch (IOException i) {
+            i.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException c) {
+            System.out.println(" class not found");
+            c.printStackTrace();
+            return null;
+        }
+    }
+    public static String[] returnColumns(String s){
+        Table t ;
+        try {
+            FileInputStream fileIn = new FileInputStream(s+".ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            t = (Table) in.readObject();
+            in.close();
+            fileIn.close();
+            return t.columns;
+        } catch (IOException i) {
+            i.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException c) {
+            System.out.println(" class not found");
+            c.printStackTrace();
+            return null;
+        }
+
+    }
 
 
     public static void main(String[]args) {
+
     }
 }
