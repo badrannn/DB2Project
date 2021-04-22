@@ -2,10 +2,11 @@ import org.javatuples.Tuple;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Vector;
 
 
-public class Page extends Vector<Tuple> implements Serializable {
+public class Page extends Vector<ArrayList<Object>> implements Serializable {
 
 	int max = 200;
 	int tuple;// Number of tuples

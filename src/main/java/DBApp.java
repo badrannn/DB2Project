@@ -133,6 +133,14 @@ public class DBApp  implements DBAppInterface{
 		String columns []=Table.returnColumns(tableName);
 
 
+
+
+
+
+
+
+
+
 	}
 	@Override
 	public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
@@ -156,7 +164,7 @@ public class DBApp  implements DBAppInterface{
 		int mid =  high/2;
         while (low <= high) {
             
-            int midVal = (int)(v1.get(mid).getValue(0));
+            int midVal = (int)(v1.get(mid).get(0));
 
             if (midVal<key)
                 low = mid + 1;
@@ -174,7 +182,7 @@ public class DBApp  implements DBAppInterface{
 		int mid = (low + high) /2;
         while (low <= high) {
             
-            String midVal = (String)(v1.get(mid).getValue(0));
+            String midVal = (String)(v1.get(mid).get(0));
 			int comp=midVal.compareTo(key);
 
             if (comp<0)
@@ -193,7 +201,7 @@ public class DBApp  implements DBAppInterface{
 		int mid = (low + high) /2;
         while (low <= high) {
             
-			Date midVal = (Date)(v1.get(mid).getValue(0));
+			Date midVal = (Date)(v1.get(mid).get(0));
 			int comp=midVal.compareTo(key);
 
             if (comp<0)
@@ -212,7 +220,7 @@ public class DBApp  implements DBAppInterface{
 		int mid = (low + high) /2;
         while (low <= high) {
             
-            Double midVal = (Double)(v1.get(mid).getValue(0));
+            Double midVal = (Double)(v1.get(mid).get(0));
 			BigDecimal comp=BigDecimal.valueOf(midVal);
 			BigDecimal key1=BigDecimal.valueOf(key);
 			int cond=comp.compareTo(key1);
@@ -237,11 +245,11 @@ public class DBApp  implements DBAppInterface{
 		String g;
 		while(first<=high){
 			g=t1+(mid);
-			if(key>((int)(Page.deserialP(g).firstElement()).getValue(0)) && key>((int)(Page.deserialP(g).lastElement().getValue(0))))
+			if(key>((int)(Page.deserialP(g).firstElement()).get(0)) && key>((int)(Page.deserialP(g).lastElement().get(0))))
 			{
 				first=mid+1;
 			}
-		else if(((int)(Page.deserialP(g).firstElement()).getValue(0))<=key && key<=((int)(Page.deserialP(g).lastElement().getValue(0)))){
+		else if(((int)(Page.deserialP(g).firstElement()).get(0))<=key && key<=((int)(Page.deserialP(g).lastElement().get(0)))){
 		break;
 		}
 		else{ 
@@ -267,8 +275,8 @@ public class DBApp  implements DBAppInterface{
 
 		while(first<=high){
 		g=t1+(mid);
-		int firstele=key.compareTo((String)(Page.deserialP(g).firstElement()).getValue(0));
-		int lastele= key.compareTo((String)(Page.deserialP(g).lastElement()).getValue(0));
+		int firstele=key.compareTo((String)(Page.deserialP(g).firstElement()).get(0));
+		int lastele= key.compareTo((String)(Page.deserialP(g).lastElement()).get(0));
 		if(firstele>0 && lastele>0){
 		first=mid+1;
 		}
@@ -297,8 +305,8 @@ public class DBApp  implements DBAppInterface{
 		BigDecimal key1=BigDecimal.valueOf(key);
 	while(first<=high){
 		g=t1+(mid);
-		BigDecimal firstele=BigDecimal.valueOf((Double)(Page.deserialP(g).firstElement()).getValue(0));
-		BigDecimal lastele=BigDecimal.valueOf((Double)(Page.deserialP(g).lastElement()).getValue(0));
+		BigDecimal firstele=BigDecimal.valueOf((Double)(Page.deserialP(g).firstElement()).get(0));
+		BigDecimal lastele=BigDecimal.valueOf((Double)(Page.deserialP(g).lastElement()).get(0));
 		int comp1=key1.compareTo(firstele);
 		int comp2= key1.compareTo(lastele);
 		if(comp1>0 && comp2>0){
@@ -328,8 +336,8 @@ public static int binarysearchtabledate(String t1,Date key){
 	String g;
 	while(first<=high){
 		g=t1+(mid);
-		int firstele=key.compareTo((Date)(Page.deserialP(g).firstElement()).getValue(0));
-		int lastele= key.compareTo((Date)(Page.deserialP(g).lastElement()).getValue(0));
+		int firstele=key.compareTo((Date)(Page.deserialP(g).firstElement()).get(0));
+		int lastele= key.compareTo((Date)(Page.deserialP(g).lastElement()).get(0));
 		if(firstele>0 && lastele>0){
 		first=mid+1;
 		}
@@ -349,9 +357,9 @@ public static int binarysearchtabledate(String t1,Date key){
 	 return mid;
 	}	
 }
-public static int[] searchtable(String t, Object key){
+public static int[] searchtable(String t, Object key){  //[page,index inside specified page]
 	int[] res=new int[2];
-	if (key.getClass() == Integer.class) {
+	if (key instanceof Integer) {
 		int b1=binarysearchtableint(t, (int)key);
 		if(b1>=0){
 		Page p1=Page.deserialP(t+b1);
@@ -360,17 +368,7 @@ public static int[] searchtable(String t, Object key){
 		res[1]=b2;
 		return res ;
 	} }
-	else if (key.getClass() == String.class) {
-		int b1=binarysearchtablestring(t, (String)key);
-		if(b1>=0){
-		Page p1=Page.deserialP(t+b1);
-		int b2=binarysearchstring(p1,(String) key);
-		res[0]=b1;
-		res[1]=b2;
-		return res ;
-	}
-	}
-	else if (key.getClass() == Double.class) {
+	else if (key instanceof Double) {
 		int b1=binarysearchtabledouble(t, (double)key);
 		if(b1>=0){
 		Page p1=Page.deserialP(t+b1);
@@ -380,7 +378,7 @@ public static int[] searchtable(String t, Object key){
 		return res ;
 	}
 	}
-	else if(key.getClass() == Date.class){
+	else if(key instanceof Date){
 		int b1=binarysearchtabledate(t, (Date)key);
 		if(b1>=0){
 		Page p1=Page.deserialP(t+b1);
@@ -389,6 +387,16 @@ public static int[] searchtable(String t, Object key){
 		res[1]=b2;
 		return res ;
 	}
+	}
+	else if (key instanceof String) {
+		int b1=binarysearchtablestring(t, (String)key);
+		if(b1>=0){
+			Page p1=Page.deserialP(t+b1);
+			int b2=binarysearchstring(p1,(String) key);
+			res[0]=b1;
+			res[1]=b2;
+			return res ;
+		}
 	}
 	res[0]=-1;
 	res[1]=-1;
@@ -420,15 +428,30 @@ public static int[] searchtable(String t, Object key){
 		htblColNameMax.put("name", "ZZZZZZZZZZ");
 		htblColNameMax.put("gpa", "5");
 
+
 		try {
 			db.createTable("Test","id", htblColNameType, htblColNameMin, htblColNameMax);
-			System.out.println(DBApp.getType("test","id"));
 		} catch (DBAppException e) {
-
-
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+		Page test0 = new Page();
+		//Adding elements to a vector
+		ArrayList<Object> a4 = new ArrayList<>();
+		ArrayList<Object> a5 = new ArrayList<>();
+
+		a4.add(5.4);
+		a5.add(1.12);
+
+
+		test0.add(a5);
+		test0.add(a4);
+		Table t1 = new Table("test");
+		t1.add(test0);
+		t1.serialP();
+		t1.serialT();
+		System.out.println(Arrays.toString(searchtable("test",1.12)));
 
 	}
 }
