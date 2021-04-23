@@ -17,7 +17,8 @@ public class Table extends Vector<Page> implements Serializable {
     public void serialT(){
         try
         {
-            String filename = name+".ser";
+            String dataDirPath = "src/main/resources/data/";
+            String filename = dataDirPath+name+".ser";
 
 
             FileOutputStream file = new FileOutputStream(filename);
@@ -47,7 +48,7 @@ public class Table extends Vector<Page> implements Serializable {
     public static int deserialT(String s){ //return size
         Table t ;
         try {
-            FileInputStream fileIn = new FileInputStream(s+".ser");
+            FileInputStream fileIn = new FileInputStream( "src/main/resources/data/"+s+".ser");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             t = (Table) in.readObject();
             in.close();
@@ -65,7 +66,7 @@ public class Table extends Vector<Page> implements Serializable {
     public static String returnCluster(String s){
         Table t ;
         try {
-            FileInputStream fileIn = new FileInputStream(s+".ser");
+            FileInputStream fileIn = new FileInputStream("src/main/resources/data/"+s+".ser");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             t = (Table) in.readObject();
             in.close();
@@ -83,7 +84,7 @@ public class Table extends Vector<Page> implements Serializable {
     public static String[] returnColumns(String s){
         Table t ;
         try {
-            FileInputStream fileIn = new FileInputStream(s+".ser");
+            FileInputStream fileIn = new FileInputStream("src/main/resources/data/"+s+".ser");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             t = (Table) in.readObject();
             in.close();

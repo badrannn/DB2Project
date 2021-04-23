@@ -56,7 +56,7 @@ public class Page extends Vector<ArrayList<Object>> implements Serializable {
 	public void serialP(String s){
 		try
 		{
-			String filename=s+".ser";
+			String filename="src/main/resources/data/"+s+".ser";
 
 
 			FileOutputStream file = new FileOutputStream(filename);
@@ -81,7 +81,7 @@ public class Page extends Vector<ArrayList<Object>> implements Serializable {
 	public static Page  deserialP(String s){
 		Page p;
 		try {
-			FileInputStream fileIn = new FileInputStream(s+".ser");
+			FileInputStream fileIn = new FileInputStream("src/main/resources/data/"+s+".ser");
 			ObjectInputStream in = new ObjectInputStream(fileIn);
 			p = (Page) in.readObject();
 			in.close();
