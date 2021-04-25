@@ -136,7 +136,7 @@ public class DBApp  implements DBAppInterface{
 
 
 					if(comp1>=0 && comp2<=0)
-						return true;
+						return true;                                 
 					else return false;
 				}
 				catch (Exception e) {
@@ -291,13 +291,34 @@ public class DBApp  implements DBAppInterface{
 	@Override
 	public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
 		throws DBAppException {
-
-			int[] pos=searchtable(tableName,clusteringKeyValue);
-			System.out.println(Arrays.toString(pos));
+			Table.deserialT(tableName);
+			String[] columns=Table.returnColumns(tableName);
+           int type= getType(tableName, columns[0]);
+		   Object clusterkey=-1;
+		   if (type==0){
+		   clusterkey=Integer.parseInt(clusteringKeyValue);
+		   }
+		   else if(type==1){
+			clusterkey=Double.parseDouble(clusteringKeyValue);
+		   }
+		   else if(type==3){
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			try {
+				clusterkey = format.parse(clusteringKeyValue);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		   }
+		   else{
+			clusterkey=clusteringKeyValue;
+		   }
+			int[] pos=searchtable(tableName,clusterkey);
 			if(pos[0]==-1 || pos[1]==-1){
 				throw new DBAppException();
 			}
 			Enumeration<String> keys = columnNameValue.keys();
+			String s=tableName+pos[0];
+			Page p=Page.deserialP(s);
 			while(keys.hasMoreElements()){
 			String key=keys.nextElement();
 			int j=coloumnnum(key, tableName);
@@ -305,14 +326,15 @@ public class DBApp  implements DBAppInterface{
 				throw new DBAppException();
 			}
             Object Change = columnNameValue.get(key);
-			String s=tableName+pos[0];
+			
 
-			Page p=Page.deserialP(s);
+			
 			p.get(pos[1]).set(j, Change);
 			
-			p.serialP(s);
+			
 
 	}
+	p.serialP(s);
 }
 	@Override
 	public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
@@ -586,5 +608,72 @@ public static int coloumnnum(String coloumn, String t1){
 
 
 
-	public static void main(String[]args) throws DBAppException  {}
+	public static void main(String[]args) throws DBAppException  {
+		DBApp db = new DBApp();
+        db.init();
+        Hashtable htblColNameType = new Hashtable( );
+        htblColNameType.put("id","java.lang.double");
+        htblColNameType.put("name","java.lang.String");
+        htblColNameType.put("gpa","java.lang.double");
+
+        Hashtable htblColNameMin = new Hashtable();
+        htblColNameMin.put("id","0.0");
+        htblColNameMin.put("name", " ");
+        htblColNameMin.put("gpa", "0.0");
+
+        Hashtable htblColNameMax = new Hashtable();
+        htblColNameMax.put("id","100000.0");
+        htblColNameMax.put("name", "ZZZZZZZZZZ");
+        htblColNameMax.put("gpa", "5.0");
+		Table t = new Table("Te");
+		try {
+			db.appendCsv("Te", "id", htblColNameType, htblColNameMin, htblColNameMax);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			t.cluster = "id";
+
+			t.columns=  new String [htblColNameType.size()];
+			t.columns[0]="id";
+
+			htblColNameType.remove("id");
+			Enumeration<String> keys = htblColNameType.keys();
+			for(int i = 1; i<t.columns.length;i++){
+				t.columns[i]=keys.nextElement();
+			}
+
+			t.serialT();
+			
+			Page Tes0 = new Page();
+        //Adding elements to a vector
+        ArrayList<Object> a4 = new ArrayList<>();
+        ArrayList<Object> a5 = new ArrayList<>();
+
+        a4.add(1.0);
+		a4.add(2.0);
+        a4.add("mustafa");
+        
+
+
+        a5.add(2.0); 
+        a5.add(2.0);
+		a5.add("badran");
+
+
+        Tes0.add(a4);
+        Tes0.add(a5);
+		Table.deserialT("Te");
+		t.add(Tes0);
+		t.serialP();
+		t.serialT();
+		Hashtable<String,Object> htbl=new Hashtable<String,Object>();
+		htbl.put("gpa", 1.0);
+
+		db.updateTable("Te", "1.0", htbl);
+		
+		System.out.println(Page.deserialP("Te0"));
+
+	}
+
 }
