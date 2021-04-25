@@ -482,7 +482,7 @@ public class Milestone1Tests {
                 c--;
             }
         }
-
+        
         coursesTable.close();
     }
 
@@ -586,13 +586,13 @@ public class Milestone1Tests {
 
 
         Hashtable<String, String> minValues = new Hashtable<>();
-        minValues.put("date_added", "1990-01-01");
+        minValues.put("date_added", "1901-01-01");
         minValues.put("course_id", "100");
         minValues.put("course_name", "AAAAAA");
         minValues.put("hours", "1");
 
         Hashtable<String, String> maxValues = new Hashtable<>();
-        maxValues.put("date_added", "2000-12-31");
+        maxValues.put("date_added", "2020-12-31");
         maxValues.put("course_id", "2000");
         maxValues.put("course_name", "zzzzzz");
         maxValues.put("hours", "24");

@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="27bc295d-16e4-47b9-ba76-206400f989d9" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DBApp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -45,6 +46,7 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager" selected="Application.Table">
     <configuration name="Table" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
@@ -75,9 +77,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Table" />
         <item itemvalue="JUnit.Milestone1Tests.testSetPageSize" />
         <item itemvalue="JUnit.Milestone1Tests" />
+        <item itemvalue="Application.Table" />
       </list>
     </recent_temporary>
   </component>
