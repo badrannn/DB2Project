@@ -292,8 +292,28 @@ public class DBApp  implements DBAppInterface{
 	public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
 		throws DBAppException {
 
+			int[] pos=searchtable(tableName,clusteringKeyValue);
+			System.out.println(Arrays.toString(pos));
+			if(pos[0]==-1 || pos[1]==-1){
+				throw new DBAppException();
+			}
+			Enumeration<String> keys = columnNameValue.keys();
+			while(keys.hasMoreElements()){
+			String key=keys.nextElement();
+			int j=coloumnnum(key, tableName);
+			if(j==-1){
+				throw new DBAppException();
+			}
+            Object Change = columnNameValue.get(key);
+			String s=tableName+pos[0];
+
+			Page p=Page.deserialP(s);
+			p.get(pos[1]).set(j, Change);
+			
+			p.serialP(s);
 
 	}
+}
 	@Override
 	public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
 
@@ -549,6 +569,15 @@ public static int[] searchtable(String t, Object key){  //[page,index inside spe
 	return res;
 
 }
+public static int coloumnnum(String coloumn, String t1){
+    String[] array=Table.returnColumns(t1);
+	for(int i=0;i<array.length;i++){
+    if (array[i].equals(coloumn))
+		return i;
+	
+	}
+    return -1;
+}
 
 
 
@@ -556,6 +585,7 @@ public static int[] searchtable(String t, Object key){  //[page,index inside spe
 
 
 
+<<<<<<< Updated upstream
 	public static void main(String[]args) throws DBAppException, ParseException {
 		DBApp db = new DBApp();
 		db.init();
@@ -586,16 +616,47 @@ public static int[] searchtable(String t, Object key){  //[page,index inside spe
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+=======
+	public static void main(String[]args) throws DBAppException  {
+		DBApp db = new DBApp();
+        db.init();
+        Hashtable htblColNameType = new Hashtable( );
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.double");
 
-		Page test0 = new Page();
-		//Adding elements to a vector
-		ArrayList<Object> a4 = new ArrayList<>();
-		ArrayList<Object> a5 = new ArrayList<>();
+        Hashtable htblColNameMin = new Hashtable();
+        htblColNameMin.put("id", "0");
+        htblColNameMin.put("name", " ");
+        htblColNameMin.put("gpa", "0.0");
 
-		a4.add(5.4);
-		a5.add(1.12);
+        Hashtable htblColNameMax = new Hashtable();
+        htblColNameMax.put("id", "213981");
+        htblColNameMax.put("name", "ZZZZZZZZZZ");
+        htblColNameMax.put("gpa", "5.0");
 
 
+       /* try {
+            db.createTable("Test","id", htblColNameType, htblColNameMin, htblColNameMax);
+        } catch (DBAppException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }*/
+	Table t = new Table("Test");
+>>>>>>> Stashed changes
+
+			t.cluster = "Test";
+
+			t.columns=  new String [htblColNameType.size()];
+			t.columns[0]="id";
+
+			htblColNameType.remove("id");
+			Enumeration<String> keys = htblColNameType.keys();
+			for(int i = 1; i<t.columns.length;i++){
+				t.columns[i]=keys.nextElement();
+			}
+
+<<<<<<< Updated upstream
 		test0.add(a5);
 		test0.add(a4);
 		Table t1 = new Table("test");
@@ -609,6 +670,43 @@ public static int[] searchtable(String t, Object key){  //[page,index inside spe
 
 		//System.out.println(b);
 
+=======
+			t.serialT();
+        
+        Page Test0 = new Page();
+        //Adding elements to a vector
+        ArrayList<Object> a4 = new ArrayList<>();
+        ArrayList<Object> a5 = new ArrayList<>();
 
+        a4.add("a");
+        
+        a4.add(2.0);
+		a4.add("mustafa");
+
+        a5.add("b");
+        
+        a5.add(2.0);
+		a5.add("badran");
+
+        
+        Test0.add(a4);
+        Test0.add(a5);
+
+        t.add(Test0);
+		t.serialP();
+		t.serialT();
+		
+		
+		
+		
+		
+		
+		
+		Hashtable<String,Object> htbl=new Hashtable<String,Object>();
+        htbl.put("gpa", 1.0); 
+>>>>>>> Stashed changes
+
+       db.updateTable("Test","a",htbl);
+		System.out.println(Page.deserialP("Test0").toString());
 	}
 }
