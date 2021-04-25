@@ -188,7 +188,7 @@ public class DBApp  implements DBAppInterface{
 
 
 					if(comp1>=0 && comp2<=0)
-						return true;
+						return true;                                 
 					else return false;
 				}
 				catch (Exception e) {
@@ -345,13 +345,34 @@ public class DBApp  implements DBAppInterface{
 	@Override
 	public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
 		throws DBAppException {
-
-			int[] pos=searchtable(tableName,clusteringKeyValue);
-			System.out.println(Arrays.toString(pos));
+			Table.deserialT(tableName);
+			String[] columns=Table.returnColumns(tableName);
+           int type= getType(tableName, columns[0]);
+		   Object clusterkey=-1;
+		   if (type==0){
+		   clusterkey=Integer.parseInt(clusteringKeyValue);
+		   }
+		   else if(type==1){
+			clusterkey=Double.parseDouble(clusteringKeyValue);
+		   }
+		   else if(type==3){
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			try {
+				clusterkey = format.parse(clusteringKeyValue);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		   }
+		   else{
+			clusterkey=clusteringKeyValue;
+		   }
+			int[] pos=searchtable(tableName,clusterkey);
 			if(pos[0]==-1 || pos[1]==-1){
 				throw new DBAppException();
 			}
 			Enumeration<String> keys = columnNameValue.keys();
+			String s=tableName+pos[0];
+			Page p=Page.deserialP(s);
 			while(keys.hasMoreElements()){
 			String key=keys.nextElement();
 			int j=coloumnnum(key, tableName);
@@ -359,14 +380,15 @@ public class DBApp  implements DBAppInterface{
 				throw new DBAppException();
 			}
             Object Change = columnNameValue.get(key);
-			String s=tableName+pos[0];
+			
 
-			Page p=Page.deserialP(s);
+			
 			p.get(pos[1]).set(j, Change);
 			
-			p.serialP(s);
+			
 
 	}
+	p.serialP(s);
 }
 
 
@@ -652,6 +674,9 @@ public class DBApp  implements DBAppInterface{
 
 
 	public static void main(String[]args) throws DBAppException  {
+
 		
+
 	}
+
 }
