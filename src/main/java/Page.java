@@ -3,55 +3,43 @@ import org.javatuples.Tuple;
 import java.io.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Vector;
 
 
 public class Page extends Vector<ArrayList<Object>> implements Serializable {
 
-	int max = 200;
-	int tuple;// Number of tuples
+
 	
 
 	public Page() {
-	tuple=0;
-
 	}
 
-	public boolean addTuple() {
-		if (tuple < max - 1) {
-			tuple++;
-			return true;
-		} else
-			return false;
+	public boolean isFull(){        //full = false --- can accept entries=true
+		boolean res=false;
+		Properties prop = new Properties();
+		String fileName = "src/main/resources/DBApp.config";
+		InputStream is = null;
+		try {
+			is = new FileInputStream(fileName);
+		} catch (FileNotFoundException ex) {
 
-	}
-
-	public boolean removeTuple() {
-		if (tuple == 1) {
-			tuple--;
-			return true;// must delete the page afterward
 		}
-		if (tuple > 1) {
-			tuple--;
-			return true;
-		} else
-			return false;
+		try {
+			prop.load(is);
+			int max = Integer.parseInt(prop.getProperty("MaximumRowsCountinPage"));
+			if (this.size()==max){
+				res= true;
+			}
+			else
+				res= false;
+		}
+		catch (IOException ex) {
 
-	}
 
-	public boolean isFull() {
+		}
 
-		if (tuple == max)
-			return true;
-		else
-			return false;
-	}
-
-	public boolean isEmpty() {
-		if (tuple == 0)
-			return true;
-		else
-			return false;
+		return res;
 	}
 	public void serialP(String s){
 		try
