@@ -1,21 +1,41 @@
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.*;
-
 
 
 public class DBApp  implements DBAppInterface{
 
+	public DBApp(){
+		this.init();
+	}
+
 	public void init( ) {
 
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
+			if (br.readLine() == null) {
+				System.out.println("No errors, and file empty");
+				FileWriter pw =  new FileWriter("src/main/resources/metadata.csv",true);
+				pw.write("Table Name, Column Name, Column Type, ClusteringKey, Indexed, min, max \n");
+				pw.close();
+			}
+
+			Path path = Paths.get("src/main/resources/data"); //create data directory
+			Files.createDirectories(path);
+
+		} catch (IOException e) {
+
+			System.err.println("Failed to create directory!" + e.getMessage());
+
+		}
 	}
-	
+
+
 
 	public void createTable(String strTableName,
 	String strClusteringKeyColumn,
@@ -47,6 +67,8 @@ public class DBApp  implements DBAppInterface{
 		
 	
 	}
+
+
 	public void appendCsv(String name,
 		String cluster,Hashtable<String,String> htblColNameType,
 		Hashtable<String,String> htblColNameMin,
@@ -81,8 +103,38 @@ public class DBApp  implements DBAppInterface{
 
 
 
+	public static boolean tableExists(String name){
+		boolean res= false;
 
 
+		String line = "";
+		String splitBy = ",";
+		try
+		{
+			BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				String line0 = row[0];
+
+
+				if (line0.equalsIgnoreCase(name)){
+					res=true;
+					break;
+				}
+
+			}
+
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+
+		}
+
+
+		return res;
+	}
 
 
 	public static boolean checkMinMax(String table, String col, Object key) throws DBAppException {
@@ -230,13 +282,13 @@ public class DBApp  implements DBAppInterface{
 	}
 
 
-	
-
 	@Override
 	public void createIndex(String tableName, String[] columnNames) throws DBAppException {
 	// TODO Auto-generated method stub
 	
 	}
+
+
 	@Override
 	public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
 		ArrayList<Object> row = new ArrayList <>();
@@ -288,6 +340,8 @@ public class DBApp  implements DBAppInterface{
 
 
 	}
+
+
 	@Override
 	public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
 		throws DBAppException {
@@ -314,10 +368,14 @@ public class DBApp  implements DBAppInterface{
 
 	}
 }
+
+
 	@Override
 	public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
 
 	}
+
+
 	@Override
 	public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
 
@@ -342,6 +400,7 @@ public class DBApp  implements DBAppInterface{
         }
         return - 1;  // key not found
 	}
+
 	public static int binarysearchstring(Page v1, String key){
 		int low = 0;
         int high = v1.size()-1;
@@ -361,6 +420,7 @@ public class DBApp  implements DBAppInterface{
         }
         return - 1;  // key not found
 	}
+
 	public static int binarysearchdate(Page v1, Date key){
 		int low = 0;
         int high = v1.size()-1;
@@ -380,6 +440,7 @@ public class DBApp  implements DBAppInterface{
         }
         return - 1;  // key not found
 	}
+
 	public static int binarysearchdouble(Page v1, Double key){
 		int low = 0;
         int high = v1.size()-1;
@@ -462,6 +523,7 @@ public class DBApp  implements DBAppInterface{
 	 return mid;
 	}
 }
+
 	public static int binarysearchtabledouble(String t1,Double key){
 		int tablesize=Table.deserialT(t1);
 		int high=(tablesize-1);
@@ -494,7 +556,8 @@ public class DBApp  implements DBAppInterface{
 	 return mid;
 	}	
 }
-public static int binarysearchtabledate(String t1,Date key){
+
+	public static int binarysearchtabledate(String t1,Date key){
 	int tablesize=Table.deserialT(t1);
 	int high=(tablesize-1);
 	int mid =(high)/2;
@@ -523,7 +586,8 @@ public static int binarysearchtabledate(String t1,Date key){
 	 return mid;
 	}	
 }
-public static int[] searchtable(String t, Object key){  //[page,index inside specified page]
+
+	public static int[] searchtable(String t, Object key){  //[page,index inside specified page]
 	int[] res=new int[2];
 	if (key instanceof Integer) {
 		int b1=binarysearchtableint(t, (int)key);
@@ -569,7 +633,8 @@ public static int[] searchtable(String t, Object key){  //[page,index inside spe
 	return res;
 
 }
-public static int coloumnnum(String coloumn, String t1){
+
+	public static int coloumnnum(String coloumn, String t1){
     String[] array=Table.returnColumns(t1);
 	for(int i=0;i<array.length;i++){
     if (array[i].equals(coloumn))
@@ -586,5 +651,7 @@ public static int coloumnnum(String coloumn, String t1){
 
 
 
-	public static void main(String[]args) throws DBAppException  {}
+	public static void main(String[]args) throws DBAppException  {
+		
+	}
 }
