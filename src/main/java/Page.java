@@ -3,6 +3,7 @@ import org.javatuples.Tuple;
 import java.io.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -12,8 +13,7 @@ public class Page extends Vector<ArrayList<Object>> implements Serializable {
 
 	
 
-	public Page() {
-	}
+	public Page() { }
 
 	public boolean isFull(){        //full = false --- can accept entries=true
 		boolean res=false;

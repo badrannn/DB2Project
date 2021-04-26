@@ -11,9 +11,10 @@ import java.util.*;
 
 public class DBApp  implements DBAppInterface{
 
-	public DBApp(){
-		this.init();
-	}
+
+
+
+
 
 	public void init( ) {
 
@@ -292,43 +293,71 @@ public class DBApp  implements DBAppInterface{
 
 	@Override
 	public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
+		Comparator<ArrayList<Object>> comparator = new Com();
 		ArrayList<Object> row = new ArrayList <>();
 		String cluster= Table.returnCluster(tableName);
-		if((colNameValue.containsKey(cluster))==false){ // no cluster key was inserted
+		String columns []=Table.returnColumns(tableName);
+
+
+		if(!(colNameValue.containsKey(cluster))){ // no cluster key was inserted
 			throw  new DBAppException();
 		}
-		Object valu= colNameValue.get(cluster);
-		int[]index = searchtable(tableName,valu);
-		if((index[1]!=-1) || valu==null){ //check if cluster value = null or cluster value exists already in table
+
+		Object valu= colNameValue.get(cluster); //cluster key value
+		if(valu==null){ //check if cluster value = null
 			throw new DBAppException();
 		}
-		String columns []=Table.returnColumns(tableName);
-		for (int i = 0; i < columns.length; i++) {
-			String col= columns[i];
-			Object x = colNameValue.get(col);
-			int ty = getType(tableName,col); //int 0 Double 1 String 2 Date 3
-			if (x==null){
-				row.add(x);
-			}
-			else if(((x instanceof Integer)&&ty!=0) || ((x instanceof Double)&&ty!=1) || ((x instanceof String)&&ty!=2) || ((x instanceof Date)&&ty!=3)) {
-				throw  new DBAppException();
-			}
-			else {
-				boolean check = checkMinMax(tableName,col,x);
-				if(check==false)
-					throw  new DBAppException();
-				row.add(x);
-			}
-			if (index[0]!=-1) {
-				Page p = Page.deserialP(tableName + index[0]);
-//				boolean res =p.isFull();
-				p.add(row);
-				//check if full first
-				//sort needed here
-				p.serialP(tableName + index[0]);
 
-			}
+		int[]index = searchtable(tableName,valu);
+
+		if((index[1]!=-1)){ //check if cluster value = null or cluster value exists already in table
+			throw new DBAppException();
 		}
+
+			for (int i = 0; i < columns.length; i++) {
+				String col = columns[i];
+				Object x = colNameValue.get(col);
+				int ty = getType(tableName, col); //int 0 Double 1 String 2 Date 3
+				if (x == null) {
+					row.add(x);
+				} else if (((x instanceof Integer) && ty != 0) || ((x instanceof Double) && ty != 1) || ((x instanceof String) && ty != 2) || ((x instanceof Date) && ty != 3)) {
+					throw new DBAppException();
+				} else {
+					boolean check = checkMinMax(tableName, col, x);
+					if (!check)
+						throw new DBAppException();
+					row.add(x);
+				}
+			}// done with the tuple
+
+
+				//check if table is empty or not
+				if(Table.deserialT(tableName)==0){
+					Page p = new Page();
+					p.add(row);
+					p.serialP(tableName+0);
+					Table.insertInto(tableName);
+				}
+
+				else {
+					if (index[0] != -1) {
+						Page p = Page.deserialP(tableName + index[0]);
+						boolean res = p.isFull();
+						if (!res) {
+							p.add(row);
+							Collections.sort(p, comparator);
+							//p.serialP();
+						}
+						//check if full first
+						//sort needed here
+						p.serialP(tableName + index[0]);
+
+					}
+				}
+
+
+
+
 
 
 
@@ -364,6 +393,7 @@ public class DBApp  implements DBAppInterface{
 				e.printStackTrace();
 			}
 		   }
+
 		   else{
 			clusterkey=clusteringKeyValue;
 		   }
@@ -675,8 +705,31 @@ public class DBApp  implements DBAppInterface{
 
 
 	public static void main(String[]args) throws DBAppException  {
+		DBApp db = new DBApp();
+		db.init();
+		Hashtable htblColNameType = new Hashtable( );
+		htblColNameType.put("id", "java.lang.Integer");
+		htblColNameType.put("name", "java.lang.String");
+		htblColNameType.put("gpa", "java.lang.double");
 
-		
+		Hashtable htblColNameMin = new Hashtable();
+		htblColNameMin.put("id", "0");
+		htblColNameMin.put("name", " ");
+		htblColNameMin.put("gpa", "0");
+
+
+		Hashtable htblColNameMax = new Hashtable();
+		htblColNameMax.put("id", "213981");
+		htblColNameMax.put("name", "ZZZZZZZZZZ");
+		htblColNameMax.put("gpa", "5");
+
+
+
+			Hashtable htblColNameValue = new Hashtable();
+			htblColNameValue.put("id", new Integer(240));
+			htblColNameValue.put("name", new String("aaaa"));
+			htblColNameValue.put("gpa", new Double(3));
+
 
 	}
 
