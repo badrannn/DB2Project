@@ -421,12 +421,171 @@ public class DBApp  implements DBAppInterface{
 	}
 	p.serialP(s);
 }
+public static void rename(String tableName,int pagenum){
+	int tablesize=Table.deserialT(tableName);
+	if(pagenum==tablesize-1){
+		File f1 = new File("src/main/resources/data"+tableName+pagenum+".ser");
+		 boolean b=f1.delete();
+		 System.out.println(b);
+	}
+	else{
+	for(int i=pagenum;i<(tablesize-1);i++){
+		String path1="src/main/resources/data"+tableName+i+".ser";
+		int j=i+1;
+		String path2="src/main/resources/data"+tableName+j+".ser";
+		File f1 = new File(path1);
+		File f2 = new File(path2);
+		boolean b=f2.renameTo(f1);
+		System.out.println(b);
+	}
+}
+
+	//modify tablesize after
+
+}
 
 
 	@Override
 	public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
+		Enumeration<String> key = columnNameValue.keys();
+		boolean flagg=false;
+		Object cluster=null;
+		while(key.hasMoreElements()){
+			String col = key.nextElement();
+			if (col.equals( Table.returnCluster(tableName))){
+			flagg=true;
+			cluster=columnNameValue.get(col);
+			break;
+			}
+		}
+		if (flagg) {
+			int[] A = searchtable(tableName, cluster);
+			if (A[0] == -1 || A[1] == -1) {
+				return;
+			}
+			ArrayList<Object> ele= Page.deserialP(tableName + A[0]).get(A[1]);
+			key = columnNameValue.keys();
+			boolean flag=true;
+			while(key.hasMoreElements()){
+				String col = key.nextElement();
+					int B = coloumnnum(col, tableName);
+					Object value=columnNameValue.get(col);
+					if(value instanceof Integer){
+						int int1=(int)value;
+						int int2=(int)ele.get(B);
+					if(!(int2==int1)){
+						flag=false;
+						break;
+					}
+					}
+					else if(value instanceof String){
+						String str=(String) value;
+						String Str2=(String) ele.get(B);
+						if(!(Str2.equals(str))){
+							flag=false;
+							break;
+					}
+				}
+					else if(value instanceof Date){
+						Date dt=(Date) value;
+						Date dt2=(Date) ele.get(B);
+						if(!(dt.equals(dt2))){
+							flag=false;
+							break;
 
+					}
+				}
+					else if(value instanceof Double){
+						String srs=value.toString();
+						Double doo=Double.valueOf(srs);
+						BigDecimal big = BigDecimal.valueOf(doo);
+						String srs1= ele.get(B).toString();
+						Double doo1=Double.valueOf(srs1);
+						BigDecimal big1 = BigDecimal.valueOf(doo1);
+						if(!(big1.equals(big))){
+							flag=false;
+							break;
+
+					}
+				
+				}
+
+			}
+			if(flag==true){
+				Page p=Page.deserialP(tableName + A[0]);
+				p.removeElementAt(A[1]);
+				p.serialP(tableName + A[0]);
+			}
+
+		}
+		else{
+				int tablesize=Table.deserialT(tableName);
+            for (int i = 0; i < tablesize; i++) {
+                Page f = Page.deserialP(tableName + i);
+				int pagesize=f.size();
+				int j=0;
+				while( j<pagesize ){
+					key = columnNameValue.keys();
+					boolean flag=true;
+					while (key.hasMoreElements()) {
+					String col = key.nextElement();
+					int A = coloumnnum(col, tableName);
+					Object value=columnNameValue.get(col);
+					if(value instanceof Integer){
+						int int1=(int)value;
+						int int2=(int)f.get(j).get(A);
+					if(!(int2==int1)){
+						flag=false;
+						break;
+					}
+					}
+					else if(value instanceof String){
+						String str=(String) value;
+						String Str2=(String) f.get(j).get(A);
+						if(!(Str2.equals(str))){
+							flag=false;
+							break;
+					}
+				}
+					else if(value instanceof Date){
+						Date dt=(Date) value;
+						Date dt2=(Date) f.get(j).get(A);
+						if(!(dt.equals(dt2))){
+							flag=false;
+							break;
+
+					}
+				}
+					else if(value instanceof Double){
+						String srs=value.toString();
+						Double doo=Double.valueOf(srs);
+						BigDecimal big = BigDecimal.valueOf(doo);
+						String srs1= f.get(j).get(A).toString();
+						Double doo1=Double.valueOf(srs1);
+						BigDecimal big1 = BigDecimal.valueOf(doo1);
+						if(!(big1.equals(big))){
+							flag=false;
+							break;
+
+					}
+				
+				}
+
+				}
+				
+				if(flag==true){
+					f.removeElementAt(j);
+                    pagesize=f.size();
+				}
+				else
+				j++;
+
+		}
+		f.serialP(tableName + i);
+            }
+		}
 	}
+
 
 
 	@Override
@@ -706,29 +865,85 @@ public class DBApp  implements DBAppInterface{
 
 	public static void main(String[]args) throws DBAppException  {
 		DBApp db = new DBApp();
-		db.init();
-		Hashtable htblColNameType = new Hashtable( );
-		htblColNameType.put("id", "java.lang.Integer");
-		htblColNameType.put("name", "java.lang.String");
-		htblColNameType.put("gpa", "java.lang.double");
+        db.init();
+        Hashtable htblColNameType = new Hashtable( );
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.double");
 
-		Hashtable htblColNameMin = new Hashtable();
-		htblColNameMin.put("id", "0");
-		htblColNameMin.put("name", " ");
-		htblColNameMin.put("gpa", "0");
+        Hashtable htblColNameMin = new Hashtable();
+        htblColNameMin.put("id", "0");
+        htblColNameMin.put("name", " ");
+        htblColNameMin.put("gpa", "0.0");
+
+        Hashtable htblColNameMax = new Hashtable();
+        htblColNameMax.put("id", "213981");
+        htblColNameMax.put("name", "ZZZZZZZZZZ");
+        htblColNameMax.put("gpa", "5.0");
+       try {
+        db.appendCsv("Test", "id", htblColNameType, htblColNameMin, htblColNameMax);
+    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+		Table t = new Table("Test");
+
+            t.cluster = "id";
+
+            t.columns = new String[htblColNameType.size()];
+            t.columns[0] = "id";
+
+            htblColNameType.remove("id");
+            Enumeration<String> keys = htblColNameType.keys();
+            for (int i = 1; i < t.columns.length; i++) {
+                t.columns[i] = keys.nextElement();
+            }
+
+            t.serialT();
+
+        Page Test0 = new Page();
+        //Adding elements to a vector
+        ArrayList<Object> a4 = new ArrayList<>();
+        ArrayList<Object> a5 = new ArrayList<>();
+		ArrayList<Object> a6 = new ArrayList<>();
+
+        a4.add(1);
+        a4.add(2.0);
+		a4.add("mus");
+
+        a5.add(2);
+        a5.add(2.0);
+		a5.add("mus");
+
+		Page Test1 = new Page();
+    
+
+        a6.add(1);
+        a6.add(2.0);
+		a6.add("soooo");
+		Page Test2 = new Page();
+        Table.deserialT("Test");
+
+        Test0.add(a4);
+        Test1.add(a5);
+		Test2.add(a6);
+        t.add(Test0);
+		t.add(Test1);
+		t.add(Test2);
+		Test0.serialP("Test0");
+		Test1.serialP("Test1");
+		Test2.serialP("Test2");
+        t.serialT();
+		//rename("Test", 1);
+        //Hashtable<String,Object> hi=new Hashtable<String,Object>();
+        //hi.put("gpa", 2.0);
+		//hi.put("name", "mus");
+
+		
 
 
-		Hashtable htblColNameMax = new Hashtable();
-		htblColNameMax.put("id", "213981");
-		htblColNameMax.put("name", "ZZZZZZZZZZ");
-		htblColNameMax.put("gpa", "5");
-
-
-
-			Hashtable htblColNameValue = new Hashtable();
-			htblColNameValue.put("id", new Integer(240));
-			htblColNameValue.put("name", new String("aaaa"));
-			htblColNameValue.put("gpa", new Double(3));
+        //db.deleteFromTable("Test",hi);
+		//System.out.print(Page.deserialP("Test0"));
 
 
 	}
