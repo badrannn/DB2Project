@@ -8,7 +8,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.graalvm.compiler.lir.amd64.AMD64ControlFlow.ReturnOp;
 
 
 public class DBApp  implements DBAppInterface{
@@ -244,40 +243,61 @@ public class DBApp  implements DBAppInterface{
 		}
 
 	}
-	public static int[] searchinsert(String tableName,Object key){
+
+	public static int searchinsert(String tableName,Object key) throws ParseException{
 		int tablesize=Table.deserialT(tableName);
 		for(int i=0;i<tablesize;i++){
 		String[] range=returnRange(tableName+i);
 		String min=range[0];
 		String max=range[1];
-        Object cluster=Table.returnCluster(tableName);
-		if(cluster instanceof Integer){
+        String cluster=Table.returnCluster(tableName);
+        int type=DBApp.getType(tableName,cluster); //int 0 Double 1 String 2 Date 3
+		if(type==0){
         Integer minn=Integer. valueOf(min);
 		Integer maxx=Integer. valueOf(max);
-		
+		Integer keyy=(Integer) key;
+		if(keyy<minn)
+			return i-1;
+		else if (minn<keyy && keyy<maxx)
+			return i;
 		}
-		else if(cluster instanceof String){
-
+		else if(type==2){
+        String keyy=(String) key;
+        int compmin=keyy.compareTo(min);
+        int compmax=keyy.compareTo(max);
+        if(compmin<0)
+        	return i-1;
+        if(compmin>0 && compmax<0)
+        	return i;
 		}
-		else if(cluster instanceof Date){
-		try {
+		else if(type==3){
 			Date minn=new SimpleDateFormat("yyyy-MM-dd").parse(min);
-		} catch (ParseException e) {
-
-			e.printStackTrace();
-		}
-		try {
 			Date maxx=new SimpleDateFormat("yyyy-MM-dd").parse(max);
-		} catch (ParseException e) {
 
-			e.printStackTrace();
+		Date keyy=(Date) key;
+		int compmin=keyy.compareTo(minn);
+		int compmax=keyy.compareTo(maxx);
+			if(compmin<0)
+				return i-1;
+			if(compmin>0 && compmax<0)
+				return i;
 		}
-		}
-		else if(cluster instanceof Double){
+		else if(type==1){
 			Double minn=Double.valueOf(min);
 			Double maxx=Double.valueOf(max);
+			Double keyy=(Double)key;
+			BigDecimal minbig =BigDecimal.valueOf(minn);
+			BigDecimal maxbig =BigDecimal.valueOf(maxx);
+			BigDecimal keybig =BigDecimal.valueOf(keyy);
+			int compmin=keybig.compareTo(minbig);
+			int compmax=keybig.compareTo(maxbig);
+			if(compmin<0)
+				return i-1;
+			if(compmin>0 && compmax<0)
+				return i;
 		}
 	}
+		return -2;
 }
 
 
@@ -1066,9 +1086,9 @@ public static void rename(String tableName,int pagenum){
 
 
 
-	public static void main(String[]args) throws DBAppException  {
-//		DBApp db = new DBApp();
-//        db.init();
+	public static void main(String[]args) throws DBAppException, ParseException {
+		DBApp db = new DBApp();
+        db.init();
 //        Hashtable htblColNameType = new Hashtable( );
 //        htblColNameType.put("id", "java.lang.Integer");
 //        htblColNameType.put("name", "java.lang.String");
@@ -1139,8 +1159,8 @@ public static void rename(String tableName,int pagenum){
 
 
 
-		DBApp db = new DBApp();
-		db.init();
+//		DBApp db = new DBApp();
+//		db.init();
 //		Hashtable htblColNameType = new Hashtable( );
 //		htblColNameType.put("id", "java.lang.Integer");
 //		htblColNameType.put("name", "java.lang.String");
@@ -1153,8 +1173,8 @@ public static void rename(String tableName,int pagenum){
 //		htblColNameMax.put("id", "213981");
 //		htblColNameMax.put("name", "ZZZZZZZZZZ");
 //		htblColNameMax.put("gpa", "5");
-
-		//db.createTable("Test", "id", htblColNameType, htblColNameMin, htblColNameMax);
+//
+//		db.createTable("Test", "id", htblColNameType, htblColNameMin, htblColNameMax);
 
 //		Hashtable htblColNameValue = new Hashtable();
 //		htblColNameValue.put("id", new Integer(240));
@@ -1205,20 +1225,33 @@ public static void rename(String tableName,int pagenum){
 //        a5.add(2);
 //        a5.add(2.0);
 //		a5.add("mus");
-//
+////
 //		Page Test1 = new Page();
-//
-//
-//        a6.add(1);
+////
+////
+//        a6.add(4);
 //        a6.add(2.0);
 //		a6.add("soooo");
+//
 //		Page Test2 = new Page();
-//        Table.deserialT("Test");
 //
 //        Test0.add(a4);
+////        Table.insertInto("Test");
 //        Test1.add(a5);
-//		Test2.add(a6);
-//        t.add(Test0);
+//
+////		Table.insertInto("Test");
+//
+//        Test2.add(a6);
+//		Test0.serialP("Test0");
+//		Test1.serialP("Test1");
+//		Test2.serialP("Test2");
+
+//
+		System.out.println((db.searchinsert("Test",3)));
+//		Table.insertInto("Test");
+//
+//
+//       t.add(Test0);
 //		t.add(Test1);
 //		t.add(Test2);
 //		Test0.serialP("Test0");
