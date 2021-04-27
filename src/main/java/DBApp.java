@@ -291,6 +291,155 @@ public class DBApp  implements DBAppInterface{
 	}
 
 
+	public static String[]returnRange(String pageName){
+		String [] ran = new String[2];
+		String line = "";
+		String splitBy = ",";
+		String path ="src/main/resources/data/range.txt";
+		try
+		{
+			BufferedReader br = new BufferedReader(new FileReader(path));
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				String line0 = row[0];
+
+				if (line0.equalsIgnoreCase(pageName)){
+					ran[0]=row[1];
+					ran[1]=row[2];
+					break;
+				}
+
+			}
+			return ran;
+
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return ran;
+
+		}
+
+
+	}
+	public static void pageRecord(String pageName){
+		Page p = Page.deserialP(pageName);
+		int lastIndex = p.size()-1;
+		Object mini = p.get(0).get(0);
+		Object maxi = p.get(lastIndex).get(0);
+		String mi = mini.toString();
+		String ma = maxi.toString();
+		String path ="src/main/resources/data/range.txt";
+		String temp = "temp.txt";
+		File oldfile =new File(path);
+		File newfile =new File(temp);
+		try {
+			String name = "";
+			String min = "";
+			String max = "";
+
+			String line = "";
+			String splitBy = ",";
+
+			FileWriter fw=new FileWriter (temp,true);
+			BufferedWriter bw= new BufferedWriter(fw);
+			PrintWriter pw=new PrintWriter(bw);
+
+			BufferedReader br = new BufferedReader(new FileReader(path));
+
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				name=row[0];
+				min= row[1];
+				max=row[2];
+				if(name.equalsIgnoreCase(pageName)) {
+					pw.println(name + "," +mi+ "," + ma);
+				}
+				else{
+					pw.println(name + "," + min + "," + max);
+				}
+			}
+
+			br.close();
+			pw.flush();
+			pw.close();
+
+			boolean d =oldfile.delete();
+
+			System.out.println("delete status: "+d);
+
+			File dump = new File(path);
+
+			boolean r = newfile.renameTo(dump);
+
+			System.out.println("Rename status: "+r);
+		}
+		catch (Exception e){
+			System.out.println("Error!");
+
+		}
+
+
+
+
+	}
+	public  static void editRecord(String path, String record, String mi , String ma){ //step 1 delete --done
+		String temp = "temp.txt";
+		File oldfile =new File(path);
+		File newfile =new File(temp);
+		try {
+			String name = "";
+			String min = "";
+			String max = "";
+
+			String line = "";
+			String splitBy = ",";
+
+			FileWriter fw=new FileWriter (temp,true);
+			BufferedWriter bw= new BufferedWriter(fw);
+			PrintWriter pw=new PrintWriter(bw);
+
+			BufferedReader br = new BufferedReader(new FileReader(path));
+
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				name=row[0];
+				min= row[1];
+				max=row[2];
+				if(name.equalsIgnoreCase(record)) {
+					pw.println(name + "," +mi+ "," + ma);
+				}
+				else{
+					pw.println(name + "," + min + "," + max);
+				}
+			}
+
+			br.close();
+			pw.flush();
+			pw.close();
+
+			boolean d =oldfile.delete();
+
+			System.out.println("delete status: "+d);
+
+			File dump = new File(path);
+
+			boolean r = newfile.renameTo(dump);
+
+			System.out.println("Rename status: "+r);
+		}
+		catch (Exception e){
+			System.out.println("Error!");
+
+		}
+
+
+
+
+	}
 	@Override
 	public void insertIntoTable(String tableName, Hashtable<String, Object> colNameValue) throws DBAppException {
 		Comparator<ArrayList<Object>> comparator = new Com();
@@ -309,6 +458,7 @@ public class DBApp  implements DBAppInterface{
 		}
 
 		int[]index = searchtable(tableName,valu);
+		int pageNum= index[0];
 
 		if((index[1]!=-1)){ //check if cluster value = null or cluster value exists already in table
 			throw new DBAppException();
@@ -337,21 +487,32 @@ public class DBApp  implements DBAppInterface{
 					p.add(row);
 					p.serialP(tableName+0);
 					Table.insertInto(tableName);
+
 				}
 
-				else {
-					if (index[0] != -1) {
-						Page p = Page.deserialP(tableName + index[0]);
-						boolean res = p.isFull();
-						if (!res) {
-							p.add(row);
-							Collections.sort(p, comparator);
-							//p.serialP();
-						}
-						//check if full first
-						//sort needed here
-						p.serialP(tableName + index[0]);
-
+				else if (pageNum==-1) {
+					int tbs = Table.deserialT(tableName);
+					tbs= tbs-1;
+					Page p = Page.deserialP(tableName+tbs);
+					if (!p.isFull()){
+						p.add(row);
+						Collections.sort(p,comparator);
+						p.serialP(tableName+tbs);
+					}
+					else{
+						tbs=tbs+1;
+						Page pp = new Page();
+						pp.add(row);
+						pp.serialP(tableName+tbs);
+						Table.insertInto(tableName);
+					}
+				}
+				else if(pageNum!=-1){
+					Page p  = Page.deserialP(tableName+pageNum);
+					if(!p.isFull()){
+						p.add(row);
+						Collections.sort(p,comparator);
+						p.serialP(tableName+pageNum);
 					}
 				}
 
@@ -430,14 +591,19 @@ public static void rename(String tableName,int pagenum){
 	}
 	else{
 	for(int i=pagenum;i<(tablesize-1);i++){
-		String path1="src/main/resources/data"+tableName+i+".ser";
+		String path1="src/main/resources/data/"+tableName+i+".ser";
 		int j=i+1;
-		String path2="src/main/resources/data"+tableName+j+".ser";
+		String path2="src/main/resources/data/"+tableName+j+".ser";
 		File f1 = new File(path1);
 		File f2 = new File(path2);
 		boolean b=f2.renameTo(f1);
 		System.out.println(b);
 	}
+		int pp = tablesize-1;
+		File f1 = new File("src/main/resources/data"+tableName+pp+".ser");
+		boolean bb=f1.delete();
+		System.out.println(bb);
+
 }
 
 	//modify tablesize after
@@ -864,86 +1030,174 @@ public static void rename(String tableName,int pagenum){
 
 
 	public static void main(String[]args) throws DBAppException  {
+//		DBApp db = new DBApp();
+//        db.init();
+//        Hashtable htblColNameType = new Hashtable( );
+//        htblColNameType.put("id", "java.lang.Integer");
+//        htblColNameType.put("name", "java.lang.String");
+//        htblColNameType.put("gpa", "java.lang.double");
+//
+//        Hashtable htblColNameMin = new Hashtable();
+//        htblColNameMin.put("id", "0");
+//        htblColNameMin.put("name", " ");
+//        htblColNameMin.put("gpa", "0.0");
+//
+//        Hashtable htblColNameMax = new Hashtable();
+//        htblColNameMax.put("id", "213981");
+//        htblColNameMax.put("name", "ZZZZZZZZZZ");
+//        htblColNameMax.put("gpa", "5.0");
+//
+//
+//		//db.createTable("Test", "id", htblColNameType, htblColNameMin, htblColNameMax);
+//		Page p= new Page();
+//		Page p1= new Page();
+//		Page p2= new Page();
+//		Page p3= new Page();
+//		Page p4= new Page();
+//
+//		ArrayList<Object> a = new ArrayList <Object>();
+//
+//		ArrayList<Object> a1 = new ArrayList <Object>();
+//
+//		ArrayList<Object> a2 = new ArrayList <Object>();
+//
+//		ArrayList<Object> a3 = new ArrayList <Object>();
+//
+//		ArrayList<Object> a4 = new ArrayList <Object>();
+//		a.add(0);
+//		a.add(3.0);
+//		a.add("ali");
+//
+//		a1.add(1);
+//		a1.add(2.0);
+//		a1.add("asli");
+//
+//		a2.add(3);
+//		a2.add(1.0);
+//		a2.add("lie");
+//
+//		a3.add(5);
+//		a3.add(2.4);
+//		a3.add("zali");
+//
+//		a4.add(12);
+//		a4.add(2.5);
+//		a4.add("zalai");
+//
+//		p.add(a);
+//		p1.add(a1);
+//		p2.add(a2);
+//		p3.add(a3);
+//		p4.add(a4);
+//
+//		p.serialP("Test0");
+//		p1.serialP("Test1");
+//		p2.serialP("Test2");
+//		p3.serialP("Test3");
+//		p4.serialP("Test4");
+//		Table t = new Table("Test");
+//		t.len=5;
+//		t.serialT();
+//		rename("Test",0);
+
+
+
 		DBApp db = new DBApp();
-        db.init();
-        Hashtable htblColNameType = new Hashtable( );
-        htblColNameType.put("id", "java.lang.Integer");
-        htblColNameType.put("name", "java.lang.String");
-        htblColNameType.put("gpa", "java.lang.double");
+		db.init();
+//		Hashtable htblColNameType = new Hashtable( );
+//		htblColNameType.put("id", "java.lang.Integer");
+//		htblColNameType.put("name", "java.lang.String");
+//		htblColNameType.put("gpa", "java.lang.double");
+//		Hashtable htblColNameMin = new Hashtable();
+//		htblColNameMin.put("id", "0");
+//		htblColNameMin.put("name", " ");
+//		htblColNameMin.put("gpa", "0");
+//		Hashtable htblColNameMax = new Hashtable();
+//		htblColNameMax.put("id", "213981");
+//		htblColNameMax.put("name", "ZZZZZZZZZZ");
+//		htblColNameMax.put("gpa", "5");
 
-        Hashtable htblColNameMin = new Hashtable();
-        htblColNameMin.put("id", "0");
-        htblColNameMin.put("name", " ");
-        htblColNameMin.put("gpa", "0.0");
+		//db.createTable("Test", "id", htblColNameType, htblColNameMin, htblColNameMax);
 
-        Hashtable htblColNameMax = new Hashtable();
-        htblColNameMax.put("id", "213981");
-        htblColNameMax.put("name", "ZZZZZZZZZZ");
-        htblColNameMax.put("gpa", "5.0");
-       try {
-        db.appendCsv("Test", "id", htblColNameType, htblColNameMin, htblColNameMax);
-    } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
-		Table t = new Table("Test");
+//		Hashtable htblColNameValue = new Hashtable();
+//		htblColNameValue.put("id", new Integer(240));
+//		htblColNameValue.put("name", new String("aaaa"));
+//		htblColNameValue.put("gpa", new Double(3));
+//
+//		//db.insertIntoTable("Test",htblColNameValue);
+//		//System.out.println(Table.deserialT("Test"));
+//		//System.out.println(Page.deserialP("Test0"));
+//		htblColNameValue.clear( );
+//		htblColNameValue.put("id", new Integer( 290 ));
+//		htblColNameValue.put("name", new String("ali" ) );
+//		htblColNameValue.put("gpa", new Double( 0.95 ) );
+//		//Table.insertInto("Test");
+//		//db.insertIntoTable( "Test" , htblColNameValue );
+//		System.out.println(Page.deserialP("Test1"));
+//		//System.out.println(Page.deserialP("Test0"));
 
-            t.cluster = "id";
-
-            t.columns = new String[htblColNameType.size()];
-            t.columns[0] = "id";
-
-            htblColNameType.remove("id");
-            Enumeration<String> keys = htblColNameType.keys();
-            for (int i = 1; i < t.columns.length; i++) {
-                t.columns[i] = keys.nextElement();
-            }
-
-            t.serialT();
-
-        Page Test0 = new Page();
-        //Adding elements to a vector
-        ArrayList<Object> a4 = new ArrayList<>();
-        ArrayList<Object> a5 = new ArrayList<>();
-		ArrayList<Object> a6 = new ArrayList<>();
-
-        a4.add(1);
-        a4.add(2.0);
-		a4.add("mus");
-
-        a5.add(2);
-        a5.add(2.0);
-		a5.add("mus");
-
-		Page Test1 = new Page();
-    
-
-        a6.add(1);
-        a6.add(2.0);
-		a6.add("soooo");
-		Page Test2 = new Page();
-        Table.deserialT("Test");
-
-        Test0.add(a4);
-        Test1.add(a5);
-		Test2.add(a6);
-        t.add(Test0);
-		t.add(Test1);
-		t.add(Test2);
-		Test0.serialP("Test0");
-		Test1.serialP("Test1");
-		Test2.serialP("Test2");
-        t.serialT();
-		//rename("Test", 1);
-        //Hashtable<String,Object> hi=new Hashtable<String,Object>();
-        //hi.put("gpa", 2.0);
-		//hi.put("name", "mus");
-
-		
+		//		Table t = new Table("Test");
+//
+//            t.cluster = "id";
 
 
-        //db.deleteFromTable("Test",hi);
-		//System.out.print(Page.deserialP("Test0"));
+
+		//editRecord("src/main/resources/data/range.txt","abdo","zozo","fofo");
+//
+//            t.columns = new String[htblColNameType.size()];
+//            t.columns[0] = "id";
+//
+//            htblColNameType.remove("id");
+//            Enumeration<String> keys = htblColNameType.keys();
+//            for (int i = 1; i < t.columns.length; i++) {
+//                t.columns[i] = keys.nextElement();
+//            }
+//
+//            t.serialT();
+//
+//        Page Test0 = new Page();
+//
+//        ArrayList<Object> a4 = new ArrayList<>();
+//        ArrayList<Object> a5 = new ArrayList<>();
+//		ArrayList<Object> a6 = new ArrayList<>();
+//
+//        a4.add(1);
+//        a4.add(2.0);
+//		a4.add("mus");
+//
+//        a5.add(2);
+//        a5.add(2.0);
+//		a5.add("mus");
+//
+//		Page Test1 = new Page();
+//
+//
+//        a6.add(1);
+//        a6.add(2.0);
+//		a6.add("soooo");
+//		Page Test2 = new Page();
+//        Table.deserialT("Test");
+//
+//        Test0.add(a4);
+//        Test1.add(a5);
+//		Test2.add(a6);
+//        t.add(Test0);
+//		t.add(Test1);
+//		t.add(Test2);
+//		Test0.serialP("Test0");
+//		Test1.serialP("Test1");
+//		Test2.serialP("Test2");
+//        t.serialT();
+//		//rename("Test", 1);
+//        //Hashtable<String,Object> hi=new Hashtable<String,Object>();
+//        //hi.put("gpa", 2.0);
+//		//hi.put("name", "mus");
+//
+//
+//
+//
+//        //db.deleteFromTable("Test",hi);
+//		//System.out.print(Page.deserialP("Test0"));
 
 
 	}
