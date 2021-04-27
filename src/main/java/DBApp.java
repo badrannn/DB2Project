@@ -8,6 +8,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.graalvm.compiler.lir.amd64.AMD64ControlFlow.ReturnOp;
+
 
 public class DBApp  implements DBAppInterface{
 
@@ -242,6 +244,41 @@ public class DBApp  implements DBAppInterface{
 		}
 
 	}
+	public static int[] searchinsert(String tableName,Object key){
+		int tablesize=Table.deserialT(tableName);
+		for(int i=0;i<tablesize;i++){
+		String[] range=returnRange(tableName+i);
+		String min=range[0];
+		String max=range[1];
+        Object cluster=Table.returnCluster(tableName);
+		if(cluster instanceof Integer){
+        Integer minn=Integer. valueOf(min);
+		Integer maxx=Integer. valueOf(max);
+		
+		}
+		else if(cluster instanceof String){
+
+		}
+		else if(cluster instanceof Date){
+		try {
+			Date minn=new SimpleDateFormat("yyyy-MM-dd").parse(min);
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+		}
+		try {
+			Date maxx=new SimpleDateFormat("yyyy-MM-dd").parse(max);
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+		}
+		}
+		else if(cluster instanceof Double){
+			Double minn=Double.valueOf(min);
+			Double maxx=Double.valueOf(max);
+		}
+	}
+}
 
 
 	public static int getType(String name,String col){ //int 0 Double 1 String 2 Date 3
