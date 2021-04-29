@@ -1,0 +1,9 @@
+Test,gpa,java.lang.double,false,false,0.0,5.0
+Test,name,java.lang.String,false,false, ,ZZZZZZZZZZ
+Test,id,java.lang.Integer,true,false,0,213981
+String,gpa,java.lang.double,false,false,0.0,5.0
+String,name,java.lang.String,false,false, ,ZZZZZZZZZZ
+String,id,java.lang.String,true,false, ,ZZZZZZZZZZ
+Double,gpa,java.lang.double,false,false,0.0,5.0
+Double,name,java.lang.String,false,false, ,ZZZZZZZZZZ
+Double,id,java.lang.double,true,false,0.0,10000.0
