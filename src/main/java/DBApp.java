@@ -458,59 +458,57 @@ public class DBApp  implements DBAppInterface{
 
 
 	}
-//	public  static void editRecord(String path, String record, String mi , String ma){ //step 1 delete --done
-//		String temp = "temp.txt";
-//		File oldfile =new File(path);
-//		File newfile =new File(temp);
-//		try {
-//			String name = "";
-//			String min = "";
-//			String max = "";
-//
-//			String line = "";
-//			String splitBy = ",";
-//
-//			FileWriter fw=new FileWriter (temp,true);
-//			BufferedWriter bw= new BufferedWriter(fw);
-//			PrintWriter pw=new PrintWriter(bw);
-//
-//			BufferedReader br = new BufferedReader(new FileReader(path));
-//
-//			while ((line = br.readLine()) != null)   //returns a Boolean value
-//			{
-//				String[] row = line.split(splitBy);    // use comma as separator
-//				name=row[0];
-//				min= row[1];
-//				max=row[2];
-//				if(name.equalsIgnoreCase(record)) {
-//					pw.println(name + "," +mi+ "," + ma);
-//				}
-//				else{
-//					pw.println(name + "," + min + "," + max);
-//				}
-//			}
-//
-//			br.close();
-//			pw.flush();
-//			pw.close();
-//
-//			boolean d =oldfile.delete();
-//
-//			System.out.println("delete status: "+d);
-//
-//			File dump = new File(path);
-//
-//			boolean r = newfile.renameTo(dump);
-//
-//			System.out.println("Rename status: "+r);
-//		}
-//		catch (Exception e){
-//			System.out.println("Error!");
-//
-//		}
-//
+	public  static void deleteRecord( String record){ //step 1 delete --done
+		String path = "src/main/resources/data/range.txt";
+		String temp = "temp.txt";
+		File oldfile =new File(path);
+		File newfile =new File(temp);
+		try {
+			String name = "";
+			String min = "";
+			String max = "";
 
-	//}
+			String line = "";
+			String splitBy = ",";
+
+			FileWriter fw=new FileWriter (temp,true);
+			BufferedWriter bw= new BufferedWriter(fw);
+			PrintWriter pw=new PrintWriter(bw);
+
+			BufferedReader br = new BufferedReader(new FileReader(path));
+
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				name = row[0];
+				min = row[1];
+				max = row[2];
+				if (!name.equalsIgnoreCase(record))
+					pw.println(name + "," + min + "," + max);
+			}
+
+			br.close();
+			pw.flush();
+			pw.close();
+
+			boolean d =oldfile.delete();
+
+			System.out.println("delete status: "+d);
+
+			File dump = new File(path);
+
+			boolean r = newfile.renameTo(dump);
+
+			System.out.println("Rename status: "+r);
+		}
+		catch (Exception e){
+			System.out.println("Error!");
+
+		}
+
+
+	}
+
 	public static boolean checkColumns(String tableName, Hashtable<String, Object> colNameValue){ //true if data consistent
 		String [] columns = Table.returnColumns(tableName);
 		Enumeration<String> keys = colNameValue.keys();
@@ -1380,6 +1378,7 @@ public class DBApp  implements DBAppInterface{
 // db.deleteFromTable("Test", columnNameValue);
 //System.out.print(Page.deserialP("Test1"));
 //		Table.insertInto("Test");
+		deleteRecord("baba");
 //
 //
 //       t.add(Test0);
