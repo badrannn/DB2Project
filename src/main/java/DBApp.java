@@ -251,10 +251,20 @@ public class DBApp  implements DBAppInterface{
 		}
 
 	}
+	public static boolean checkdeleted(String tableName,int pagenum){
+		if(returnRange(tableName+pagenum)[0]==null){
+		return true;
+		}
+		return false;
+		}
 
 	public static int searchinsert(String tableName,Object key) {//returns page number if value is -1 then insert into first page if -2 then last page
 		int tablesize=Table.deserialT(tableName);
 		for(int i=0;i<tablesize;i++){
+			while(checkdeleted(tableName,i)){
+				i++;
+				tablesize++;
+				}
 		String[] range=returnRange(tableName+i);
 		String min=range[0];
 		String max=range[1];
@@ -264,8 +274,14 @@ public class DBApp  implements DBAppInterface{
         Integer minn=Integer. valueOf(min);
 		Integer maxx=Integer. valueOf(max);
 		Integer keyy=(Integer) key;
-		if(keyy<minn)
+		if(keyy<minn){
+			while(checkdeleted(tableName,i-1)){
+				if(i==0)
+				return -1;
+				i--;
+				}
 			return i-1;
+		}
 		else if (minn<keyy && keyy<maxx)
 			return i;
 		}
@@ -273,8 +289,15 @@ public class DBApp  implements DBAppInterface{
         String keyy=(String) key;
         int compmin=keyy.compareTo(min);
         int compmax=keyy.compareTo(max);
-        if(compmin<0)
-        	return i-1;
+        if(compmin<0){
+			while(checkdeleted(tableName,i-1)){
+				if(i==0)
+				return -1;
+				i--;
+				}
+			return i-1;
+		}
+        	
         else if(compmin>0 && compmax<0)
         	return i;
 		}
@@ -288,8 +311,14 @@ public class DBApp  implements DBAppInterface{
 		Date keyy=(Date) key;
 		int compmin=keyy.compareTo(minn);
 		int compmax=keyy.compareTo(maxx);
-			if(compmin<0)
+			if(compmin<0){
+				while(checkdeleted(tableName,i-1)){
+					if(i==0)
+					return -1;
+					i--;
+					}
 				return i-1;
+			}
 			else if(compmin>0 && compmax<0)
 				return i;
 		}catch (ParseException e) {
@@ -306,8 +335,14 @@ public class DBApp  implements DBAppInterface{
 			BigDecimal keybig =BigDecimal.valueOf(keyy);
 			int compmin=keybig.compareTo(minbig);
 			int compmax=keybig.compareTo(maxbig);
-			if(compmin<0)
+			if(compmin<0){
+				while(checkdeleted(tableName,i-1)){
+					if(i==0)
+					return -1;
+					i--;
+					}
 				return i-1;
+			}
 			else if(compmin>0 && compmax<0)
 				return i;
 		}
@@ -910,7 +945,16 @@ public class DBApp  implements DBAppInterface{
 			if(flag==true){
 				Page p=Page.deserialP(tableName + A[0]);
 				p.removeElementAt(A[1]);
+				if(p.isEmpty()){
+					String path="src/main/resources/data/"+tableName+A[0]+".ser";
+					File f = new File(path);
+					 f.delete();
+					 Table.deleteFrom(tableName);
+				}
+				else{
+				pageRecord(tableName + A[0]);
 				p.serialP(tableName + A[0]);
+				}
 			}
 
 		}
@@ -970,13 +1014,23 @@ public class DBApp  implements DBAppInterface{
 				}
 				
 				if(flag==true){
+					
 					f.removeElementAt(j);
                     pagesize=f.size();
+					if(f.isEmpty()){
+						String path="src/main/resources/data/"+tableName+i+".ser";
+						File k = new File(path);
+						 k.delete();
+						 Table.deleteFrom(tableName);
+						 break;
+					}
+					
 				}
 				else
 				j++;
 
 		}
+		if(!f.isEmpty())
 		f.serialP(tableName + i);
             }
 		}
@@ -1076,6 +1130,10 @@ public class DBApp  implements DBAppInterface{
     public static int searchtableall(String tableName,Object key){
 		int tablesize=Table.deserialT(tableName);
 		for(int i=0;i<tablesize;i++){
+			while(checkdeleted(tableName,i)){
+				i++;
+				tablesize++;
+				}
 		String[] range=returnRange(tableName+i);
 		String min=range[0];
 		String max=range[1];
