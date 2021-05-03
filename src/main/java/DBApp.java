@@ -919,7 +919,10 @@ public class DBApp  implements DBAppInterface{
 	@Override
 	public void updateTable(String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
 		throws DBAppException  {
-			Table.deserialT(tableName);
+			boolean check = checkColumns(tableName,columnNameValue);
+		if(!check){
+			throw new DBAppException();
+		}
 			String[] columns=Table.returnColumns(tableName);
            int type= getType(tableName, columns[0]);
 		   Object clusterkey=-1;
@@ -960,7 +963,9 @@ public class DBApp  implements DBAppInterface{
 				throw new DBAppException();
 			}
             Object Change = columnNameValue.get(key);
-			
+			if(!checkMinMax(tableName, columns[j],Change)){
+				throw new DBAppException();
+			 }
 
 			
 			p.get(pos[1]).set(j, Change);
@@ -1092,6 +1097,10 @@ public class DBApp  implements DBAppInterface{
 		else{
 				int tablesize=Table.deserialT(tableName);
             for (int i = 0; i < tablesize; i++) {
+				while(checkdeleted(tableName,i)){
+					i++;
+					tablesize++;
+					}
                 Page f = Page.deserialP(tableName + i);
 				int pagesize=f.size();
 				int j=0;
@@ -1162,8 +1171,10 @@ public class DBApp  implements DBAppInterface{
 				j++;
 
 		}
-		if(!f.isEmpty())
+		if(!f.isEmpty()){
 		f.serialP(tableName + i);
+		pageRecord(tableName + i);
+		}
             }
 		}
 	}
