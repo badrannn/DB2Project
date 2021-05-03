@@ -1003,6 +1003,10 @@ public class DBApp  implements DBAppInterface{
 
 	@Override
 	public void deleteFromTable(String tableName, Hashtable<String, Object> columnNameValue) throws DBAppException {
+		boolean check = checkColumns(tableName,columnNameValue);
+		if(!check){
+			throw new DBAppException();
+		}
 		Enumeration<String> key = columnNameValue.keys();
 		boolean flagg=false;
 		Object cluster=null;
@@ -1078,8 +1082,9 @@ public class DBApp  implements DBAppInterface{
 					 Table.deleteFrom(tableName);
 				}
 				else{
-				pageRecord(tableName+A[0]);
-				p.serialP(tableName+A[0]);
+					p.serialP(tableName+A[0]);
+					pageRecord(tableName+A[0]);
+
 				}
 			}
 
