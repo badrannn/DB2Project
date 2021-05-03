@@ -7,21 +7,9 @@
     <list default="true" id="27bc295d-16e4-47b9-ba76-206400f989d9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/String0.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/String1.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/String2.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/String3.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/String4.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/Test.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/Test1.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/courses.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/pcs.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/range.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/students.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/test0.ser" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/data/transcripts.ser" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/DBApp.config" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/DBApp.config" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/metadata.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/temp.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,11 +142,6 @@
           <url>file://$PROJECT_DIR$/src/test/java/Milestone1Tests.java</url>
           <line>116</line>
           <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/DBApp.java</url>
-          <line>1382</line>
-          <option name="timeStamp" value="16" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

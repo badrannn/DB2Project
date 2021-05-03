@@ -7,7 +7,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
+import java.util.logging.Logger;
 
 
 public class DBApp  implements DBAppInterface{
@@ -432,7 +432,34 @@ public class DBApp  implements DBAppInterface{
 
 	}
 
+	public static void removeBlanks(){
+		Scanner file;
+		PrintWriter writer;
+		String path = "src/main/resources/data/range.txt";
+		try {
+			file = new Scanner(new File("src/main/resources/data/range.txt")); //sourcefile
+			writer = new PrintWriter("tempp.txt"); //destinationfile
+			while (file.hasNext()) {
+				String line = file.nextLine();
+				if (!line.isEmpty()) {
+					writer.write(line);
+					writer.write("\n");
+				}
+			}
+			file.close();
+			writer.close();
+			Files.delete(Paths.get(path));
+			File newfile = new File("tempp.txt");
+			File dump = new File(path);
+
+			boolean r = newfile.renameTo(dump);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
 	public static void pageRecord(String pageName){//update min max
+		removeBlanks();
 		Page p = Page.deserialP(pageName);
 		int lastIndex = p.size()-1;
 		Object mini = p.get(0).get(0);
@@ -482,12 +509,6 @@ public class DBApp  implements DBAppInterface{
 
 
 			boolean d =oldfile.delete();
-			try{
-				Files.delete(Paths.get(path));
-			}
-			catch (IOException e){
-				e.printStackTrace();
-			}
 
 
 			System.out.println("delete status: "+d);
@@ -508,6 +529,7 @@ public class DBApp  implements DBAppInterface{
 
 	}
 	public  static void deleteRecord( String record){
+		removeBlanks();
 		String path = "src/main/resources/data/range.txt";
 		String temp = "temp.txt";
 		File oldfile =new File(path);
@@ -695,7 +717,7 @@ public class DBApp  implements DBAppInterface{
 								try {
 									FileWriter pw =  new FileWriter("src/main/resources/data/range.txt",true);
 									StringBuilder builder = new StringBuilder();
-									builder.append(tableName+0+","+" "+","+" "+"\n");
+									builder.append("\n"+tableName+1+","+"null "+","+" null");
 									pw.write(builder.toString());
 
 									pw.close();
@@ -708,8 +730,9 @@ public class DBApp  implements DBAppInterface{
 									Table.insertInto(tableName);
 									next.serialP(tableName+1);
 									p.serialP(tableName+0);
-									pageRecord(tableName+0);
 									pageRecord(tableName+1);
+									pageRecord(tableName+0);
+
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
@@ -727,7 +750,7 @@ public class DBApp  implements DBAppInterface{
 
 								FileWriter pw = new FileWriter("src/main/resources/data/range.txt",true);
 								StringBuilder builder = new StringBuilder();
-								builder.append(tableName+""+newPi+""+","+" "+","+" "+"\n");
+								builder.append("\n"+tableName+""+newPi+""+","+"null"+","+"null");
 								pw.write(builder.toString());
 
 								pw.close();
@@ -1370,31 +1393,35 @@ public class DBApp  implements DBAppInterface{
 //
 //
 //<<<<<<< HEAD
-//		 DBApp db = new DBApp();
-//		 db.init();
-//		 Hashtable htblColNameType = new Hashtable( );
-//		 htblColNameType.put("id", "java.lang.Integer");
-//		 htblColNameType.put("name", "java.lang.String");
-//		 htblColNameType.put("gpa", "java.lang.double");
-//		 Hashtable htblColNameMin = new Hashtable();
-//		 htblColNameMin.put("id", "0");
-//		 htblColNameMin.put("name", " ");
-//		 htblColNameMin.put("gpa", "0");
-//		 Hashtable htblColNameMax = new Hashtable();
-//		 htblColNameMax.put("id", "213981");
-//		 htblColNameMax.put("name", "ZZZZZZZZZZ");
-//		 htblColNameMax.put("gpa", "5");
-//
-//		 //db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-//		 Hashtable htblColNameValue = new Hashtable();
-//		 htblColNameValue.put("id", new Integer(25));
-//		 htblColNameValue.put("name", new String("aaaa"));
-//		 htblColNameValue.put("gpa", new Double(2.3));
-//		//htblColNameValue.put("gpa", new Double(9));
-//		db.insertIntoTable("trial",htblColNameValue);
-//		 System.out.println(Page.deserialP("trial0"));
-////				System.out.println(Table.deserialT("trial"));
-//
+		 DBApp db = new DBApp();
+		 db.init();
+		 Hashtable htblColNameType = new Hashtable( );
+		 htblColNameType.put("id", "java.lang.Integer");
+		 htblColNameType.put("name", "java.lang.String");
+		 htblColNameType.put("gpa", "java.lang.double");
+		 Hashtable htblColNameMin = new Hashtable();
+		 htblColNameMin.put("id", "0");
+		 htblColNameMin.put("name", " ");
+		 htblColNameMin.put("gpa", "0");
+		 Hashtable htblColNameMax = new Hashtable();
+		 htblColNameMax.put("id", "213981");
+		 htblColNameMax.put("name", "ZZZZZZZZZZ");
+		 htblColNameMax.put("gpa", "5");
+
+		 //db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+		 Hashtable htblColNameValue = new Hashtable();
+		 htblColNameValue.put("id", new Integer(18));
+		 htblColNameValue.put("name", new String("aaaa"));
+		 htblColNameValue.put("gpa", new Double(2.3));
+		 db.insertIntoTable("trial",htblColNameValue);
+		 System.out.println(Page.deserialP("trial0"));
+		 System.out.println(Page.deserialP("trial1"));
+		System.out.println(Page.deserialP("trial2"));
+
+
+		//Table.deleteFrom("trial");
+		 System.out.println(Table.deserialT("trial"));
+
 //
 //		//System.out.println(checkColumns("Test",htblColNameValue));
 //
