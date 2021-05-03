@@ -7,7 +7,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Logger;
 
 
 public class DBApp  implements DBAppInterface{
@@ -302,11 +301,14 @@ public class DBApp  implements DBAppInterface{
         	return i;
 		}
 		else if(type==3){
-			Date minn;
+
 			try {
-				minn = new SimpleDateFormat("yyyy-MM-dd").parse(min);
+
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+				Date minn = dateFormat.parse(min);
 			
-			Date maxx=new SimpleDateFormat("yyyy-MM-dd").parse(max);
+			Date maxx=dateFormat.parse(max);
 
 		Date keyy=(Date) key;
 		int compmin=keyy.compareTo(minn);
@@ -464,8 +466,19 @@ public class DBApp  implements DBAppInterface{
 		int lastIndex = p.size()-1;
 		Object mini = p.get(0).get(0);
 		Object maxi = p.get(lastIndex).get(0);
-		String mi = mini.toString();
-		String ma = maxi.toString();
+		String mi;
+		String ma;
+		if(mini instanceof Date){
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			Date miniii= (Date) mini;
+			Date maxiii= (Date) maxi;
+			 mi = dateFormat.format(miniii);
+			 ma = dateFormat.format(maxiii);
+		}
+		else {
+			mi = mini.toString();
+			ma = maxi.toString();
+		}
 		String path ="src/main/resources/data/range.txt";
 		String temp = "temp.txt";
 		File oldfile =new File(path);
@@ -680,44 +693,27 @@ public class DBApp  implements DBAppInterface{
 				else  {
 					int pnum=searchinsert(tableName,valu); //where we should insert the tuple
 
-					int tableSize = Table.deserialT(tableName);
-					int lastP= tableSize-1;
 
-					if(pnum==0 || pnum==-1){ //insert in first page
-						Page p = Page.deserialP(tableName+0);
+					if( pnum==-1){ //insert in first page
+						int i =0;
+						while(checkdeleted(tableName,i)){
+							i++;
+						}
+
+						Page p = Page.deserialP(tableName+i);
 						if(!p.isFull()){
 							p.add(row);
 							Collections.sort(p,comparator);
-							p.serialP(tableName+0);
-							pageRecord(tableName+0);
+							p.serialP(tableName+i);
+							pageRecord(tableName+i);
 						}
 						else { //first check if there's a next page
-							String filepath= "src/main/resources/data/"+tableName+1+".ser";
-							File f = new File(filepath);
-							if (f.exists() && !f.isDirectory()){
-								Page next = Page.deserialP(tableName+1);
-								if(next.isFull()){ //check if next page is full, create overflow
-
-								}
-								else {  //insert sort serialize update
-									ArrayList removed = p.remove(p.size()-1);
-									next.add(removed);
-									p.add(row);
-									Collections.sort(p,comparator);
-									Collections.sort(next,comparator);
-									next.serialP(tableName+1);
-									p.serialP(tableName+0);
-									pageRecord(tableName+0);
-									pageRecord(tableName+1);
-
-
-								}
-							}
-							else { //no next page was found create new one
+							if(Table.deserialT(tableName)==1){
 								try {
+									int j=i+1;
 									FileWriter pw =  new FileWriter("src/main/resources/data/range.txt",true);
 									StringBuilder builder = new StringBuilder();
-									builder.append("\n"+tableName+1+","+"null "+","+" null");
+									builder.append("\n"+tableName+j+","+"null "+","+" null");
 									pw.write(builder.toString());
 
 									pw.close();
@@ -726,27 +722,69 @@ public class DBApp  implements DBAppInterface{
 									Page next = new Page();
 									next.add(removed);
 									p.add(row);
+
 									Collections.sort(p,comparator);
+
+
+
+									next.serialP(tableName+j);
+									p.serialP(tableName+i);
+
+									pageRecord(tableName+j);
+									pageRecord(tableName+i);
+
 									Table.insertInto(tableName);
-									next.serialP(tableName+1);
-									p.serialP(tableName+0);
-									pageRecord(tableName+1);
-									pageRecord(tableName+0);
 
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
 
 							}
+							else {
+								int j=i+1;
+							while (checkdeleted(tableName,j)){
+								j++;
+							}
+
+							Page ne =Page.deserialP(tableName+j);
+
+							if(ne.isFull()){
+							//overflow
+							}
+							else {
+								ArrayList removed = p.remove(p.size()-1);
+								ne.add(removed);
+								p.add(row);
+								Collections.sort(p,comparator);
+								Collections.sort(ne,comparator);
+								p.serialP(tableName+i);
+								ne.serialP(tableName+j);
+								pageRecord(tableName+i);
+								pageRecord(tableName+j);
+							}
+							}
+
+
 						}
 
 					}
 
-					else if(pnum==-2 || pnum==lastP ){
-						Page p = Page.deserialP(tableName+lastP);
+					else if(pnum==-2){
+						int i=0;
+						int dum = Table.deserialT(tableName);
+						while(i<dum){
+							if(checkdeleted(tableName,i)){
+								i++;
+								dum++;
+							}else{
+								i++;
+							}
+						}
+						i=i-1;
+						Page p = Page.deserialP(tableName+i);
 						if (p.isFull()){
 							try {
-								int newPi=Table.deserialT(tableName);
+								int newPi=i+1;
 
 								FileWriter pw = new FileWriter("src/main/resources/data/range.txt",true);
 								StringBuilder builder = new StringBuilder();
@@ -756,20 +794,16 @@ public class DBApp  implements DBAppInterface{
 								pw.close();
 
 								Page newP= new Page();
-								ArrayList removed = p.remove(p.size()-1);
 
-								newP.add(removed);
-								p.add(row);
+								newP.add(row);
 
-								Collections.sort(p,comparator);
 
 								Table.insertInto(tableName);
 
-								p.serialP(tableName+lastP);
 								newP.serialP(tableName+newPi);
 
-								pageRecord(tableName+lastP);
-								pageRecord(tableName+lastP);
+								pageRecord(tableName+newPi);
+
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -778,45 +812,98 @@ public class DBApp  implements DBAppInterface{
 						}
 						else {
 							p.add(row);
-							p.serialP(tableName+lastP);
+
 							Collections.sort(p,comparator);
-							p.serialP(tableName+lastP);
-							pageRecord(tableName+lastP);
+
+							p.serialP(tableName+i);
+
+							pageRecord(tableName+i);
 
 						}
 
 					}
 
 					else{
-						int nextP= pnum+1;
 
 						Page p = Page.deserialP(tableName+pnum);
-						Page nextPage=Page.deserialP(tableName+nextP);
 
-						if(p.isFull()){
-							if(nextPage.isFull()){
-
-							}
-							else {
-								ArrayList removed = p.remove(p.size()-1);
-								nextPage.add(removed);
-								p.add(row);
-
-								Collections.sort(p,comparator);
-								Collections.sort(nextPage,comparator);
-
-								p.serialP(tableName+pnum);
-								nextPage.serialP(tableName+nextP);
-
-								pageRecord(tableName+pnum);
-								pageRecord(tableName+nextP);
-							}
-						}
-						else {
+						if(!p.isFull()){
 							p.add(row);
 							Collections.sort(p,comparator);
 							p.serialP(tableName+pnum);
 							pageRecord(tableName+pnum);
+						}
+						else {
+							int i=0;
+							int dum = Table.deserialT(tableName);
+							while(i<dum){
+								if(checkdeleted(tableName,i)){
+									i++;
+									dum++;
+								}else{
+									i++;
+								}
+							}
+							i=i-1;
+							if(pnum==i){
+								int newPi=i+1;
+								try {
+									FileWriter pw = new FileWriter("src/main/resources/data/range.txt", true);
+									StringBuilder builder = new StringBuilder();
+									builder.append("\n" + tableName + "" + newPi + "" + "," + "null" + "," + "null");
+									pw.write(builder.toString());
+
+									pw.close();
+
+									Page newP = new Page();
+									Table.insertInto(tableName);
+									ArrayList removed = p.remove(p.size()-1);
+
+									newP.add(removed);
+									p.add(row);
+									Collections.sort(p,comparator);
+									p.serialP(tableName+pnum);
+									newP.serialP(tableName+newPi);
+									pageRecord(tableName+pnum);
+									pageRecord(tableName+newPi);
+
+								}
+								catch (Exception e){
+									e.printStackTrace();
+								}
+							}
+							else {
+								int j= pnum+1;
+								while(checkdeleted(tableName,j)){
+									j++;
+								}
+
+								Page next = Page.deserialP(tableName+j);
+
+								Vector<ArrayList<Object>> temm= new Vector <>();
+								ArrayList r = p.remove(p.size()-1);
+								temm.add(row);
+								temm.add(r);
+								Collections.sort(temm,comparator);
+
+								if(next.isFull()){
+
+								}
+								else {
+
+									next.add(temm.get(1));
+									p.add(temm.get(0));
+									Collections.sort(p,comparator);
+									Collections.sort(next,comparator);
+									p.serialP(tableName+pnum);
+									next.serialP(tableName+j);
+									pageRecord(tableName+pnum);
+									pageRecord(tableName+j);
+								}
+
+							}
+
+
 
 						}
 
@@ -825,17 +912,6 @@ public class DBApp  implements DBAppInterface{
 
 
 				}
-
-
-
-
-
-
-
-
-
-
-
 
 	}
 
@@ -1408,29 +1484,58 @@ public class DBApp  implements DBAppInterface{
 		 htblColNameMax.put("name", "ZZZZZZZZZZ");
 		 htblColNameMax.put("gpa", "5");
 
-		 //db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+		// db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+
 		 Hashtable htblColNameValue = new Hashtable();
-		 htblColNameValue.put("id", new Integer(18));
-		 htblColNameValue.put("name", new String("aaaa"));
-		 htblColNameValue.put("gpa", new Double(2.3));
-		 db.insertIntoTable("trial",htblColNameValue);
-		 System.out.println(Page.deserialP("trial0"));
-		 System.out.println(Page.deserialP("trial1"));
+//		 htblColNameValue.put("id", new Integer(18));
+//		 htblColNameValue.put("name", new String("aaaa"));
+//		 htblColNameValue.put("gpa", new Double(2.3));
+//		 db.insertIntoTable("trial",htblColNameValue);
+//
+//		 htblColNameValue.clear( );
+//		htblColNameValue.put("id", new Integer(15));
+//		htblColNameValue.put("name", new String("aaaa"));
+//		htblColNameValue.put("gpa", new Double(2.3));
+//		db.insertIntoTable("trial",htblColNameValue);
+//
+//		htblColNameValue.clear( );
+//		htblColNameValue.put("id", new Integer(13));
+//		htblColNameValue.put("name", new String("aaaa"));
+//		htblColNameValue.put("gpa", new Double(2.3));
+//		db.insertIntoTable("trial",htblColNameValue);
+//
+//		htblColNameValue.clear( );
+//		htblColNameValue.put("id", new Integer(10));
+//		htblColNameValue.put("name", new String("aaaa"));
+//		htblColNameValue.put("gpa", new Double(2.3));
+//		db.insertIntoTable("trial",htblColNameValue);
+
+//		htblColNameValue.clear( );
+		htblColNameValue.put("id", new Integer(20));
+		htblColNameValue.put("name", new String("aaaa"));
+		htblColNameValue.put("gpa", new Double(2.3));
+		//db.insertIntoTable("trial",htblColNameValue);
+//		htblColNameValue.clear( );
+//		htblColNameValue.put("id", new Integer(6));
+//		htblColNameValue.put("name", new String("aaaa"));
+//		htblColNameValue.put("gpa", new Double(2.3));
+//		db.insertIntoTable("trial",htblColNameValue);
+
+
+//		Hashtable<String,Object> columnNameValue=new Hashtable();
+//		columnNameValue.put("id", 99);
+//		db.deleteFromTable("trial", columnNameValue);
+	//Table.insertInto("trial");
+		System.out.println(Table.deserialT("trial"));
+//		System.out.println(Page.deserialP("trial0"));
+//		System.out.println(Page.deserialP("trial1"));
 		System.out.println(Page.deserialP("trial2"));
+		System.out.println(Page.deserialP("trial3"));
 
 
-		//Table.deleteFrom("trial");
-		 System.out.println(Table.deserialT("trial"));
-
-//
-//		//System.out.println(checkColumns("Test",htblColNameValue));
-//
-//
-//
-//
 //=======
-//		//  DBApp db = new DBApp();
-//		//  db.init();
+		//  DBApp db = new DBApp();
+		//  db.init();
 ////		 Hashtable htblColNameType = new Hashtable( );
 ////		 htblColNameType.put("id", "java.lang.Integer");
 ////		 htblColNameType.put("name", "java.lang.String");

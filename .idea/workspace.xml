@@ -7,7 +7,6 @@
     <list default="true" id="27bc295d-16e4-47b9-ba76-206400f989d9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/DBApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/DBApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/DBApp.config" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/DBApp.config" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/metadata.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/temp.txt" beforeDir="false" />
     </list>
@@ -51,7 +50,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
-  <component name="RunManager" selected="Application.DBApp">
+  <component name="RunManager" selected="JUnit.Milestone1Tests">
     <configuration name="DBApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="DBApp" />
       <module name="DB2Project" />
@@ -97,8 +96,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.DBApp" />
         <item itemvalue="JUnit.Milestone1Tests" />
+        <item itemvalue="Application.DBApp" />
         <item itemvalue="JUnit.Milestone1Tests.testExtraTranscriptsInsertion" />
         <item itemvalue="JUnit.Milestone1Tests.testSetPageSize" />
         <item itemvalue="Application.Table" />
@@ -138,10 +137,19 @@
           <properties class="java.io.InvalidClassException" package="java.io" />
           <option name="timeStamp" value="1" />
         </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.text.ParseException" package="java.text" />
+          <option name="timeStamp" value="24" />
+        </breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/Milestone1Tests.java</url>
           <line>116</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/DBApp.java</url>
+          <line>1513</line>
+          <option name="timeStamp" value="23" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
