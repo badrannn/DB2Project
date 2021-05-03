@@ -943,17 +943,18 @@ public class DBApp  implements DBAppInterface{
 
 			}
 			if(flag==true){
-				Page p=Page.deserialP(tableName + A[0]);
+				Page p=Page.deserialP(tableName+A[0]);
 				p.removeElementAt(A[1]);
 				if(p.isEmpty()){
+					deleteRecord(tableName+A[0]);
 					String path="src/main/resources/data/"+tableName+A[0]+".ser";
 					File f = new File(path);
 					 f.delete();
 					 Table.deleteFrom(tableName);
 				}
 				else{
-				pageRecord(tableName + A[0]);
-				p.serialP(tableName + A[0]);
+				pageRecord(tableName+A[0]);
+				p.serialP(tableName+A[0]);
 				}
 			}
 
@@ -1018,6 +1019,7 @@ public class DBApp  implements DBAppInterface{
 					f.removeElementAt(j);
                     pagesize=f.size();
 					if(f.isEmpty()){
+						deleteRecord(tableName+i);
 						String path="src/main/resources/data/"+tableName+i+".ser";
 						File k = new File(path);
 						 k.delete();
@@ -1252,25 +1254,33 @@ public class DBApp  implements DBAppInterface{
 
 
 	public static void main(String[]args) throws DBAppException, ParseException {
-// 		DBApp db = new DBApp();
-//         db.init();
-//    //    Hashtable htblColNameType = new Hashtable( );
-    //    htblColNameType.put("id","java.lang.double");
+		DBApp db = new DBApp();
+        db.init();
+
+		deleteRecord("Tat4");
+// 		Hashtable<String,Object> columnNameValue=new Hashtable();
+// columnNameValue.put("id", 6);
+// 		db.deleteFromTable("Tat", columnNameValue);
+// System.out.println(Page.deserialP("Search5"));
+// 		System.out.println(Arrays.toString(searchtable("Search", 40)));
+		
+    //   Hashtable htblColNameType = new Hashtable( );
+    //    htblColNameType.put("id","java.lang.Integer");
     //    htblColNameType.put("name", "java.lang.String");
     //    htblColNameType.put("gpa", "java.lang.double");
 
     //    Hashtable htblColNameMin = new Hashtable();
-    //    htblColNameMin.put("id", "0.0");
+    //    htblColNameMin.put("id", "0");
     //    htblColNameMin.put("name", " ");
     //    htblColNameMin.put("gpa", "0.0");
 
     //    Hashtable htblColNameMax = new Hashtable();
-    //    htblColNameMax.put("id", "10000.0");
+    //    htblColNameMax.put("id", "10000");
     //    htblColNameMax.put("name", "ZZZZZZZZZZ");
     //    htblColNameMax.put("gpa", "5.0");
 
 
-	// 	db.createTable("Double", "id", htblColNameType, htblColNameMin, htblColNameMax);
+	// 	db.createTable("Tat", "id", htblColNameType, htblColNameMin, htblColNameMax);
 	// 	Page p= new Page();
 	// 	Page p1= new Page();
 	// 	Page p2= new Page();
@@ -1286,46 +1296,46 @@ public class DBApp  implements DBAppInterface{
 	// 	ArrayList<Object> a3 = new ArrayList <Object>();
 
 	// 	ArrayList<Object> a4 = new ArrayList <Object>();
-	// 	a.add(0.0);
+	// 	a.add(1);
 	// 	a.add(3.0);
 	// 	a.add("ali");
 
-	// 	a1.add(2.0);
+	// 	a1.add(3);
 	// 	a1.add(2.0);
 	// 	a1.add("asli");
 
-	// 	a2.add(4.0);
+	// 	a2.add(6);
 	// 	a2.add(1.0);
 	// 	a2.add("lie");
 
-	// 	a3.add(8.0);
+	// 	a3.add(8);
 	// 	a3.add(2.4);
 	// 	a3.add("zali");
 
-	// 	a4.add(10.0);
+	// 	a4.add(10);
 	// 	a4.add(2.5);
 	// 	a4.add("zalai");
 	// 	p.add(a);
-	// 	Table.insertInto("Double");
+	// 	Table.insertInto("Tat");
 
 	// 	p1.add(a1);
-	// 	Table.insertInto("Double");
+	// 	Table.insertInto("Tat");
 
 	// 	p2.add(a2);
-	// 	Table.insertInto("Double");
+	// 	Table.insertInto("Tat");
 
 	// 	p3.add(a3);
-	// 	Table.insertInto("Double");
+	// 	Table.insertInto("Tat");
 
 	// 	p4.add(a4);
-	// 	Table.insertInto("Double");
+	// 	Table.insertInto("Tat");
 
 
-	// 	p.serialP("Double0");
-	// 	p1.serialP("Double1");
-	// 	p2.serialP("Double2");
-	// 	p3.serialP("Double3");
-	// 	p4.serialP("Double4");
+	// 	p.serialP("Tat0");
+	// 	p1.serialP("Tat1");
+	// 	p2.serialP("Tat2");
+	// 	p3.serialP("Tat3");
+	// 	p4.serialP("Tat4");
 		
 // 		t.len=5;
 // 		t.serialT();
@@ -1333,8 +1343,8 @@ public class DBApp  implements DBAppInterface{
 
 
 
-		 DBApp db = new DBApp();
-		 db.init();
+		//  DBApp db = new DBApp();
+		//  db.init();
 //		 Hashtable htblColNameType = new Hashtable( );
 //		 htblColNameType.put("id", "java.lang.Integer");
 //		 htblColNameType.put("name", "java.lang.String");
@@ -1349,13 +1359,13 @@ public class DBApp  implements DBAppInterface{
 //		 htblColNameMax.put("gpa", "5");
 //
 //		 db.createTable("Test", "id", htblColNameType, htblColNameMin, htblColNameMax);
-		 Hashtable htblColNameValue = new Hashtable();
-		 htblColNameValue.put("id", new Integer(240));
-		 htblColNameValue.put("name", new String("aaaa"));
-		 htblColNameValue.put("gpa", new Double(3));
-		htblColNameValue.put("gpaa", new Double(3));
+		//  Hashtable htblColNameValue = new Hashtable();
+		//  htblColNameValue.put("id", new Integer(240));
+		//  htblColNameValue.put("name", new String("aaaa"));
+		//  htblColNameValue.put("gpa", new Double(3));
+		// htblColNameValue.put("gpaa", new Double(3));
 
-		System.out.println(checkColumns("Test",htblColNameValue));
+		// System.out.println(checkColumns("Test",htblColNameValue));
 
 		 //Table.insertInto("Test");
 		//db.insertIntoTable("Test",htblColNameValue);
@@ -1436,7 +1446,7 @@ public class DBApp  implements DBAppInterface{
 // db.deleteFromTable("Test", columnNameValue);
 //System.out.print(Page.deserialP("Test1"));
 //		Table.insertInto("Test");
-		deleteRecord("baba");
+		// deleteRecord("baba");
 //
 //
 //       t.add(Test0);
