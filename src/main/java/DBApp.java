@@ -748,8 +748,41 @@ public class DBApp  implements DBAppInterface{
 
 							Page ne =Page.deserialP(tableName+j);
 
-							if(ne.isFull()){
-							//overflow
+							if(ne.isFull()){//overflow
+
+									Page oo = null;
+									for (int k = 0; k <p.overflow.size(); k++) {
+										oo = p.overflow.get(k);
+										if(!oo.isFull()){
+											break;
+										}
+										oo=null;
+									}
+									if(oo==null){
+										oo=new Page();
+										ArrayList removed = p.remove(0);
+										p.add(row);
+										oo.add(removed);
+										Collections.sort(p,comparator);
+
+
+										p.addOverflow(oo);
+										p.serialP(tableName+i);
+										pageRecord(tableName+i);
+
+									}
+									else {
+										ArrayList removed = p.remove(0);
+										p.add(row);
+										oo.add(removed);
+										Collections.sort(p, comparator);
+										Collections.sort(oo, comparator);
+
+										p.serialP(tableName + i);
+										pageRecord(tableName + i);
+									}
+
+
 							}
 							else {
 								ArrayList removed = p.remove(p.size()-1);
@@ -887,6 +920,36 @@ public class DBApp  implements DBAppInterface{
 								Collections.sort(temm,comparator);
 
 								if(next.isFull()){
+									Page oo=null;
+										for (int k = 0; k <p.overflow.size(); k++) {
+											oo = p.overflow.get(k);
+											if(!oo.isFull()){
+												break;
+											}
+											oo=null;
+										}
+										if(oo==null){
+											oo=new Page();
+											p.add(temm.get(1));
+											oo.add(temm.get(0));
+											Collections.sort(p,comparator);
+
+											p.addOverflow(oo);
+											p.serialP(tableName+pnum);
+											pageRecord(tableName+pnum);
+
+										}
+										else{
+											p.add(temm.get(1));
+											oo.add(temm.get(0));
+											Collections.sort(p, comparator);
+											Collections.sort(oo, comparator);
+
+											p.serialP(tableName + pnum);
+											pageRecord(tableName + pnum);
+										}
+
+
 
 								}
 								else {
@@ -1500,53 +1563,67 @@ public class DBApp  implements DBAppInterface{
 		 htblColNameMax.put("name", "ZZZZZZZZZZ");
 		 htblColNameMax.put("gpa", "5");
 
-		// db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+//		db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
 
 		 Hashtable htblColNameValue = new Hashtable();
-//		 htblColNameValue.put("id", new Integer(18));
+//		 htblColNameValue.put("id", new Integer(5));
 //		 htblColNameValue.put("name", new String("aaaa"));
 //		 htblColNameValue.put("gpa", new Double(2.3));
 //		 db.insertIntoTable("trial",htblColNameValue);
 //
-//		 htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(15));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.3));
-//		db.insertIntoTable("trial",htblColNameValue);
-//
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(13));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.3));
-//		db.insertIntoTable("trial",htblColNameValue);
-//
+//		//System.out.println(Page.deserialP("trial0"));
 //		htblColNameValue.clear( );
 //		htblColNameValue.put("id", new Integer(10));
 //		htblColNameValue.put("name", new String("aaaa"));
 //		htblColNameValue.put("gpa", new Double(2.3));
 //		db.insertIntoTable("trial",htblColNameValue);
-
+//		System.out.println(Page.deserialP("trial0"));
 //		htblColNameValue.clear( );
-		htblColNameValue.put("id", new Integer(20));
-		htblColNameValue.put("name", new String("aaaa"));
-		htblColNameValue.put("gpa", new Double(2.3));
-		//db.insertIntoTable("trial",htblColNameValue);
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(6));
+//		htblColNameValue.put("id", new Integer(15));
 //		htblColNameValue.put("name", new String("aaaa"));
 //		htblColNameValue.put("gpa", new Double(2.3));
 //		db.insertIntoTable("trial",htblColNameValue);
+//		System.out.println(Page.deserialP("trial0"));
+//		System.out.println(Page.deserialP("trial1"));
+//		htblColNameValue.clear( );
+//		htblColNameValue.put("id", new Integer(20));
+//		htblColNameValue.put("name", new String("aaaa"));
+//		htblColNameValue.put("gpa", new Double(2.3));
+//		db.insertIntoTable("trial",htblColNameValue);
+//		System.out.println(Page.deserialP("trial0"));
+//		System.out.println(Page.deserialP("trial1"));
+
+		htblColNameValue.clear( );
+
+
+		htblColNameValue.put("id", new Integer(21));
+		htblColNameValue.put("name", new String("aaaa"));
+		htblColNameValue.put("gpa", new Double(2.3));
+		db.insertIntoTable("trial",htblColNameValue);
+		System.out.println(Page.deserialP("trial0"));
+		System.out.println(Page.deserialP("trial1"));
+		System.out.println(Page.deserialP("trial2"));
+
+		System.out.println(Page.deserialP("trial0").overflow);
+		System.out.println(Page.deserialP("trial1").overflow);
+
+
+
+
+		//System.out.println(Page.deserialP("trial0").overflow);
+
+		//System.out.println(Page.deserialP("trial1").overflow);
 
 
 //		Hashtable<String,Object> columnNameValue=new Hashtable();
 //		columnNameValue.put("id", 99);
 //		db.deleteFromTable("trial", columnNameValue);
 	//Table.insertInto("trial");
-		System.out.println(Table.deserialT("trial"));
+		//System.out.println(Table.deserialT("trial"));
 //		System.out.println(Page.deserialP("trial0"));
 //		System.out.println(Page.deserialP("trial1"));
-		System.out.println(Page.deserialP("trial2"));
-		System.out.println(Page.deserialP("trial3"));
+		//System.out.println(Page.deserialP("trial2"));
+		//System.out.println(Page.deserialP("trial3"));
 
 
 //=======

@@ -10,11 +10,21 @@ import java.util.Vector;
 
 public class Page extends Vector<ArrayList<Object>> implements Serializable {
 
+	Vector<Page> overflow;
+
 
 	
 
-	public Page() { }
+	public Page() {
+		overflow= new Vector <>();
+	}
 
+	public void addOverflow(Page p){
+		overflow.add(p);
+	}
+	public void removeOverflow(int i){
+		overflow.remove(i);
+	}
 	public boolean isFull(){        //full = false --- can accept entries=true
 		boolean res=false;
 		Properties prop = new Properties();
