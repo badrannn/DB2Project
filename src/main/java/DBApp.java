@@ -646,10 +646,10 @@ public class DBApp  implements DBAppInterface{
 			throw new DBAppException();
 		}
 
-		int[]index = searchtable(tableName,valu);
+		boolean exist=insertexist(tableName,valu);
 		//int pageNum= index[0];
 
-		if((index[1]!=-1)){ //check if cluster value = null or cluster value exists already in table
+		if((exist)){ //check if cluster value = null or cluster value exists already in table
 			throw new DBAppException();
 		}
 
@@ -1011,6 +1011,9 @@ public class DBApp  implements DBAppInterface{
 		if(!check){
 			throw new DBAppException();
 		}
+		boolean flagover=false;
+		Page overflow=null;
+		int k=0;
 			String[] columns=Table.returnColumns(tableName);
            int type= getType(tableName, columns[0]);
 		   Object clusterkey=-1;
@@ -1038,8 +1041,29 @@ public class DBApp  implements DBAppInterface{
 			clusterkey=clusteringKeyValue;
 		   }
 			int[] pos=searchtable(tableName,clusterkey);
+            if(pos[0]>=0 && pos[1]==-1){
+				flagover=true;
+				Page p=Page.deserialP(tableName+pos[0]);
+				for(k=0;k<p.overflow.size();k++){
+				 overflow=p.overflow.get(k);
+				 if(clusterkey instanceof Integer){
+				 pos[1]=binarysearchint(overflow,(int) clusterkey);
+				 }
+				 else if(clusterkey instanceof String){
+				 pos[1]=binarysearchstring(overflow,(String) clusterkey);
+				 }
+				 else if(clusterkey instanceof Double){
+				pos[1]=binarysearchdouble(overflow,(double) clusterkey);
+				 }
+				 else if(clusterkey instanceof Date){
+				pos[1]=binarysearchdate(overflow,(Date) clusterkey);
+				 }
+				 if(pos[1]>=0)
+				 break;
+				}
+			  }
 			if(pos[0]==-1 || pos[1]==-1){
-				throw new DBAppException();
+				return;
 			}
 			Enumeration<String> keys = columnNameValue.keys();
 			String s=tableName+pos[0];
@@ -1055,9 +1079,11 @@ public class DBApp  implements DBAppInterface{
 				throw new DBAppException();
 			 }
 
-			
+			if(!flagover)
 			p.get(pos[1]).set(j, Change);
-			
+			else{
+            p.overflow.get(k).get(pos[1]).set(j, Change);
+			}
 			
 
 	}
@@ -1103,6 +1129,9 @@ public class DBApp  implements DBAppInterface{
 		Enumeration<String> key = columnNameValue.keys();
 		boolean flagg=false;
 		Object cluster=null;
+		Page overflow=null;
+		boolean flagover=false;
+		int e=0;
 		while(key.hasMoreElements()){
 			String col = key.nextElement();
 			if (col.equals( Table.returnCluster(tableName))){
@@ -1113,10 +1142,38 @@ public class DBApp  implements DBAppInterface{
 		}
 		if (flagg) {
 			int[] A = searchtable(tableName, cluster);
+			if(A[0]>=0 && A[1]==-1){
+				flagover=true;
+				Page p=Page.deserialP(tableName+A[0]);
+				for(e=0;e<p.overflow.size();e++){
+				 overflow=p.overflow.get(e);
+				 if(cluster instanceof Integer){
+				 A[1]=binarysearchint(overflow,(int) cluster);
+				 }
+				 else if(cluster instanceof String){
+				 A[1]=binarysearchstring(overflow,(String) cluster);
+				 }
+				 else if(cluster instanceof Double){
+				A[1]=binarysearchdouble(overflow,(double) cluster);
+				 }
+				 else if(cluster instanceof Date){
+				A[1]=binarysearchdate(overflow,(Date) cluster);
+				 }
+				 if(A[1]>=0)
+				 break;
+				}
+			  }
+
 			if (A[0] == -1 || A[1] == -1) {
 				return;
 			}
-			ArrayList<Object> ele= Page.deserialP(tableName + A[0]).get(A[1]);
+            ArrayList<Object> ele=null;
+			if(flagover){
+				ele= Page.deserialP(tableName + A[0]).overflow.get(e).get(A[1]);
+			}
+			else{
+			ele= Page.deserialP(tableName + A[0]).get(A[1]);
+			}
 			key = columnNameValue.keys();
 			boolean flag=true;
 			while(key.hasMoreElements()){
@@ -1165,20 +1222,27 @@ public class DBApp  implements DBAppInterface{
 
 			}
 			if(flag==true){
+				if(!flagover){//deleting from page
 				Page p=Page.deserialP(tableName+A[0]);
 				p.removeElementAt(A[1]);
 				if(p.isEmpty()){
+					if(p.overflow.size()>0){
 					deleteRecord(tableName+A[0]);
 					String path="src/main/resources/data/"+tableName+A[0]+".ser";
 					File f = new File(path);
 					 f.delete();
 					 Table.deleteFrom(tableName);
 				}
+				}
 				else{
 					p.serialP(tableName+A[0]);
 					pageRecord(tableName+A[0]);
 
 				}
+			}
+			else{//deleting from overflow
+
+			}
 			}
 
 		}
@@ -1475,6 +1539,67 @@ public class DBApp  implements DBAppInterface{
     return -1;
 }
 
+public static boolean insertexist(String t, Object key)  {//[page,index inside specified page]
+	int[] res=new int[2];
+	int b1=-1;
+	int b2=-1;
+	int type=-1;
+	if (key instanceof Integer) {
+		 b1=searchtableall(t, key);
+		if(b1>=0){
+		Page p1=Page.deserialP(t+b1);
+		 b2=binarysearchint(p1,(int) key);
+	} }
+	else if (key instanceof Double) {
+		 b1=searchtableall(t, key);
+		if(b1>=0){
+		Page p1=Page.deserialP(t+b1);
+		b2=binarysearchdouble(p1,(double) key);
+	}
+	}
+	else if(key instanceof Date){
+		 b1=searchtableall(t, key);
+		if(b1>=0){
+		Page p1=Page.deserialP(t+b1);
+		b2=binarysearchdate(p1,(Date) key);
+
+	}
+	}
+	else if (key instanceof String) {
+		 b1=searchtableall(t, key);
+		if(b1>=0){
+			Page p1=Page.deserialP(t+b1);
+	         b2=binarysearchstring(p1,(String) key);
+		}
+	}
+	if (b2>=0) {
+		return true;
+	}
+	if(b1>=0 && b2==-1){
+      Page p=Page.deserialP(t+b1);
+	  Page overflow=null;
+	  for(int k=0;k<p.overflow.size();k++){
+       overflow=p.overflow.get(k);
+	   if(key instanceof Integer){
+		b2=binarysearchint(overflow,(int) key);
+	   }
+	   else if(key instanceof String){
+	   b2=binarysearchstring(overflow,(String) key);
+	   }
+	   else if(key instanceof Double){
+	   b2=binarysearchdouble(overflow,(double) key);
+	   }
+	   else if(key instanceof Date){
+	   b2=binarysearchdate(overflow,(Date) key);
+	   }
+	   if (b2>=0) {
+		   return true;
+	   }
+	  }
+	}
+    return false;
+
+}
 
 
 
@@ -1573,71 +1698,75 @@ public class DBApp  implements DBAppInterface{
 //
 //
 //<<<<<<< HEAD
-//		 DBApp db = new DBApp();
-//		 db.init();
-//		 Hashtable htblColNameType = new Hashtable( );
-//		 htblColNameType.put("id", "java.lang.Integer");
-//		 htblColNameType.put("name", "java.lang.String");
-//		 htblColNameType.put("gpa", "java.lang.double");
-//		 Hashtable htblColNameMin = new Hashtable();
-//		 htblColNameMin.put("id", "0");
-//		 htblColNameMin.put("name", " ");
-//		 htblColNameMin.put("gpa", "0");
-//		 Hashtable htblColNameMax = new Hashtable();
-//		 htblColNameMax.put("id", "213981");
-//		 htblColNameMax.put("name", "ZZZZZZZZZZ");
-//		 htblColNameMax.put("gpa", "5");
-//
-//		//db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-//
-//		 Hashtable htblColNameValue = new Hashtable();
-////		 htblColNameValue.put("id", new Integer(5));
-////		 htblColNameValue.put("name", new String("aaaa"));
-////		 htblColNameValue.put("gpa", new Double(2.3));
-////		 db.insertIntoTable("trial",htblColNameValue);
-////
-////		//System.out.println(Page.deserialP("trial0"));
-////		htblColNameValue.clear( );
-////		htblColNameValue.put("id", new Integer(10));
-////		htblColNameValue.put("name", new String("aaaa"));
-////		htblColNameValue.put("gpa", new Double(2.3));
-////		db.insertIntoTable("trial",htblColNameValue);
-////		System.out.println(Page.deserialP("trial0"));
-////		htblColNameValue.clear( );
-////		htblColNameValue.put("id", new Integer(15));
-////		htblColNameValue.put("name", new String("aaaa"));
-////		htblColNameValue.put("gpa", new Double(2.3));
-////		db.insertIntoTable("trial",htblColNameValue);
-////		System.out.println(Page.deserialP("trial0"));
-////		System.out.println(Page.deserialP("trial1"));
-////		htblColNameValue.clear( );
-////		htblColNameValue.put("id", new Integer(20));
-////		htblColNameValue.put("name", new String("aaaa"));
-////		htblColNameValue.put("gpa", new Double(2.3));
-////		db.insertIntoTable("trial",htblColNameValue);
-////		System.out.println(Page.deserialP("trial0"));
-////		System.out.println(Page.deserialP("trial1"));
-//
-//		htblColNameValue.clear( );
+		 DBApp db = new DBApp();
+		 db.init();
+		 Hashtable htblColNameType = new Hashtable( );
+		 htblColNameType.put("id", "java.lang.String");
+		 htblColNameType.put("name", "java.lang.String");
+		 htblColNameType.put("gpa", "java.lang.double");
+		 Hashtable htblColNameMin = new Hashtable();
+		 htblColNameMin.put("id", "");
+		 htblColNameMin.put("name", " ");
+		 htblColNameMin.put("gpa", "0");
+		 Hashtable htblColNameMax = new Hashtable();
+		 htblColNameMax.put("id", "ZZZZZZZZZZ");
+		 htblColNameMax.put("name", "ZZZZZZZZZZ");
+		 htblColNameMax.put("gpa", "5");
+
+		//db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+		
 
 
-//		htblColNameValue.put("id", new Integer(40));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.3));
-//		db.insertIntoTable("trial",htblColNameValue);
-//		Hashtable<String,Object> columnNameValue=new Hashtable();
-//		//columnNameValue.put("id", 36);
-//		//db.deleteFromTable("trial",columnNameValue);
-//		// 	System.out.println(Page.deserialP("trial0"));
-//
-////		System.out.println(Page.deserialP("trial2"));
-//
-//		System.out.println(Page.deserialP("trial0"));
-//		System.out.println(Page.deserialP("trial1"));
-//		System.out.println(Page.deserialP("trial2"));
-//		System.out.println(Page.deserialP("trial0").overflow);
-//
-//		System.out.println(Page.deserialP("trial1").overflow);
+		 Hashtable htblColNameValue = new Hashtable();
+		 htblColNameValue.put("id", new String("a"));
+		 htblColNameValue.put("name", new String("aaaa"));
+		 htblColNameValue.put("gpa", new Double(2.3));
+		 //db.insertIntoTable("trial",htblColNameValue);
+
+		// System.out.println(Page.deserialP("trial0"));
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", new String("d"));
+		htblColNameValue.put("name", new String("aaaa"));
+		htblColNameValue.put("gpa", new Double(2.3));
+		//db.insertIntoTable("trial",htblColNameValue);
+		// System.out.println(Page.deserialP("trial0"));
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", new String("f"));
+		htblColNameValue.put("name", new String("aaaa"));
+		htblColNameValue.put("gpa", new Double(2.3));
+		//db.insertIntoTable("trial",htblColNameValue);
+		// System.out.println(Page.deserialP("trial0"));
+		// System.out.println(Page.deserialP("trial1"));
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", new String("h"));
+		htblColNameValue.put("name", new String("aaaa"));
+		htblColNameValue.put("gpa", new Double(2.3));
+		//db.insertIntoTable("trial",htblColNameValue);
+		// System.out.println(Page.deserialP("trial0"));
+		// System.out.println(Page.deserialP("trial1"));
+
+		htblColNameValue.clear( );
+
+
+		htblColNameValue.put("id",new String("g"));
+		htblColNameValue.put("name", new String("aaaa"));
+		htblColNameValue.put("gpa", new Double(2.3));
+		//db.insertIntoTable("trial",htblColNameValue);
+		Hashtable<String,Object> columnNameValue=new Hashtable();
+		columnNameValue.put("gpa",0.0 );
+		columnNameValue.put("name","skksk" );
+		//db.updateTable("trial","1990-2-1",columnNameValue);
+		// db.deleteFromTable("trial",columnNameValue);
+			System.out.println(Page.deserialP("trial0"));
+
+		// System.out.println(Page.deserialP("trial2"));
+
+		// System.out.println(Page.deserialP("trial0"));
+		 System.out.println(Page.deserialP("trial1"));
+		//System.out.println(Page.deserialP("trial2"));
+		 System.out.println(Page.deserialP("trial0").overflow);
+		 //System.out.println(db.insertexist("trial",100));
+		//System.out.println(Page.deserialP("trial1").overflow);
 
 
 
