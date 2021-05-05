@@ -82,7 +82,7 @@ public class DBApp  implements DBAppInterface{
 	public void appendCsv(String name,
 		String cluster,Hashtable<String,String> htblColNameType,
 		Hashtable<String,String> htblColNameMin,
-		Hashtable<String,String> htblColNameMax) throws IOException {
+		Hashtable<String,String> htblColNameMax) throws IOException, DBAppException {
 	
 		FileWriter pw =  new FileWriter("src/main/resources/metadata.csv",true);
 		Enumeration<String> type = htblColNameType.keys();
@@ -96,6 +96,9 @@ public class DBApp  implements DBAppInterface{
 		String typ= htblColNameType.get(col);
 		String min =htblColNameMin.get(col);
 		String max = htblColNameMax.get(col);
+		if(typ==null || min==null || max==null ){
+			throw  new DBAppException();
+		}
 	
 		if(col.equals(cluster))
 			clus = true;
@@ -257,7 +260,7 @@ public class DBApp  implements DBAppInterface{
 		return false;
 		}
 
-	public static int searchinsert(String tableName,Object key) {//returns page number if value is -1 then insert into first page if -2 then last page
+	public static int searchinsert(String tableName,Object key) throws DBAppException {//returns page number if value is -1 then insert into first page if -2 then last page
 		int tablesize=Table.deserialT(tableName);
 		for(int i=0;i<tablesize;i++){
 			while(checkdeleted(tableName,i)){
@@ -325,7 +328,8 @@ public class DBApp  implements DBAppInterface{
 				return i;
 		}catch (ParseException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+				throw new DBAppException();
+
 				}
 		}
 		else if(type==1){
@@ -395,8 +399,8 @@ public class DBApp  implements DBAppInterface{
 
 	@Override
 	public void createIndex(String tableName, String[] columnNames) throws DBAppException {
+
 	// TODO Auto-generated method stub
-	
 	}
 
 
@@ -1029,8 +1033,7 @@ public class DBApp  implements DBAppInterface{
 					try {
 						clusterkey = format.parse(clusteringKeyValue);
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						throw  new DBAppException();
 					}
 			
 			
@@ -1688,7 +1691,7 @@ if(maxpos>=0){
 	}
 
 	
-    public static int searchtableall(String tableName,Object key){
+    public static int searchtableall(String tableName,Object key) throws DBAppException {
 		int tablesize=Table.deserialT(tableName);
 		for(int i=0;i<tablesize;i++){
 			while(checkdeleted(tableName,i)){
@@ -1729,7 +1732,7 @@ if(maxpos>=0){
 			if(compmin>=0 && compmax<=0)
 				return i;
 			} catch (ParseException e) {
-				e.printStackTrace();
+				throw new DBAppException();
 			}
 		}
 		else if(type==1){
@@ -1748,7 +1751,7 @@ if(maxpos>=0){
 		return -1;
 
 	}
-	public static int[] searchtable(String t, Object key)  {//[page,index inside specified page]
+	public static int[] searchtable(String t, Object key)  throws  DBAppException {//[page,index inside specified page]
 	int[] res=new int[2];
 	if (key instanceof Integer) {
 		int b1=searchtableall(t, key);
@@ -1805,7 +1808,7 @@ if(maxpos>=0){
     return -1;
 }
 
-public static boolean insertexist(String t, Object key)  {//[page,index inside specified page]
+public static boolean insertexist(String t, Object key)  throws DBAppException {//[page,index inside specified page]
 	int[] res=new int[2];
 	int b1=-1;
 	int b2=-1;
@@ -1874,8 +1877,7 @@ public static boolean insertexist(String t, Object key)  {//[page,index inside s
 
 
 	public static void main(String[]args) throws DBAppException, ParseException {
-		DBApp db = new DBApp();
-		db.init();
+	
  	}
 
 }
