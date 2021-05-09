@@ -400,7 +400,15 @@ public class DBApp  implements DBAppInterface{
 	@Override
 	public void createIndex(String tableName, String[] columnNames) throws DBAppException {
 
-	// TODO Auto-generated method stub
+		Hashtable h = new Hashtable();
+		for (int i = 0; i <columnNames.length ; i++) {
+			h.put(columnNames[i],"");
+		}
+		if(!tableExists(tableName) || !checkColumns(tableName,h)){
+			throw new DBAppException();
+		}
+		new Grid(tableName,columnNames);
+
 	}
 
 
@@ -1877,6 +1885,11 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 
 
 	public static void main(String[]args) throws DBAppException, ParseException {
+	DBApp db = new DBApp();
+	String[] s = new String[2];
+	s[0]="first_name";
+	s[1]="last_name";
+	db.createIndex("students",s);
 	
  	}
 
