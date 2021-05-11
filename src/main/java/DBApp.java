@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -1613,6 +1614,84 @@ if(maxpos>=0){
 	@Override
 	public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators) throws DBAppException {
 
+		Vector<ArrayList<Object>> res=new Vector<ArrayList<Object>>();
+		for (int i = 0; i <sqlTerms.length ; i++) {
+			String tname = sqlTerms[i]._strTableName;
+			Hashtable<String, Object> h = new Hashtable();
+			h.put(sqlTerms[i]._strColumnName,"");
+
+			int ty= getType(tname,sqlTerms[i]._strColumnName);
+			Object x = sqlTerms[i]._objValue;
+
+			if(!checkColumns(tname,h)||!tableExists(tname)){
+				throw new DBAppException();
+			}
+			if (((x instanceof Integer) && ty != 0) || ((x instanceof Double) && ty != 1) || ((x instanceof String) && ty != 2) || ((x instanceof Date) && ty != 3)) {
+				throw new DBAppException();
+			}
+		}
+		Vector<Vector<ArrayList<Object>>> intermid = new Vector<Vector<ArrayList<Object>>>();
+
+		for (int i = 0; i <sqlTerms.length ; i++) {
+			intermid.add(execterm(sqlTerms[i]));
+		}
+
+
+		Iterator result=res.iterator();
+
+		return null;
+	}
+	public Vector<ArrayList<Object>> execterm(SQLTerm sqlTerm){
+	//no index on column
+		String oper= sqlTerm._strOperator;
+		switch(oper){
+			case ">":;
+			case"=":;
+			case"<":;
+			case">=":;
+			case" <=":;
+			case"!=":;
+			default:;
+		}
+
+
+
+
+	return null;
+	}
+	public Vector<ArrayList<Object>> execEq(SQLTerm sqlTerm) throws DBAppException {
+		Object valu = sqlTerm._objValue;
+		String tname= sqlTerm._strTableName;
+		String col=sqlTerm._strColumnName;
+		String cluster= Table.returnCluster(tname);
+		if(cluster.equals(col)){
+			int[] pos = searchtable(tname,valu);
+			if(pos[1]==-1){ //key does not exist
+				return null;
+			}
+
+			if(valu instanceof Integer){
+
+			}
+			else if(valu instanceof Double){
+
+			}
+			else if (valu instanceof String){
+
+			}
+			else{
+
+			}
+		}
+
+
+		else{
+
+		}
+
+
+
+
 		return null;
 	}
 
@@ -1877,6 +1956,7 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
     return false;
 
 }
+
 
 
 
