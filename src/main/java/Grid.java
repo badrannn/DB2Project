@@ -1,34 +1,31 @@
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Grid extends ArrayList<Object> {
     String name;
+    Object[]grid;
 
     public  Grid(String tableName, String[]cols){
-       this.init( tableName, cols); //dimension
+       name=tableName;
+        for (int i = 0; i <cols.length ; i++) {
+            name=name+cols[i];
+        }
+        final int[] dimensions = new int[cols.length];
+        Arrays.fill(dimensions, 10);
+        grid = (Object[]) Array.newInstance(Object.class, dimensions);
 
-       this.serialG();
-    } //after init size = dimension-1
+        int tSize =Table.deserialT(tableName);
+        if(tSize!=0){
+            
+        }
 
-    public void init(String tableName, String[]cols){
-        
+
+        this.serialG();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -57,6 +54,13 @@ public class Grid extends ArrayList<Object> {
         {
             System.out.println("IOException is caught");
         }
+
+    }
+
+    public static void main(String[]args){
+        String[] s = {"gpa","name"};
+        Grid g = new Grid("students",s);
+        System.out.println(Arrays.deepToString(g.grid));
 
     }
 
