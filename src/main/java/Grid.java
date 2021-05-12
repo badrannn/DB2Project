@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Grid extends ArrayList<Object> implements Serializable {
     String name;
@@ -26,6 +27,20 @@ public class Grid extends ArrayList<Object> implements Serializable {
 
 
         this.serialG();
+    }
+    public static String[] sortCols(String tableName, String[]cols){
+        String[] x = new String[cols.length];
+        String[] colums=Table.returnColumns(tableName);
+        ArrayList<Integer> y = new ArrayList <Integer>();
+        for (String col:cols) {
+            int m = DBApp.coloumnnum(col,tableName);
+            y.add(m);
+        }
+        Collections.sort(y);
+        for (int i = 0; i <x.length ; i++) {
+            x[i]=colums[y.get(i)];
+        }
+        return x;
     }
 
 
@@ -59,10 +74,9 @@ public class Grid extends ArrayList<Object> implements Serializable {
     }
 
     public static void main(String[]args){
-        String[] s = {"gpa","name"};
-        Grid g = new Grid("students",s);
-        System.out.println(Arrays.deepToString(g.grid));
-
+//        String[] s = {"name","gpa"};
+//        System.out.println(Arrays.toString(Table.returnColumns("trial")));
+//        System.out.println(Arrays.toString(sortCols("trial",s)));
     }
 
 }
