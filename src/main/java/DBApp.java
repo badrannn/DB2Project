@@ -1659,6 +1659,220 @@ if(maxpos>=0){
 
 	return null;
 	}
+	public Vector<ArrayList<Object>> execnoteq(SQLTerm sqlTerm) throws DBAppException {
+		Vector<ArrayList<Object>> result= new Vector<ArrayList<Object>>();
+		Object valu = sqlTerm._objValue;
+		String tname= sqlTerm._strTableName;
+		String col=sqlTerm._strColumnName;
+		String cluster= Table.returnCluster(tname);
+		int overflowpage=-1;
+		if(cluster.equals(col)) {
+			boolean flagover = false;
+			int[] pos = searchtable(tname, valu);
+			int k = -1;
+			if (pos[0] >= 0 && pos[1] == -1) {
+				Page p = Page.deserialP(tname + pos[0]);
+				flagover = true;
+				Page overflow = null;
+				for (k = 0; k < p.overflow.size(); k++) {
+					overflow = p.overflow.get(k);
+					if (valu instanceof Integer) {
+						pos[1] = binarysearchint(overflow, (int) valu);
+					} else if (valu instanceof String) {
+						pos[1] = binarysearchstring(overflow, (String) valu);
+					} else if (valu instanceof Double) {
+						pos[1] = binarysearchdouble(overflow, (double) valu);
+					} else if (valu instanceof Date) {
+						pos[1] = binarysearchdate(overflow, (Date) valu);
+					}
+					if (pos[1] >= 0) {
+						overflowpage=k;
+						break;
+					}
+				}
+			}
+			if (pos[0] == -1 || pos[1] == -1) {
+				int tablesize = Table.deserialT(tname);
+				for (int i = 0; i < tablesize; i++) {
+					while (checkdeleted(tname, i)) {
+						i++;
+						tablesize++;
+					}
+					Page p = Page.deserialP(tname + i);
+					result.addAll(p);
+					if (p.overflow.size() != 0) {
+						for (int j = 0; j < p.overflow.size(); j++) {
+							result.addAll(p.overflow.get(j));
+						}
+					}
+				}
+
+
+			} else {
+				int tablesize = Table.deserialT(tname);
+				for (int i = 0; i < tablesize; i++) {
+					while (checkdeleted(tname, i)) {
+						i++;
+						tablesize++;
+					}
+					if (i == pos[0]) {
+						Page p = Page.deserialP(tname + i);
+						if (!flagover) {
+							for (int j = 0; j < p.size(); j++) {
+								if (j != pos[1]) {
+									result.add(p.get(j));
+								}
+							}
+							for (int j = 0; j < p.overflow.size(); j++) {
+								result.addAll(p.overflow.get(j));
+							}
+						} else {
+							result.addAll(p);
+							for (int j = 0; j < p.overflow.size(); j++) {
+								if (j != overflowpage) {
+									result.addAll(p.overflow.get(j));
+								} else {
+									for (int l = 0; l < p.overflow.get(j).size(); l++) {
+										if (l != pos[1]) {
+											result.add(p.overflow.get(j).get(l));
+										}
+									}
+								}
+							}
+						}
+					} else {
+						Page p = Page.deserialP(tname + i);
+						result.addAll(p);
+						if (p.overflow.size() != 0) {
+							for (int j = 0; j < p.overflow.size(); j++) {
+								result.addAll(p.overflow.get(j));
+							}
+						}
+					}
+
+
+				}
+			}
+		}
+		else{//not equal to the cluster key
+			int tablesize=Table.deserialT(tname);
+			int A = coloumnnum(col, tname);
+			for (int i = 0; i < tablesize; i++) {
+				while(checkdeleted(tname,i)){
+					i++;
+					tablesize++;
+				}
+				Page f = Page.deserialP(tname + i);
+				int pagesize=f.size();
+				int j=0;
+				int m=0;
+				int iverr=f.overflow.size();
+				boolean flag=true;
+				while( j<pagesize ){
+					if(valu instanceof Integer){
+						int int1=(int)valu;
+						int int2=(int)f.get(j).get(A);
+						if(!(int2==int1)){
+							flag=false;
+						}
+					}
+					else if(valu instanceof String){
+						String str=(String) valu;
+						String Str2=(String) f.get(j).get(A);
+						if(!(Str2.equals(str))){
+							flag=false;
+						}
+					}
+					else if(valu instanceof Date){
+						Date dt=(Date) valu;
+						Date dt2=(Date) f.get(j).get(A);
+						if(!(dt.equals(dt2))){
+							flag=false;
+
+						}
+					}
+					else if(valu instanceof Double){
+						String srs=valu.toString();
+						Double doo=Double.valueOf(srs);
+						BigDecimal big = BigDecimal.valueOf(doo);
+						String srs1= f.get(j).get(A).toString();
+						Double doo1=Double.valueOf(srs1);
+						BigDecimal big1 = BigDecimal.valueOf(doo1);
+						if(!(big1.equals(big))){
+							flag=false;
+
+						}
+
+					}
+					if(flag==false){
+						result.add(f.get(j));
+						flag=true;
+						j++;
+					}
+					else{
+						j++;
+					}
+				}
+				while(m<iverr){//m pages overflow
+					int x=0;
+					int oversize=f.overflow.get(m).size();
+					boolean flagover=true;
+					while(x<oversize){
+						if(valu instanceof Integer){
+							int int1=(int)valu;
+							int int2=(int)f.overflow.get(m).get(x).get(A);
+							if(!(int2==int1)){
+								flagover=false;
+							}
+						}
+						else if(valu instanceof String){
+							String str=(String) valu;
+							String Str2=(String) f.overflow.get(m).get(x).get(A);
+							if(!(Str2.equals(str))){
+								flagover=false;
+							}
+						}
+						else if(valu instanceof Date){
+							Date dt=(Date) valu;
+							Date dt2=(Date) f.overflow.get(m).get(x).get(A);
+							if(!(dt.equals(dt2))){
+								flagover=false;
+
+							}
+						}
+						else if(valu instanceof Double){
+							String srs=valu.toString();
+							Double doo=Double.valueOf(srs);
+							BigDecimal big = BigDecimal.valueOf(doo);
+							String srs1= f.overflow.get(m).get(x).get(A).toString();
+							Double doo1=Double.valueOf(srs1);
+							BigDecimal big1 = BigDecimal.valueOf(doo1);
+							if(!(big1.equals(big))){
+								flagover=false;
+
+							}
+
+						}
+						if(!flagover){
+							result.add(f.overflow.get(m).get(x));
+							flagover=true;
+							x++;
+						}
+						else{
+
+							x++;
+						}
+
+					}
+					m++;
+				}
+
+			}
+
+		}
+		return result;
+	}
+
 	public Vector<ArrayList<Object>> execEq(SQLTerm sqlTerm) throws DBAppException {
 		Vector<ArrayList<Object>> result= new Vector<ArrayList<Object>>();
 		Object valu = sqlTerm._objValue;
@@ -2152,15 +2366,15 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 //		htblColNameValue.put("gpa", new Double(1.3));
 //		db.insertIntoTable("trial",htblColNameValue);
 
-		System.out.println(Page.deserialP("trial0"));
-		System.out.println(Page.deserialP("trial1"));
-		System.out.println((Page.deserialP("trial0")).overflow);
-		SQLTerm sql = new SQLTerm();
-		sql._objValue=1.3;
-		sql._strColumnName="gp";
-		sql._strOperator="=";
-		sql._strTableName="trial";
-		System.out.println(db.execEq(sql));
+//		System.out.println(Page.deserialP("trial0"));
+//		System.out.println(Page.deserialP("trial1"));
+//		System.out.println((Page.deserialP("trial0")).overflow);
+//		SQLTerm sql = new SQLTerm();
+//		sql._objValue="aaaaa";
+//		sql._strColumnName="name";
+//		sql._strOperator="!=";
+//		sql._strTableName="trial";
+//		System.out.println(db.execnoteq(sql));
 
  	}
 }
