@@ -29,6 +29,7 @@ public class DBApp  implements DBAppInterface{
 				pw.write("Table Name, Column Name, Column Type, ClusteringKey, Indexed, min, max \n");
 				pw.close();
 			}
+			br.close();
 
 			Path path = Paths.get("src/main/resources/data"); //create data directory
 			Files.createDirectories(path);
@@ -138,7 +139,7 @@ public class DBApp  implements DBAppInterface{
 				}
 
 			}
-
+			br.close();
 		}
 		catch (IOException e)
 		{
@@ -175,6 +176,7 @@ public class DBApp  implements DBAppInterface{
 				}
 
 			}
+			br.close();
 			if (type==0){
 				int obj = (int) key;
 				try{
@@ -241,9 +243,6 @@ public class DBApp  implements DBAppInterface{
 					return true;
 				else return false;
 			}
-
-
-
 
 
 		}
@@ -378,6 +377,7 @@ public class DBApp  implements DBAppInterface{
 				}
 
 			}
+			br.close();
 			if (s.equalsIgnoreCase("java.lang.Integer"))
 				return 0;
 			else if(s.equalsIgnoreCase("java.lang.Double"))
@@ -408,8 +408,10 @@ public class DBApp  implements DBAppInterface{
 		if(!tableExists(tableName) || !checkColumns(tableName,h)){
 			throw new DBAppException();
 		}
+		for (int i = 0; i < columnNames.length; i++) {
+			updateIndex(tableName,columnNames[i]);
+		}
 		new Grid(tableName,columnNames);
-
 	}
 
 
@@ -1606,6 +1608,74 @@ if(maxpos>=0){
 	}
 }
 }
+	public static void updateIndex(String tname,String col){
+		removeBlanks();
+
+
+		String path ="src/main/resources/metadata.csv";
+		String temp = "tem.txt";
+		File oldfile =new File(path);
+		File newfile =new File(temp);
+		try {
+			String name = "";
+			String colu="";
+			String indexd="";
+
+
+			String line = "";
+			String splitBy = ",";
+
+			FileWriter fw=new FileWriter (temp,true); //start
+			BufferedWriter bw= new BufferedWriter(fw);
+			PrintWriter pw=new PrintWriter(bw);
+
+			BufferedReader br = new BufferedReader(new FileReader(path));
+
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				name=row[0];
+				colu=row[1];
+				indexd=row[4];
+
+				if(name.equalsIgnoreCase(tname)&&colu.equals(col)&&indexd.equals("false")) {
+					pw.println(name + "," +colu+ "," + row[2]+","+row[3]+","+"true"+","+row[5]+","+row[6]);
+				}
+				else{
+					pw.println(name + "," +colu+ "," + row[2]+","+row[3]+","+row[4]+","+row[5]+","+row[6]);
+				}
+			}
+
+			br.close();
+
+
+			pw.close();
+
+			bw.close();
+
+			fw.close();
+
+
+			boolean d =oldfile.delete();
+
+
+			System.out.println("delete status: "+d);
+
+			File dump = new File(path);
+
+			boolean r = newfile.renameTo(dump);
+
+			System.out.println("Rename status: "+r);
+		}
+		catch (Exception e){
+			System.out.println("Error!");
+
+		}
+
+
+
+
+	}
 
 
 
@@ -2306,6 +2376,8 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 	public static void main(String[]args) throws DBAppException, ParseException {
 		DBApp db = new DBApp();
 		 db.init();
+		 String[] s = {"gpa","name"};
+		 db.createIndex("trial", s);
 //		 Hashtable htblColNameType = new Hashtable( );
 //		 htblColNameType.put("id", "java.lang.Integer");
 //		 htblColNameType.put("name", "java.lang.String");
@@ -2320,7 +2392,7 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 //		 htblColNameMax.put("gpa", "5");
 //
 //		db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-//
+
 //		 Hashtable htblColNameValue = new Hashtable();
 //		 htblColNameValue.put("id", new Integer(5));
 //		 htblColNameValue.put("name", new String("aaaa"));
