@@ -6,6 +6,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Vector;
+
 
 public class Grid extends ArrayList<Object> implements Serializable {
     String name;
@@ -28,6 +30,7 @@ public class Grid extends ArrayList<Object> implements Serializable {
 
         this.serialG();
     }
+
     public static String[] sortCols(String tableName, String[]cols){
         String[] x = new String[cols.length];
         String[] colums=Table.returnColumns(tableName);
@@ -43,8 +46,25 @@ public class Grid extends ArrayList<Object> implements Serializable {
         return x;
     }
 
+    public static void createbucket(Vector<Integer> bucketnumber, String indexname ){
+        //Grid g=deserialG(indexname);
 
 
+
+    }
+   public static void setStuffInArray(Object[] Grid,Vector<Integer> bucketnumber, int i,Object reference) {
+
+     if(i<bucketnumber.size()-1){
+         int ii=bucketnumber.get(i);
+         Object[] grid2=(Object[])Grid[ii];
+         i++;
+         setStuffInArray(grid2,bucketnumber,i,reference);
+     }
+     else{
+         int ii=bucketnumber.get(i);
+         Grid[ii]=reference;
+     }
+   }
 
     public void serialG(){
         try
@@ -74,9 +94,7 @@ public class Grid extends ArrayList<Object> implements Serializable {
     }
 
     public static void main(String[]args){
-//        String[] s = {"name","gpa"};
-//        System.out.println(Arrays.toString(Table.returnColumns("trial")));
-//        System.out.println(Arrays.toString(sortCols("trial",s)));
+
     }
 
 }
