@@ -408,10 +408,10 @@ public class DBApp  implements DBAppInterface{
 		if(!tableExists(tableName) || !checkColumns(tableName,h)){
 			throw new DBAppException();
 		}
+		new Grid(tableName,columnNames);
 		for (int i = 0; i < columnNames.length; i++) {
 			updateIndex(tableName,columnNames[i]);
 		}
-		new Grid(tableName,columnNames);
 	}
 
 

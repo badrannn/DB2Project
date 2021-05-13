@@ -1,7 +1,4 @@
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +10,16 @@ public class Grid extends ArrayList<Object> implements Serializable {
     String name;
     Object[]grid;
 
-    public  Grid(String tableName, String[]cols){
+    public  Grid(String tableName, String[]cols) throws DBAppException{
        name=tableName;
+       cols=sortCols(tableName,cols);
         for (int i = 0; i <cols.length ; i++) {
             name=name+cols[i];
+        }
+        String filepath= "src/main/resources/data/"+name+".ser";
+        File f = new File(filepath);
+        if(f.exists() && !f.isDirectory()){
+            throw new DBAppException();
         }
         final int[] dimensions = new int[cols.length];
         Arrays.fill(dimensions, 10);
@@ -51,6 +54,7 @@ public class Grid extends ArrayList<Object> implements Serializable {
 
 
 
+
     }
    public static void setStuffInArray(Object[] Grid,Vector<Integer> bucketnumber, int i,Object reference) {
 
@@ -66,6 +70,24 @@ public class Grid extends ArrayList<Object> implements Serializable {
      }
    }
 
+    public static Grid deserialG(String s){
+        Grid p;
+        try {
+            FileInputStream fileIn = new FileInputStream("src/main/resources/data/"+s+".ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            p = (Grid) in.readObject();
+            in.close();
+            fileIn.close();
+            return p;
+        } catch (IOException i) {
+            i.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException c) {
+            System.out.println(" class not found");
+            c.printStackTrace();
+            return null;
+        }
+    }
     public void serialG(){
         try
         {
