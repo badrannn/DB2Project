@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Vector;
 
 
-public class Grid extends ArrayList<Object> implements Serializable {
+public class Grid implements Serializable {
     String name;
     Object[]grid;
 
@@ -50,7 +50,15 @@ public class Grid extends ArrayList<Object> implements Serializable {
     }
 
     public static void createbucket(Vector<Integer> bucketnumber, String indexname ){
-        //Grid g=deserialG(indexname);
+        Grid k=deserialG(indexname);
+        Bucket b=new Bucket();
+        String s =indexname;
+        for (int i = 0; i < bucketnumber.size(); i++) {
+            s=s+bucketnumber.get(i);
+        }
+        setStuffInArray(k.grid,bucketnumber,0,s);
+        b.serialB(s);
+        k.serialG();
 
 
 
@@ -115,8 +123,15 @@ public class Grid extends ArrayList<Object> implements Serializable {
 
     }
 
-    public static void main(String[]args){
-
+    public static void main(String[]args) throws DBAppException {
+//        String[] s = {"gpa","name"};
+//        Grid g = new Grid("trial",s);
+//        Vector<Integer> v=new Vector<Integer>();
+//        v.add(0);
+//        v.add(1);
+//        String name="trialgpaname";
+//        createbucket(v,name);
+//        System.out.println(Arrays.deepToString(deserialG("trialgpaname").grid));
     }
 
 }
