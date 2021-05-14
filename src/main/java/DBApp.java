@@ -2388,9 +2388,36 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
     return false;
 
 }
+	public static String[] returnMinMax(String tname, String col){
+		String[] ret = new String[2];
+		String line = "";
+		String splitBy = ",";
+		try
+		{
+			BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
+			while ((line = br.readLine()) != null)   //returns a Boolean value
+			{
+				String[] row = line.split(splitBy);    // use comma as separator
+				String line0 = row[0];
 
 
+				if (line0.equalsIgnoreCase(tname) && row[1].equals(col)){
+					ret[0]=row[5];
+					ret[1]=row[6];
+					break;
+				}
 
+			}
+			br.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+
+		}
+
+		return ret;
+	}
 
 
 
@@ -2400,20 +2427,20 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 		DBApp db = new DBApp();
 		 db.init();
 
-//		 Hashtable htblColNameType = new Hashtable( );
-//		 htblColNameType.put("id", "java.lang.Integer");
-//		 htblColNameType.put("name", "java.lang.String");
-//		 htblColNameType.put("gpa", "java.lang.double");
-//		 Hashtable htblColNameMin = new Hashtable();
-//		 htblColNameMin.put("id", "0");
-//		 htblColNameMin.put("name", " ");
-//		 htblColNameMin.put("gpa", "0");
-//		 Hashtable htblColNameMax = new Hashtable();
-//		 htblColNameMax.put("id", "213981");
-//		 htblColNameMax.put("name", "ZZZZZZZZZZ");
-//		 htblColNameMax.put("gpa", "5");
-//
-//		db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+		 Hashtable htblColNameType = new Hashtable( );
+		 htblColNameType.put("id", "java.lang.Integer");
+		 htblColNameType.put("name", "java.lang.String");
+		 htblColNameType.put("gpa", "java.lang.double");
+		 Hashtable htblColNameMin = new Hashtable();
+		 htblColNameMin.put("id", "0");
+		 htblColNameMin.put("name", " ");
+		 htblColNameMin.put("gpa", "0");
+		 Hashtable htblColNameMax = new Hashtable();
+		 htblColNameMax.put("id", "213981");
+		 htblColNameMax.put("name", "ZZZZZZZZZZ");
+		 htblColNameMax.put("gpa", "5");
+
+		//db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
 //
 //		 Hashtable htblColNameValue = new Hashtable();
 //		 htblColNameValue.put("id", new Integer(5));
@@ -2473,10 +2500,11 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 		bucketnumber.add(0);
 		bucketnumber.add(1);
 		String [] p={"gpa","name"};
+		db.createIndex("trial",p);
 		//Grid g=new Grid("trial",p);
-		insertintoindex("trialgpaname",bucketnumber,16);
-		System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
-		System.out.println(Bucket.deserialB("trialgpaname01"));
-		System.out.println(Bucket.deserialB("trialgpaname01").overflow);
+		//insertintoindex("trialgpaname",bucketnumber,16);
+//		System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
+//		System.out.println(Bucket.deserialB("trialgpaname01"));
+//		System.out.println(Bucket.deserialB("trialgpaname01").overflow);
  	}
 }
