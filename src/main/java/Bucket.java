@@ -3,12 +3,12 @@ import java.util.Properties;
 import java.util.Vector;
 
 public class Bucket extends Vector<Object> implements Serializable {
-
+    Vector<Bucket> overflow;
 
 
 
     public Bucket() {
-
+        overflow= new Vector <>();
     }
     public boolean isFull(){
         boolean res=false;

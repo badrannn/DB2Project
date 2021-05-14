@@ -1132,6 +1132,29 @@ public class DBApp  implements DBAppInterface{
 
 }
 */
+	public static void insertintoindex(String Gridname,Vector<Integer> bucketNumber,Object adding){
+		String bucketref=Grid.checkBucket(bucketNumber,Gridname);
+		Bucket buck=Bucket.deserialB(bucketref);
+		if(buck.isFull()){
+			boolean overflow=false;
+			for (int i = 0; i <buck.overflow.size() ; i++) {
+				if(!buck.overflow.get(i).isFull()){
+					overflow=true;
+					buck.overflow.get(i).add(adding);
+					break;
+				}
+			}
+			if(!overflow){
+				Bucket over=new Bucket();
+				over.add(adding);
+				buck.overflow.add(over);
+			}
+		}
+		else{
+			buck.add(adding);
+		}
+		buck.serialB(bucketref);
+	}
 public static void overminmax(Page p){
 	Comparator<ArrayList<Object>> comparator = new Com();
 Object maximum=p.get(p.size()-1).get(0);
@@ -2376,8 +2399,7 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 	public static void main(String[]args) throws DBAppException, ParseException {
 		DBApp db = new DBApp();
 		 db.init();
-		 String[] s = {"gpa","name"};
-		 db.createIndex("trial", s);
+
 //		 Hashtable htblColNameType = new Hashtable( );
 //		 htblColNameType.put("id", "java.lang.Integer");
 //		 htblColNameType.put("name", "java.lang.String");
@@ -2392,7 +2414,7 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 //		 htblColNameMax.put("gpa", "5");
 //
 //		db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-
+//
 //		 Hashtable htblColNameValue = new Hashtable();
 //		 htblColNameValue.put("id", new Integer(5));
 //		 htblColNameValue.put("name", new String("aaaa"));
@@ -2446,7 +2468,15 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 //		sql._strColumnName="name";
 //		sql._strOperator="!=";
 //		sql._strTableName="trial";
-//		System.out.println(db.execnoteq(sql));
-
+//		System.out.println(db.execnoteq(sql))
+		Vector<Integer> bucketnumber=new Vector<Integer>();
+		bucketnumber.add(0);
+		bucketnumber.add(1);
+		String [] p={"gpa","name"};
+		//Grid g=new Grid("trial",p);
+		insertintoindex("trialgpaname",bucketnumber,16);
+		System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
+		System.out.println(Bucket.deserialB("trialgpaname01"));
+		System.out.println(Bucket.deserialB("trialgpaname01").overflow);
  	}
 }

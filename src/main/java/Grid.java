@@ -49,34 +49,52 @@ public class Grid implements Serializable {
         return x;
     }
 
-    public static void createbucket(Vector<Integer> bucketnumber, String indexname ){
+    public static String checkBucket(Vector<Integer> bucketnumber, String indexname ){
         Grid k=deserialG(indexname);
-        Bucket b=new Bucket();
         String s =indexname;
         for (int i = 0; i < bucketnumber.size(); i++) {
             s=s+bucketnumber.get(i);
         }
-        setStuffInArray(k.grid,bucketnumber,0,s);
-        b.serialB(s);
+        boolean g=setStuffInArray(k.grid,bucketnumber,0,s);
+        if(!g) {
+            Bucket b=new Bucket();
+            b.serialB(s);
+        }
         k.serialG();
-
-
-
-
+        return s;
     }
-   public static void setStuffInArray(Object[] Grid,Vector<Integer> bucketnumber, int i,Object reference) {
-
+   public static boolean setStuffInArray(Object[] Grid,Vector<Integer> bucketnumber, int i,Object reference) {
+boolean b=true;
      if(i<bucketnumber.size()-1){
          int ii=bucketnumber.get(i);
          Object[] grid2=(Object[])Grid[ii];
          i++;
-         setStuffInArray(grid2,bucketnumber,i,reference);
+         b=setStuffInArray(grid2,bucketnumber,i,reference);
      }
      else{
          int ii=bucketnumber.get(i);
-         Grid[ii]=reference;
+         if(Grid[ii]==null) {
+             Grid[ii] = reference;
+             b=false;
+         }
      }
+     return b;
    }
+    public static boolean bucketempty(Object[] Grid,Vector<Integer> bucketnumber, int i) {
+
+        if(i<bucketnumber.size()-1){
+            int ii=bucketnumber.get(i);
+            Object[] grid2=(Object[])Grid[ii];
+            i++;
+            bucketempty(grid2,bucketnumber,i);
+        }
+
+            int ii=bucketnumber.get(i);
+            if(Grid[ii]==null){
+                return true;
+            }
+            return false;
+    }
 
     public static Grid deserialG(String s){
         Grid p;
@@ -131,7 +149,9 @@ public class Grid implements Serializable {
 //        v.add(1);
 //        String name="trialgpaname";
 //        createbucket(v,name);
-//        System.out.println(Arrays.deepToString(deserialG("trialgpaname").grid));
+     System.out.println(Arrays.deepToString(deserialG("trialgpaname").grid));
+     System.out.println(Bucket.deserialB("trialgpaname01"));
+
     }
 
 }
