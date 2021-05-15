@@ -1,8 +1,9 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Vector;
 
-public class Bucket extends Vector<Object> implements Serializable {
+public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
     Vector<Bucket> overflow;
 
 

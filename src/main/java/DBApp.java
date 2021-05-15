@@ -1132,29 +1132,29 @@ public class DBApp  implements DBAppInterface{
 
 }
 */
-	public static void insertintoindex(String Gridname,Vector<Integer> bucketNumber,Object adding){
-		String bucketref=Grid.checkBucket(bucketNumber,Gridname);
-		Bucket buck=Bucket.deserialB(bucketref);
-		if(buck.isFull()){
-			boolean overflow=false;
-			for (int i = 0; i <buck.overflow.size() ; i++) {
-				if(!buck.overflow.get(i).isFull()){
-					overflow=true;
-					buck.overflow.get(i).add(adding);
-					break;
-				}
-			}
-			if(!overflow){
-				Bucket over=new Bucket();
-				over.add(adding);
-				buck.overflow.add(over);
-			}
-		}
-		else{
-			buck.add(adding);
-		}
-		buck.serialB(bucketref);
-	}
+//	public static void insertintoindex(String Gridname,Vector<Integer> bucketNumber,ArrayList<Object> adding){
+//		String bucketref=Grid.checkBucket(bucketNumber,Gridname);
+//		Bucket buck=Bucket.deserialB(bucketref);
+//		if(buck.isFull()){
+//			boolean overflow=false;
+//			for (int i = 0; i <buck.overflow.size() ; i++) {
+//				if(!buck.overflow.get(i).isFull()){
+//					overflow=true;
+//					buck.overflow.get(i).add(adding);
+//					break;
+//				}
+//			}
+//			if(!overflow){
+//				Bucket over=new Bucket();
+//				over.add(adding);
+//				buck.overflow.add(over);
+//			}
+//		}
+//		else{
+//			buck.add(adding);
+//		}
+//		buck.serialB(bucketref);
+//	}
 public static void overminmax(Page p){
 	Comparator<ArrayList<Object>> comparator = new Com();
 Object maximum=p.get(p.size()-1).get(0);
@@ -2440,9 +2440,9 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 		 htblColNameMax.put("name", "ZZZZZZZZZZ");
 		 htblColNameMax.put("gpa", "5");
 
-		//db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-//
-//		 Hashtable htblColNameValue = new Hashtable();
+	//	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+
+		 Hashtable htblColNameValue = new Hashtable();
 //		 htblColNameValue.put("id", new Integer(5));
 //		 htblColNameValue.put("name", new String("aaaa"));
 //		 htblColNameValue.put("gpa", new Double(2.3));
@@ -2480,31 +2480,40 @@ public static boolean insertexist(String t, Object key)  throws DBAppException {
 //		htblColNameValue.put("name", new String("aaaa"));
 //		htblColNameValue.put("gpa", new Double(2.0));
 //		db.insertIntoTable("trial",htblColNameValue);
-//
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(8));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(1.3));
-//		db.insertIntoTable("trial",htblColNameValue);
 
-//		System.out.println(Page.deserialP("trial0"));
-//		System.out.println(Page.deserialP("trial1"));
-//		System.out.println((Page.deserialP("trial0")).overflow);
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", new Integer(1));
+		htblColNameValue.put("gpa", new Double(2.1));
+		//db.insertIntoTable("trial",htblColNameValue);
+
+		System.out.println(Page.deserialP("trial0"));
+		System.out.println(Page.deserialP("trial1"));
+		System.out.println((Page.deserialP("trial0")).overflow);
 //		SQLTerm sql = new SQLTerm();
 //		sql._objValue="aaaaa";
 //		sql._strColumnName="name";
 //		sql._strOperator="!=";
 //		sql._strTableName="trial";
 //		System.out.println(db.execnoteq(sql))
-		Vector<Integer> bucketnumber=new Vector<Integer>();
-		bucketnumber.add(0);
-		bucketnumber.add(1);
+//		Vector<Integer> bucketnumber=new Vector<Integer>();
+//		bucketnumber.add(0);
+//		bucketnumber.add(1);
 		String [] p={"gpa","name"};
-		db.createIndex("trial",p);
+		//db.createIndex("trial",p);
 		//Grid g=new Grid("trial",p);
 		//insertintoindex("trialgpaname",bucketnumber,16);
-//		System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
-//		System.out.println(Bucket.deserialB("trialgpaname01"));
-//		System.out.println(Bucket.deserialB("trialgpaname01").overflow);
+		System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
+		System.out.println(Bucket.deserialB("trialgpaname00"));
+		System.out.println(Bucket.deserialB("trialgpaname01"));
+		System.out.println(Bucket.deserialB("trialgpaname24"));
+
+
+		System.out.println(Bucket.deserialB("trialgpaname34"));
+
+		System.out.println(Bucket.deserialB("trialgpaname40"));
+
+		System.out.println(Bucket.deserialB("trialgpaname44"));
+		System.out.println(Bucket.deserialB("trialgpaname44").overflow);
+		System.out.println(Bucket.deserialB("trialgpaname54"));
  	}
 }

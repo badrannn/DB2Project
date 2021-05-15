@@ -30,7 +30,7 @@ public class Grid implements Serializable {
 
         int tSize =Table.deserialT(tableName);
         if(tSize!=0){
-            
+            populate(tSize);
         }
 
 
@@ -51,19 +51,119 @@ public class Grid implements Serializable {
         }
         return x;
     }
+    public void populate(int tablesize){
+        ComB comp=new ComB();
+        for (int i = 0; i <tablesize ; i++) {
+            while(DBApp.checkdeleted(this.tableName,i)){
+                i++;
+                tablesize++;
+            }
+            Page p=Page.deserialP(this.tableName+i);
+            for (int j = 0; j <p.size() ; j++) {
+                ArrayList tuple=new ArrayList();
+                tuple=p.get(j);
+                ArrayList<Object> inserted=new ArrayList<Object>(this.cols.length);
+                for (int k = 0; k < this.cols.length; k++) {
+                   int column= DBApp.coloumnnum(this.cols[k],this.tableName);
+                   inserted.add(tuple.get(column));
+                }
+                Vector<Integer> bucketnumber=returnCell(this.name,inserted);
+                String buckname=checkBucket(bucketnumber,this.name);
+                Bucket buck=Bucket.deserialB(buckname);
+                ArrayList bucketinfo=new ArrayList();
+                bucketinfo.add(i);
+                bucketinfo.add(j);
+                bucketinfo.add(false);
+                bucketinfo.add(-1);
+                bucketinfo.add(tuple.get(0));
+                for (int k = 0; k <inserted.size(); k++) {
+                    bucketinfo.add(inserted.get(k));
+                }
+                if(!buck.isFull()) {
+                    buck.add(bucketinfo);
+                    Collections.sort(buck, comp);
+                    buck.serialB(buckname);
+                }
+                else{
+                    boolean flag=false;
+                    for (int k = 0; k <buck.overflow.size() ; k++) {
+                        if (!buck.overflow.get(k).isFull()){
+                            buck.overflow.get(k).add(bucketinfo);
+                            Collections.sort( buck.overflow.get(k), comp);
+                            buck.serialB(buckname);
+                            flag=true;
+                            break;
+                        }
+                    }
+                    if(flag==false){
+                        Bucket b=new Bucket();
+                        b.add(bucketinfo);
+                        buck.overflow.add(b);
+                        buck.serialB(buckname);
+                    }
+                }
+            }//overflow
+            for (int j = 0; j < p.overflow.size(); j++) {
+                Page over=p.overflow.get(j);
+                for (int k = 0; k < over.size(); k++) {
+                    ArrayList tuple=new ArrayList();
+                    tuple=over.get(k);
+                    ArrayList<Object> inserted=new ArrayList<Object>(this.cols.length);
+                    for (int m = 0; m < this.cols.length; m++) {
+                        int column= DBApp.coloumnnum(this.cols[m],this.tableName);
+                        inserted.add(tuple.get(column));
+                    }
+                    Vector<Integer> bucketnumber=returnCell(this.name,inserted);
+                    String buckname=checkBucket(bucketnumber,this.name);
+                    Bucket buck=Bucket.deserialB(buckname);
+                    ArrayList bucketinfo=new ArrayList();
+                    bucketinfo.add(i);
+                    bucketinfo.add(k);
+                    bucketinfo.add(true);
+                    bucketinfo.add(j);
+                    bucketinfo.add(tuple.get(0));
+                    for (Object col:inserted) {
+                        bucketinfo.add(col);
+                    }
+                    if(!buck.isFull()) {
+                        buck.add(bucketinfo);
+                        Collections.sort(buck, comp);
+                        buck.serialB(buckname);
+                    }
+                    else{
+                        boolean flag=false;
+                        for (int t = 0; t <buck.overflow.size() ; t++) {
+                            if (!buck.overflow.get(t).isFull()){
+                                buck.overflow.get(t).add(bucketinfo);
+                                Collections.sort( buck.overflow.get(t), comp);
+                                buck.serialB(buckname);
+                                flag=true;
+                                break;
+                            }
+                        }
+                        if(flag==false){
+                            Bucket b=new Bucket();
+                            b.add(bucketinfo);
+                            buck.overflow.add(b);
+                            buck.serialB(buckname);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public  String checkBucket(Vector<Integer> bucketnumber, String indexname ){
 
-    public static String checkBucket(Vector<Integer> bucketnumber, String indexname ){
-        Grid k=deserialG(indexname);
         String s =indexname;
         for (int i = 0; i < bucketnumber.size(); i++) {
             s=s+bucketnumber.get(i);
         }
-        boolean g=setStuffInArray(k.grid,bucketnumber,0,s);
+        boolean g=setStuffInArray(this.grid,bucketnumber,0,s);
         if(!g) {
             Bucket b=new Bucket();
             b.serialB(s);
         }
-        k.serialG();
+        this.serialG();
         return s;
     }
    public static boolean setStuffInArray(Object[] Grid,Vector<Integer> bucketnumber, int i,Object reference) {
@@ -144,21 +244,23 @@ boolean b=true;
 
     }
 
-    public static Vector<Integer> returnCell(String gridName, Object[] inserted){
+    public Vector<Integer> returnCell(String gridName, ArrayList<Object> inserted){
         Vector<Integer> ret = new Vector<Integer>();
-        Grid g = deserialG(gridName);
-        for (int i = 0; i <inserted.length ; i++) {
-            Object ins = inserted[i];
-            if (ins instanceof Integer){
-                int j = integCell(g.cols[i],g.tableName,(int)inserted[i]) ;
+        for (int i = 0; i <inserted.size() ; i++) {
+            Object ins = inserted.get(i);
+            if(ins==null){
+                ret.add(0);
+            }
+            else if (ins instanceof Integer){
+                int j = integCell(this.cols[i],this.tableName,(int)inserted.get(i)) ;
                 ret.add(j);
             }
             else if (ins instanceof Double){
-                int j = doubleCell(g.cols[i],g.tableName,(Double) inserted[i]) ;
+                int j = doubleCell(this.cols[i],this.tableName,(Double) inserted.get(i)) ;
                 ret.add(j);
             }
             else if(ins instanceof String){
-                int j = StringCell(g.cols[i],g.tableName,(String) inserted[i]) ;
+                int j = StringCell(this.cols[i],this.tableName,(String) inserted.get(i)) ;
                 ret.add(j);
 
             }
@@ -229,7 +331,6 @@ boolean b=true;
 //        String name="trialgpaname";
 //        createbucket(v,name);
         Object[] o ={3.9,"AAAA"};
-        System.out.println(returnCell("trialgpaname",o));
 
     }
 
