@@ -1,9 +1,9 @@
 import java.io.*;
 import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Vector;
 
 
 public class Grid implements Serializable {
@@ -323,74 +323,14 @@ boolean b=true;
 
     }
 
-    public static int dateCell(String colName, String tableName, Date inserted) throws ParseException {
-        String[] minMax = DBApp.returnMinMax(tableName,colName);
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date min = format.parse(minMax[0]);
-        Date max = format.parse(minMax[1]);
-        int ymin=min.getYear();
-        int ymax=max.getYear();
-        int mmin=min.getMonth();
-        int mmax=max.getMonth();
-        int dmin=min.getDay();
-        int dmax=min.getDate();
-
-        int small=(ymin*10000)+(mmin*100)+dmin;
-        int big=(ymax*10000)+(mmax*100)+dmax;
-        int range=big-small;
-        int div=range/10;
-
-        int a=inserted.getYear();
-        int b=inserted.getMonth();
-        int c=inserted.getDay();
-        int d=(a*10000)+(b*100)+c;
-
-        for (int i = 0; i < 10 ; i++) {
-            if(d<(small+(div*i)))
-                return i;
-        }
-
-        return 11; //means sth is wrong with the method.
-    }
-
-    public static void main(String[]args) throws DBAppException, ParseException {
+    public static void main(String[]args) throws DBAppException {
         //String[] s = {"id","name"};
 //        Vector<Integer> v=new Vector<Integer>();
 //        v.add(0);
 //        v.add(1);
 //        String name="trialgpaname";
 //        createbucket(v,name);
-        //Object[] o ={3.9,"AAAA"};
-//        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-  //      String sDate2 = "31-12-1998";
-   //     Date min = format.parse(sDate2);
-
-
-
-     //   Table s=new Table("d");
-
-     // System.out.print(dateCell("a", "d",min));
-        //DBApp db = new DBApp();
-        //db.init();
-/*
-        Hashtable htblColNameType = new Hashtable( );
-        htblColNameType.put("id", "java.lang.Integer");
-        htblColNameType.put("name", "java.lang.String");
-        htblColNameType.put("gpa", "java.lang.double");
-        Hashtable htblColNameMin = new Hashtable();
-        htblColNameMin.put("id", "0");
-        htblColNameMin.put("name", " ");
-        htblColNameMin.put("gpa", "0");
-        Hashtable htblColNameMax = new Hashtable();
-        htblColNameMax.put("id", "213981");
-        htblColNameMax.put("name", "ZZZZZZZZZZ");
-        htblColNameMax.put("gpa", "5");
-         */
-        //Hashtable<String, String> htblColNameType = null;
-        //Hashtable<String, String> htblColNameMin = null;
-        //Hashtable<String, String> htblColNameMax=null;
-        //db.createTable("trial", "id", htblColNameType);
-
+        Object[] o ={3.9,"AAAA"};
 
     }
 
