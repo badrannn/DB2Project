@@ -333,6 +333,40 @@ public class Grid implements Serializable {
 
 
   }
+  public static void insertIntoBucket(String gridName,  ArrayList<Object> key,ArrayList<Object> bucketinfo){
+    ComB comp =new ComB();
+    Grid g = deserialG(gridName);
+    Vector<Integer> v = g.returnCell(gridName,key);
+    String buckname = g.checkBucket(v,g.name);
+    Bucket buck = Bucket.deserialB(buckname);
+    if(!buck.isFull()){
+      buck.add(bucketinfo);
+      Collections.sort(buck, comp);
+      buck.serialB(buckname);
+    }
+    else {
+      boolean flag = false;
+      for (int k = 0; k < buck.overflow.size(); k++) {
+        if (!buck.overflow.get(k).isFull()) {
+          buck.overflow.get(k).add(bucketinfo);
+          Collections.sort(buck.overflow.get(k), comp);
+          buck.serialB(buckname);
+          flag = true;
+          break;
+        }
+      }
+      if (!flag) {
+        Bucket b = new Bucket();
+        b.add(bucketinfo);
+        buck.overflow.add(b);
+        buck.serialB(buckname);
+      }
+    }
+
+
+
+
+  }
 
   public static void main(String[] args) throws DBAppException {
     //String[] s = {"id","name"};
