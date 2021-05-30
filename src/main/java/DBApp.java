@@ -1055,6 +1055,90 @@ DBApp implements DBAppInterface {
 
     p.serialP(s);
   }
+  public void updateTablewithindex(String tableName, String clusteringKeyValue,
+                          Hashtable<String, Object> columnNameValue)
+          throws DBAppException {
+    boolean check = checkColumns(tableName, columnNameValue);
+    if (!check) {
+      throw new DBAppException();
+    }
+    boolean flagover = false;
+    Page overflow = null;
+    int k = 0;
+    String[] columns = Table.returnColumns(tableName);
+    int type = getType(tableName, columns[0]);
+    Object clusterkey = -1;
+    if (type == 0) {
+      clusterkey = Integer.parseInt(clusteringKeyValue);
+    } else if (type == 1) {
+      clusterkey = Double.parseDouble(clusteringKeyValue);
+    } else if (type == 3) {
+      DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+      try {
+        clusterkey = format.parse(clusteringKeyValue);
+      } catch (ParseException e) {
+        throw new DBAppException();
+      }
+
+
+    } else {
+      clusterkey = clusteringKeyValue;
+    }
+    String s=tableName+columns[0];
+    Grid g=Grid.deserialG(s);
+    ArrayList<Object> inserted=new ArrayList<Object>();
+    inserted.add(clusterkey);
+    Vector<Integer> cell=g.returnCell(s,inserted);
+    Object[] gg=g.grid;
+    Bucket b=Grid.returnbuck(gg,cell,0);
+    ArrayList<Object> t=new ArrayList<Object>();
+    int ret=b.binarysearch(clusterkey);
+    if(ret==-1){
+      for (int i = 0; i <b.overflow.size() ; i++) {
+        Bucket overbuck=b.overflow.get(i);
+        ret=overbuck.binarysearch(clusterkey);
+        if (ret!=-1){
+          t=overbuck.get(ret);
+          break;
+        }
+      }
+    }
+    else{
+      t=b.get(ret);
+    }
+
+
+    int[] pos =new int[2];
+    pos[0]=(int)t.get(0);
+    pos[1]=(int)t.get(1);
+    flagover=(boolean)t.get(2);
+    k=(int)t.get(3);
+    Enumeration<String> keys = columnNameValue.keys();
+    String ss = tableName + pos[0];
+    Page p = Page.deserialP(ss);
+    while (keys.hasMoreElements()) {
+      String key = keys.nextElement();
+      int j = coloumnnum(key, tableName);
+      if (j == -1) {
+        throw new DBAppException();
+      }
+      Object Change = columnNameValue.get(key);
+      if (!checkMinMax(tableName, columns[j], Change)) {
+        throw new DBAppException();
+      }
+
+      if (!flagover) {
+        p.get(pos[1]).set(j, Change);
+      } else {
+        p.overflow.get(k).get(pos[1]).set(j, Change);
+      }
+
+
+    }
+
+    p.serialP(ss);
+  }
 
   /*public static void rename(String tableName,int pagenum){
 	int tablesize=Table.deserialT(tableName);
@@ -2344,14 +2428,14 @@ DBApp implements DBAppInterface {
     htblColNameMax.put("name", "ZZZZZZZZZZ");
     htblColNameMax.put("gpa", "5");
 
-    //	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+    	//db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
 
     Hashtable htblColNameValue = new Hashtable();
-//		 htblColNameValue.put("id", new Integer(5));
-//		 htblColNameValue.put("name", new String("aaaa"));
-//		 htblColNameValue.put("gpa", new Double(2.3));
-//		 db.insertIntoTable("trial",htblColNameValue);
-//
+		 htblColNameValue.put("id", new Integer(5));
+		 htblColNameValue.put("name", new String("aaaa"));
+		 htblColNameValue.put("gpa", new Double(2.3));
+		 //db.insertIntoTable("trial",htblColNameValue);
+
 //		htblColNameValue.clear( );
 //		htblColNameValue.put("id", new Integer(10));
 //		htblColNameValue.put("name", new String("aaaa"));
@@ -2384,15 +2468,15 @@ DBApp implements DBAppInterface {
 //		htblColNameValue.put("name", new String("aaaa"));
 //		htblColNameValue.put("gpa", new Double(2.0));
 //		db.insertIntoTable("trial",htblColNameValue);
+//
+//    htblColNameValue.clear();
+//    htblColNameValue.put("id", new Integer(1));
+//    htblColNameValue.put("gpa", new Double(2.1));
+//    db.insertIntoTable("trial",htblColNameValue);
 
-    htblColNameValue.clear();
-    htblColNameValue.put("id", new Integer(1));
-    htblColNameValue.put("gpa", new Double(2.1));
-    //db.insertIntoTable("trial",htblColNameValue);
-
-    System.out.println(Page.deserialP("trial0"));
-    System.out.println(Page.deserialP("trial1"));
-    System.out.println((Page.deserialP("trial0")).overflow);
+//    System.out.println(Page.deserialP("trial0"));
+//    System.out.println(Page.deserialP("trial1"));
+//    System.out.println((Page.deserialP("trial0")).overflow);
 //		SQLTerm sql = new SQLTerm();
 //		sql._objValue="aaaaa";
 //		sql._strColumnName="name";
@@ -2402,21 +2486,25 @@ DBApp implements DBAppInterface {
 //		Vector<Integer> bucketnumber=new Vector<Integer>();
 //		bucketnumber.add(0);
 //		bucketnumber.add(1);
-    String[] p = {"gpa", "name"};
-    //db.createIndex("trial",p);
-    //Grid g=new Grid("trial",p);
+    String[] p = {"id"};
+  //db.createIndex("trial",p);
+   // System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
     //insertintoindex("trialgpaname",bucketnumber,16);
-    System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
-    System.out.println(Bucket.deserialB("trialgpaname00"));
-    System.out.println(Bucket.deserialB("trialgpaname01"));
-    System.out.println(Bucket.deserialB("trialgpaname24"));
-
-    System.out.println(Bucket.deserialB("trialgpaname34"));
-
-    System.out.println(Bucket.deserialB("trialgpaname40"));
-
-    System.out.println(Bucket.deserialB("trialgpaname44"));
-    System.out.println(Bucket.deserialB("trialgpaname44").overflow);
-    System.out.println(Bucket.deserialB("trialgpaname54"));
+//    System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
+//    System.out.println(Bucket.deserialB("trialgpaname24"));
+//
+//    System.out.println(Bucket.deserialB("trialgpaname34"));
+//
+//    System.out.println(Bucket.deserialB("trialgpaname40"));
+//
+//    System.out.println(Bucket.deserialB("trialgpaname44"));
+//    System.out.println(Bucket.deserialB("trialgpaname44").overflow);
+//    System.out.println(Bucket.deserialB("trialgpaname54"));
+    Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
+    columnNameValue.put("gpa",2.0);
+    //db.updateTablewithindex("trial","5",columnNameValue);
+    System.out.println(Bucket.deserialB("trialid0"));
+    System.out.println(Bucket.deserialB("trialid0").overflow);
+    System.out.println(Page.deserialP("trial0").overflow);
   }
 }

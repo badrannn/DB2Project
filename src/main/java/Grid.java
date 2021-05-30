@@ -53,7 +53,7 @@ public class Grid implements Serializable {
     return x;
   }
 
-  public void populate(int tablesize) {
+  public void populate(int tablesize) {// row structure page number,tuple number,overflow or no,page number in overflow, primary key, info
     ComB comp = new ComB();
     for (int i = 0; i < tablesize; i++) {
       while (DBApp.checkdeleted(this.tableName, i)) {
@@ -201,6 +201,19 @@ public class Grid implements Serializable {
     }
     return false;
   }
+  public static Bucket returnbuck(Object[] Grid, Vector<Integer> bucketnumber, int i){
+    if (i < bucketnumber.size() - 1) {
+      int ii = bucketnumber.get(i);
+      Object[] grid2 = (Object[]) Grid[ii];
+      i++;
+      bucketempty(grid2, bucketnumber, i);
+    }
+
+    int ii = bucketnumber.get(i);
+    Bucket b= Bucket.deserialB((String)Grid[ii]) ;
+    return b;
+
+  }
 
   public static Grid deserialG(String s) {
     Grid p;
@@ -289,6 +302,9 @@ public class Grid implements Serializable {
     }
     return 9;
 
+  }
+  public static void updatebucket(){
+    
   }
 
   public static int doubleCell(String colName, String tableName, Double inserted) {
