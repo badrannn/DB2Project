@@ -73,7 +73,9 @@ DBApp implements DBAppInterface {
 
       e.printStackTrace();
     }
-
+    String[] coll=new String[1];
+    coll[0]=strClusteringKeyColumn;
+    Grid g= new Grid(strTableName,coll);
 
   }
 
