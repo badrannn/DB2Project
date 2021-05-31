@@ -9,11 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
-public class
-DBApp implements DBAppInterface {
-
-  
+public class DBApp implements DBAppInterface {
 
   public void init() {
 
@@ -29,7 +25,7 @@ DBApp implements DBAppInterface {
       }
       br.close();
 
-      Path path = Paths.get("src/main/resources/data"); //create data directory
+      Path path = Paths.get("src/main/resources/data"); // create data directory
       Files.createDirectories(path);
       File range = new File("src/main/resources/data/range.txt");
       System.out.println("Range file:" + range.createNewFile());
@@ -37,12 +33,11 @@ DBApp implements DBAppInterface {
     } catch (IOException e) {
 
       System.err.println("Failed to create directory!" + e.getMessage());
-
     }
   }
 
-
-  public void createTable(String strTableName,
+  public void createTable(
+      String strTableName,
       String strClusteringKeyColumn,
       Hashtable<String, String> htblColNameType,
       Hashtable<String, String> htblColNameMin,
@@ -52,8 +47,8 @@ DBApp implements DBAppInterface {
       if (tableExists(strTableName)) {
         throw new DBAppException();
       }
-      this.appendCsv(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin,
-          htblColNameMax);
+      this.appendCsv(
+          strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
       Table t = new Table(strTableName);
 
       t.cluster = strClusteringKeyColumn;
@@ -73,18 +68,19 @@ DBApp implements DBAppInterface {
 
       e.printStackTrace();
     }
-    String[] coll=new String[1];
-    coll[0]=strClusteringKeyColumn;
+    String[] coll = new String[1];
+    coll[0] = strClusteringKeyColumn;
     DBApp db = new DBApp();
-    db.createIndex(strTableName,coll);
-
+    db.createIndex(strTableName, coll);
   }
 
-
-  public void appendCsv(String name,
-      String cluster, Hashtable<String, String> htblColNameType,
+  public void appendCsv(
+      String name,
+      String cluster,
+      Hashtable<String, String> htblColNameType,
       Hashtable<String, String> htblColNameMin,
-      Hashtable<String, String> htblColNameMax) throws IOException, DBAppException {
+      Hashtable<String, String> htblColNameMax)
+      throws IOException, DBAppException {
 
     removeBlanksCsv();
     FileWriter pw = new FileWriter("src/main/resources/metadata.csv", true);
@@ -102,22 +98,31 @@ DBApp implements DBAppInterface {
         throw new DBAppException();
       }
 
-			if (col.equals(cluster)) {
-				clus = true;
-			}
+      if (col.equals(cluster)) {
+        clus = true;
+      }
 
       builder.append(
-          name + "," + col + "," + typ + "," + clus.toString() + "," + "false," + min + "," + max
+          name
+              + ","
+              + col
+              + ","
+              + typ
+              + ","
+              + clus.toString()
+              + ","
+              + "false,"
+              + min
+              + ","
+              + max
               + "\n");
       System.out.println(clus.toString());
       pw.write(builder.toString());
-
     }
 
     pw.close();
     System.out.print("done!");
   }
-
 
   public static boolean tableExists(String name) {
     boolean res = false;
@@ -126,29 +131,26 @@ DBApp implements DBAppInterface {
     String splitBy = ",";
     try {
       BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         String line0 = row[0];
 
         if (line0.equalsIgnoreCase(name)) {
           res = true;
           break;
         }
-
       }
       br.close();
     } catch (IOException e) {
       e.printStackTrace();
-
     }
 
     return res;
   }
 
-
   public static boolean checkMinMax(String table, String col, Object key) throws DBAppException {
-    int type = getType(table, col); //int 0 Double 1 String 2 Date 3
+    int type = getType(table, col); // int 0 Double 1 String 2 Date 3
     String min = "";
     String max = "";
 
@@ -157,9 +159,9 @@ DBApp implements DBAppInterface {
     String splitBy = ",";
     try {
       BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         String line0 = row[0];
         String line1 = row[1];
 
@@ -169,7 +171,6 @@ DBApp implements DBAppInterface {
           max = row[6];
           break;
         }
-
       }
       br.close();
       if (type == 0) {
@@ -177,14 +178,13 @@ DBApp implements DBAppInterface {
         try {
           int mi = Integer.parseInt(min);
           int ma = Integer.parseInt(max);
-					if (obj <= ma && obj >= mi) {
-						return true;
-					} else {
-						return false;
-					}
+          if (obj <= ma && obj >= mi) {
+            return true;
+          } else {
+            return false;
+          }
         } catch (Exception e) {
           throw new DBAppException();
-
         }
       } else if (type == 1) {
         Double obj = (Double) key;
@@ -197,14 +197,13 @@ DBApp implements DBAppInterface {
           int comp1 = obj1.compareTo(mi1);
           int comp2 = obj1.compareTo(ma1);
 
-					if (comp1 >= 0 && comp2 <= 0) {
-						return true;
-					} else {
-						return false;
-					}
+          if (comp1 >= 0 && comp2 <= 0) {
+            return true;
+          } else {
+            return false;
+          }
         } catch (Exception e) {
           throw new DBAppException();
-
         }
       } else if (type == 3) {
 
@@ -218,33 +217,30 @@ DBApp implements DBAppInterface {
           int comp1 = obj.compareTo(mi);
           int comp2 = obj.compareTo(ma);
 
-					if (comp1 >= 0 && comp2 <= 0) {
-						return true;
-					} else {
-						return false;
-					}
+          if (comp1 >= 0 && comp2 <= 0) {
+            return true;
+          } else {
+            return false;
+          }
         } catch (Exception e) {
           throw new DBAppException();
-
         }
       } else {
         String obj = (String) key;
         int comp1 = obj.compareToIgnoreCase(min);
         int comp2 = obj.compareToIgnoreCase(max);
 
-				if (comp1 >= 0 && comp2 <= 0) {
-					return true;
-				} else {
-					return false;
-				}
+        if (comp1 >= 0 && comp2 <= 0) {
+          return true;
+        } else {
+          return false;
+        }
       }
-
 
     } catch (IOException e) {
       e.printStackTrace();
       return false;
     }
-
   }
 
   public static boolean checkdeleted(String tableName, int pagenum) {
@@ -255,7 +251,9 @@ DBApp implements DBAppInterface {
   }
 
   public static int searchinsert(String tableName, Object key)
-      throws DBAppException {//returns page number if value is -1 then insert into first page if -2 then last page
+      throws
+          DBAppException { // returns page number if value is -1 then insert into first page if -2
+    // then last page
     int tablesize = Table.deserialT(tableName);
     for (int i = 0; i < tablesize; i++) {
       while (checkdeleted(tableName, i)) {
@@ -266,37 +264,37 @@ DBApp implements DBAppInterface {
       String min = range[0];
       String max = range[1];
       String cluster = Table.returnCluster(tableName);
-      int type = DBApp.getType(tableName, cluster); //int 0 Double 1 String 2 Date 3
+      int type = DBApp.getType(tableName, cluster); // int 0 Double 1 String 2 Date 3
       if (type == 0) {
         Integer minn = Integer.valueOf(min);
         Integer maxx = Integer.valueOf(max);
         Integer keyy = (Integer) key;
         if (keyy < minn) {
           while (checkdeleted(tableName, i - 1)) {
-						if (i == 0) {
-							return -1;
-						}
+            if (i == 0) {
+              return -1;
+            }
             i--;
           }
           return i - 1;
         } else if (minn < keyy && keyy < maxx) {
-					return i;
-				}
+          return i;
+        }
       } else if (type == 2) {
         String keyy = (String) key;
         int compmin = keyy.compareTo(min);
         int compmax = keyy.compareTo(max);
         if (compmin < 0) {
           while (checkdeleted(tableName, i - 1)) {
-						if (i == 0) {
-							return -1;
-						}
+            if (i == 0) {
+              return -1;
+            }
             i--;
           }
           return i - 1;
         } else if (compmin > 0 && compmax < 0) {
-					return i;
-				}
+          return i;
+        }
       } else if (type == 3) {
 
         try {
@@ -312,19 +310,18 @@ DBApp implements DBAppInterface {
           int compmax = keyy.compareTo(maxx);
           if (compmin < 0) {
             while (checkdeleted(tableName, i - 1)) {
-							if (i == 0) {
-								return -1;
-							}
+              if (i == 0) {
+                return -1;
+              }
               i--;
             }
             return i - 1;
           } else if (compmin > 0 && compmax < 0) {
-						return i;
-					}
+            return i;
+          }
         } catch (ParseException e) {
           // TODO Auto-generated catch block
           throw new DBAppException();
-
         }
       } else if (type == 1) {
         Double minn = Double.valueOf(min);
@@ -337,30 +334,29 @@ DBApp implements DBAppInterface {
         int compmax = keybig.compareTo(maxbig);
         if (compmin < 0) {
           while (checkdeleted(tableName, i - 1)) {
-						if (i == 0) {
-							return -1;
-						}
+            if (i == 0) {
+              return -1;
+            }
             i--;
           }
           return i - 1;
         } else if (compmin > 0 && compmax < 0) {
-					return i;
-				}
+          return i;
+        }
       }
     }
     return -2;
   }
 
-
-  public static int getType(String name, String col) { //int 0 Double 1 String 2 Date 3
+  public static int getType(String name, String col) { // int 0 Double 1 String 2 Date 3
     String s = "";
     String line = "";
     String splitBy = ",";
     try {
       BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         String line0 = row[0];
         String line1 = row[1];
 
@@ -369,26 +365,23 @@ DBApp implements DBAppInterface {
           s = row[2];
           break;
         }
-
       }
       br.close();
-			if (s.equalsIgnoreCase("java.lang.Integer")) {
-				return 0;
-			} else if (s.equalsIgnoreCase("java.lang.Double")) {
-				return 1;
-			} else if (s.equalsIgnoreCase("java.lang.String")) {
-				return 2;
-			} else {
-				return 3;
-			}
-
+      if (s.equalsIgnoreCase("java.lang.Integer")) {
+        return 0;
+      } else if (s.equalsIgnoreCase("java.lang.Double")) {
+        return 1;
+      } else if (s.equalsIgnoreCase("java.lang.String")) {
+        return 2;
+      } else {
+        return 3;
+      }
 
     } catch (IOException e) {
       e.printStackTrace();
       return -1;
     }
   }
-
 
   @Override
   public void createIndex(String tableName, String[] columnNames) throws DBAppException {
@@ -407,7 +400,6 @@ DBApp implements DBAppInterface {
     }
   }
 
-
   public static String[] returnRange(String pageName) {
     String[] ran = new String[2];
     String line = "";
@@ -415,9 +407,9 @@ DBApp implements DBAppInterface {
     String path = "src/main/resources/data/range.txt";
     try {
       BufferedReader br = new BufferedReader(new FileReader(path));
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         String line0 = row[0];
 
         if (line0.equalsIgnoreCase(pageName)) {
@@ -425,7 +417,6 @@ DBApp implements DBAppInterface {
           ran[1] = row[2];
           break;
         }
-
       }
       br.close();
       return ran;
@@ -433,10 +424,7 @@ DBApp implements DBAppInterface {
     } catch (IOException e) {
       e.printStackTrace();
       return ran;
-
     }
-
-
   }
 
   public static void removeBlanksCsv() {
@@ -463,14 +451,15 @@ DBApp implements DBAppInterface {
     } catch (Exception ex) {
       ex.printStackTrace();
     }
-    }
+  }
+
   public static void removeBlanks() {
     Scanner file;
     PrintWriter writer;
     String path = "src/main/resources/data/range.txt";
     try {
-      file = new Scanner(new File("src/main/resources/data/range.txt")); //sourcefile
-      writer = new PrintWriter("tempp.txt"); //destinationfile
+      file = new Scanner(new File("src/main/resources/data/range.txt")); // sourcefile
+      writer = new PrintWriter("tempp.txt"); // destinationfile
       while (file.hasNext()) {
         String line = file.nextLine();
         if (!line.isEmpty()) {
@@ -490,7 +479,7 @@ DBApp implements DBAppInterface {
     }
   }
 
-  public static void pageRecord(String pageName) {//update min max
+  public static void pageRecord(String pageName) { // update min max
     removeBlanks();
     Page p = Page.deserialP(pageName);
     int lastIndex = p.size() - 1;
@@ -520,15 +509,15 @@ DBApp implements DBAppInterface {
       String line = "";
       String splitBy = ",";
 
-      FileWriter fw = new FileWriter(temp, true); //start
+      FileWriter fw = new FileWriter(temp, true); // start
       BufferedWriter bw = new BufferedWriter(fw);
       PrintWriter pw = new PrintWriter(bw);
 
       BufferedReader br = new BufferedReader(new FileReader(path));
 
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         name = row[0];
         min = row[1];
         max = row[2];
@@ -558,10 +547,7 @@ DBApp implements DBAppInterface {
       System.out.println("Rename status: " + r);
     } catch (Exception e) {
       System.out.println("Error!");
-
     }
-
-
   }
 
   public static void deleteRecord(String record) {
@@ -584,15 +570,15 @@ DBApp implements DBAppInterface {
 
       BufferedReader br = new BufferedReader(new FileReader(path));
 
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         name = row[0];
         min = row[1];
         max = row[2];
-				if (!name.equalsIgnoreCase(record)) {
-					pw.println(name + "," + min + "," + max);
-				}
+        if (!name.equalsIgnoreCase(record)) {
+          pw.println(name + "," + min + "," + max);
+        }
       }
 
       br.close();
@@ -611,14 +597,11 @@ DBApp implements DBAppInterface {
       System.out.println("Rename status: " + r);
     } catch (Exception e) {
       System.out.println("Error!");
-
     }
-
-
   }
 
-  public static boolean checkColumns(String tableName,
-      Hashtable<String, Object> colNameValue) { //true if data consistent
+  public static boolean checkColumns(
+      String tableName, Hashtable<String, Object> colNameValue) { // true if data consistent
     String[] columns = Table.returnColumns(tableName);
     Enumeration<String> keys = colNameValue.keys();
 
@@ -631,13 +614,11 @@ DBApp implements DBAppInterface {
           break;
         }
       }
-			if (elem == false) {
-				return false;
-			}
-
+      if (elem == false) {
+        return false;
+      }
     }
     return true;
-
   }
 
   @Override
@@ -650,13 +631,13 @@ DBApp implements DBAppInterface {
     }
     Comparator<ArrayList<Object>> comparator = new Com();
 
-    ArrayList<Object> row = new ArrayList<>(); //record we wanna insert
+    ArrayList<Object> row = new ArrayList<>(); // record we wanna insert
 
-    String cluster = Table.returnCluster(tableName); //cluster column
+    String cluster = Table.returnCluster(tableName); // cluster column
     String[] columns = Table.returnColumns(tableName);
 
     boolean checkClms = checkColumns(tableName, colNameValue);
-    if (checkClms == false) { //false column name was specified (key)
+    if (checkClms == false) { // false column name was specified (key)
       throw new DBAppException();
     }
 
@@ -664,37 +645,39 @@ DBApp implements DBAppInterface {
       throw new DBAppException();
     }
 
-    Object valu = colNameValue.get(cluster); //cluster key value
-    if (valu == null) { //check if cluster value = null
+    Object valu = colNameValue.get(cluster); // cluster key value
+    if (valu == null) { // check if cluster value = null
       throw new DBAppException();
     }
 
     boolean exist = insertexist(tableName, valu);
-    //int pageNum= index[0];
+    // int pageNum= index[0];
 
-    if ((exist)) { //check if cluster value = null or cluster value exists already in table
+    if ((exist)) { // check if cluster value = null or cluster value exists already in table
       throw new DBAppException();
     }
 
     for (int i = 0; i < columns.length; i++) {
       String col = columns[i];
       Object x = colNameValue.get(col);
-      int ty = getType(tableName, col); //int 0 Double 1 String 2 Date 3
+      int ty = getType(tableName, col); // int 0 Double 1 String 2 Date 3
       if (x == null) {
         row.add(x);
-      } else if (((x instanceof Integer) && ty != 0) || ((x instanceof Double) && ty != 1) || (
-          (x instanceof String) && ty != 2) || ((x instanceof Date) && ty != 3)) {
+      } else if (((x instanceof Integer) && ty != 0)
+          || ((x instanceof Double) && ty != 1)
+          || ((x instanceof String) && ty != 2)
+          || ((x instanceof Date) && ty != 3)) {
         throw new DBAppException();
       } else {
         boolean check = checkMinMax(tableName, col, x);
-				if (!check) {
-					throw new DBAppException();
-				}
+        if (!check) {
+          throw new DBAppException();
+        }
         row.add(x);
       }
-    }// done with the tuple related exceptions and ready to insert
+    } // done with the tuple related exceptions and ready to insert
 
-    //check if table is empty or not
+    // check if table is empty or not
     if (Table.deserialT(tableName) == 0) {
       try {
         FileWriter pw = new FileWriter("src/main/resources/data/range.txt", true);
@@ -713,9 +696,9 @@ DBApp implements DBAppInterface {
         e.printStackTrace();
       }
     } else {
-      int pnum = searchinsert(tableName, valu); //where we should insert the tuple
+      int pnum = searchinsert(tableName, valu); // where we should insert the tuple
 
-      if (pnum == -1) { //insert in first page
+      if (pnum == -1) { // insert in first page
         int i = 0;
         while (checkdeleted(tableName, i)) {
           i++;
@@ -727,7 +710,7 @@ DBApp implements DBAppInterface {
           Collections.sort(p, comparator);
           p.serialP(tableName + i);
           pageRecord(tableName + i);
-        } else { //first check if there's a next page
+        } else { // first check if there's a next page
           if (Table.deserialT(tableName) == 1) {
             try {
               int j = i + 1;
@@ -797,7 +780,7 @@ DBApp implements DBAppInterface {
 
               Page ne = Page.deserialP(tableName + j);
 
-              if (ne.isFull()) {//overflow
+              if (ne.isFull()) { // overflow
 
                 Page oo = new Page();
                 ArrayList removed = p.remove(0);
@@ -820,8 +803,6 @@ DBApp implements DBAppInterface {
                 pageRecord(tableName + j);
               }
             }
-
-
           }
         }
 
@@ -863,7 +844,6 @@ DBApp implements DBAppInterface {
             e.printStackTrace();
           }
 
-
         } else {
           p.add(row);
 
@@ -872,7 +852,6 @@ DBApp implements DBAppInterface {
           p.serialP(tableName + i);
 
           pageRecord(tableName + i);
-
         }
 
       } else {
@@ -988,25 +967,16 @@ DBApp implements DBAppInterface {
                 pageRecord(tableName + pnum);
                 pageRecord(tableName + j);
               }
-
             }
           }
-
-
         }
-
-
       }
-
-
     }
-
   }
 
-
   @Override
-  public void updateTable(String tableName, String clusteringKeyValue,
-      Hashtable<String, Object> columnNameValue)
+  public void updateTable(
+      String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
       throws DBAppException {
     boolean check = checkColumns(tableName, columnNameValue);
     if (!check) {
@@ -1031,7 +1001,6 @@ DBApp implements DBAppInterface {
         throw new DBAppException();
       }
 
-
     } else {
       clusterkey = clusteringKeyValue;
     }
@@ -1050,9 +1019,9 @@ DBApp implements DBAppInterface {
         } else if (clusterkey instanceof Date) {
           pos[1] = binarysearchdate(overflow, (Date) clusterkey);
         }
-				if (pos[1] >= 0) {
-					break;
-				}
+        if (pos[1] >= 0) {
+          break;
+        }
       }
     }
     if (pos[0] == -1 || pos[1] == -1) {
@@ -1072,20 +1041,19 @@ DBApp implements DBAppInterface {
         throw new DBAppException();
       }
 
-			if (!flagover) {
-				p.get(pos[1]).set(j, Change);
-			} else {
-				p.overflow.get(k).get(pos[1]).set(j, Change);
-			}
-
-
+      if (!flagover) {
+        p.get(pos[1]).set(j, Change);
+      } else {
+        p.overflow.get(k).get(pos[1]).set(j, Change);
+      }
     }
 
     p.serialP(s);
   }
-  public void updateTablewithindex(String tableName, String clusteringKeyValue,
-                          Hashtable<String, Object> columnNameValue)
-          throws DBAppException {
+
+  public void updateTablewithindex(
+      String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
+      throws DBAppException {
     boolean check = checkColumns(tableName, columnNameValue);
     if (!check) {
       throw new DBAppException();
@@ -1109,39 +1077,36 @@ DBApp implements DBAppInterface {
         throw new DBAppException();
       }
 
-
     } else {
       clusterkey = clusteringKeyValue;
     }
-    String s=tableName+columns[0];
-    Grid g=Grid.deserialG(s);
-    ArrayList<Object> inserted=new ArrayList<Object>();
+    String s = tableName + columns[0];
+    Grid g = Grid.deserialG(s);
+    ArrayList<Object> inserted = new ArrayList<Object>();
     inserted.add(clusterkey);
-    Vector<Integer> cell=g.returnCell(s,inserted);
-    Object[] gg=g.grid;
-    Bucket b=Grid.returnbuck(gg,cell,0);
-    ArrayList<Object> t=new ArrayList<Object>();
-    int ret=b.binarysearch(clusterkey);
-    if(ret==-1){
-      for (int i = 0; i <b.overflow.size() ; i++) {
-        Bucket overbuck=b.overflow.get(i);
-        ret=overbuck.binarysearch(clusterkey);
-        if (ret!=-1){
-          t=overbuck.get(ret);
+    Vector<Integer> cell = g.returnCell(s, inserted);
+    Object[] gg = g.grid;
+    Bucket b = Grid.returnbuck(gg, cell, 0);
+    ArrayList<Object> t = new ArrayList<Object>();
+    int ret = b.binarysearch(clusterkey);
+    if (ret == -1) {
+      for (int i = 0; i < b.overflow.size(); i++) {
+        Bucket overbuck = b.overflow.get(i);
+        ret = overbuck.binarysearch(clusterkey);
+        if (ret != -1) {
+          t = overbuck.get(ret);
           break;
         }
       }
-    }
-    else{
-      t=b.get(ret);
+    } else {
+      t = b.get(ret);
     }
 
-
-    int[] pos =new int[2];
-    pos[0]=(int)t.get(0);
-    pos[1]=(int)t.get(1);
-    flagover=(boolean)t.get(2);
-    k=(int)t.get(3);
+    int[] pos = new int[2];
+    pos[0] = (int) t.get(0);
+    pos[1] = (int) t.get(1);
+    flagover = (boolean) t.get(2);
+    k = (int) t.get(3);
     Enumeration<String> keys = columnNameValue.keys();
     String ss = tableName + pos[0];
     Page p = Page.deserialP(ss);
@@ -1161,64 +1126,63 @@ DBApp implements DBAppInterface {
       } else {
         p.overflow.get(k).get(pos[1]).set(j, Change);
       }
-
-
     }
 
     p.serialP(ss);
   }
 
   /*public static void rename(String tableName,int pagenum){
-	int tablesize=Table.deserialT(tableName);
-	if(pagenum==tablesize-1){
-		File f1 = new File("src/main/resources/data"+tableName+pagenum+".ser");
-		 boolean b=f1.delete();
-		 System.out.println(b);
-	}
-	else{
-	for(int i=pagenum;i<(tablesize-1);i++){
-		String path1="src/main/resources/data/"+tableName+i+".ser";
-		int j=i+1;
-		String path2="src/main/resources/data/"+tableName+j+".ser";
-		File f1 = new File(path1);
-		File f2 = new File(path2);
-		boolean b=f2.renameTo(f1);
-		System.out.println(b);
-	}
-		int pp = tablesize-1;
-		File f1 = new File("src/main/resources/data"+tableName+pp+".ser");
-		boolean bb=f1.delete();
-		System.out.println(bb);
+  	int tablesize=Table.deserialT(tableName);
+  	if(pagenum==tablesize-1){
+  		File f1 = new File("src/main/resources/data"+tableName+pagenum+".ser");
+  		 boolean b=f1.delete();
+  		 System.out.println(b);
+  	}
+  	else{
+  	for(int i=pagenum;i<(tablesize-1);i++){
+  		String path1="src/main/resources/data/"+tableName+i+".ser";
+  		int j=i+1;
+  		String path2="src/main/resources/data/"+tableName+j+".ser";
+  		File f1 = new File(path1);
+  		File f2 = new File(path2);
+  		boolean b=f2.renameTo(f1);
+  		System.out.println(b);
+  	}
+  		int pp = tablesize-1;
+  		File f1 = new File("src/main/resources/data"+tableName+pp+".ser");
+  		boolean bb=f1.delete();
+  		System.out.println(bb);
 
-}
+  }
 
-	//modify tablesize after
+  	//modify tablesize after
 
-}
-*/
-//	public static void insertintoindex(String Gridname,Vector<Integer> bucketNumber,ArrayList<Object> adding){
-//		String bucketref=Grid.checkBucket(bucketNumber,Gridname);
-//		Bucket buck=Bucket.deserialB(bucketref);
-//		if(buck.isFull()){
-//			boolean overflow=false;
-//			for (int i = 0; i <buck.overflow.size() ; i++) {
-//				if(!buck.overflow.get(i).isFull()){
-//					overflow=true;
-//					buck.overflow.get(i).add(adding);
-//					break;
-//				}
-//			}
-//			if(!overflow){
-//				Bucket over=new Bucket();
-//				over.add(adding);
-//				buck.overflow.add(over);
-//			}
-//		}
-//		else{
-//			buck.add(adding);
-//		}
-//		buck.serialB(bucketref);
-//	}
+  }
+  */
+  //	public static void insertintoindex(String Gridname,Vector<Integer>
+  // bucketNumber,ArrayList<Object> adding){
+  //		String bucketref=Grid.checkBucket(bucketNumber,Gridname);
+  //		Bucket buck=Bucket.deserialB(bucketref);
+  //		if(buck.isFull()){
+  //			boolean overflow=false;
+  //			for (int i = 0; i <buck.overflow.size() ; i++) {
+  //				if(!buck.overflow.get(i).isFull()){
+  //					overflow=true;
+  //					buck.overflow.get(i).add(adding);
+  //					break;
+  //				}
+  //			}
+  //			if(!overflow){
+  //				Bucket over=new Bucket();
+  //				over.add(adding);
+  //				buck.overflow.add(over);
+  //			}
+  //		}
+  //		else{
+  //			buck.add(adding);
+  //		}
+  //		buck.serialB(bucketref);
+  //	}
   public static void overminmax(Page p) {
     Comparator<ArrayList<Object>> comparator = new Com();
     Object maximum = p.get(p.size() - 1).get(0);
@@ -1286,7 +1250,6 @@ DBApp implements DBAppInterface {
           minimum = overmi;
         }
 
-
       } else if (maximum instanceof Date) {
         Date max = (Date) maximum;
         Date min = (Date) minimum;
@@ -1304,7 +1267,6 @@ DBApp implements DBAppInterface {
           minpos = i;
           minimum = overmin;
         }
-
       }
     }
     if (maaa == miii) {
@@ -1323,7 +1285,6 @@ DBApp implements DBAppInterface {
         if (p.overflow.get(maxpos).size() == 0) {
           p.overflow.removeElementAt(maxpos);
         }
-
       }
     } else {
       if (minpos >= 0) {
@@ -1341,7 +1302,6 @@ DBApp implements DBAppInterface {
         p.overflow.get(maxpos).add(r);
         Collections.sort(p, comparator);
         Collections.sort(p.overflow.get(maxpos), comparator);
-
       }
     }
   }
@@ -1383,9 +1343,9 @@ DBApp implements DBAppInterface {
           } else if (cluster instanceof Date) {
             A[1] = binarysearchdate(overflow, (Date) cluster);
           }
-					if (A[1] >= 0) {
-						break;
-					}
+          if (A[1] >= 0) {
+            break;
+          }
         }
       }
 
@@ -1424,7 +1384,6 @@ DBApp implements DBAppInterface {
           if (!(dt.equals(dt2))) {
             flag = false;
             break;
-
           }
         } else if (value instanceof Double) {
           String srs = value.toString();
@@ -1436,24 +1395,21 @@ DBApp implements DBAppInterface {
           if (!(big1.equals(big))) {
             flag = false;
             break;
-
           }
-
         }
-
       }
       if (flag == true) {
-        if (!flagover) {//deleting from page
+        if (!flagover) { // deleting from page
           Page p = Page.deserialP(tableName + A[0]);
           p.removeElementAt(A[1]);
           if (p.isEmpty()) {
-            if (p.overflow.size() == 0) {//if there no overflow
+            if (p.overflow.size() == 0) { // if there no overflow
               deleteRecord(tableName + A[0]);
               String path = "src/main/resources/data/" + tableName + A[0] + ".ser";
               File f = new File(path);
               f.delete();
               Table.deleteFrom(tableName);
-            } else {//if removing a page and there exists an overflow
+            } else { // if removing a page and there exists an overflow
               Vector<Page> overrr = p.overflow;
               deleteRecord(tableName + A[0]);
               String path = "src/main/resources/data/" + tableName + A[0] + ".ser";
@@ -1470,10 +1426,9 @@ DBApp implements DBAppInterface {
               overminmax(ove1);
               ove1.serialP(tableName + A[0]);
               pageRecord(tableName + A[0]);
-
             }
 
-          } else {//if removing a record
+          } else { // if removing a record
             if (p.overflow.size() > 0) {
               p.serialP(tableName + A[0]);
               Page p1 = Page.deserialP(tableName + A[0]);
@@ -1486,9 +1441,8 @@ DBApp implements DBAppInterface {
               p.serialP(tableName + A[0]);
               pageRecord(tableName + A[0]);
             }
-
           }
-        } else {//deleting from overflow
+        } else { // deleting from overflow
           Page p1 = Page.deserialP(tableName + A[0]);
           p1.overflow.get(e).removeElementAt(A[1]);
           Page p = p1.overflow.get(e);
@@ -1511,10 +1465,10 @@ DBApp implements DBAppInterface {
         int j = 0;
         int m = 0;
         int iverr = f.overflow.size();
-        while (m < iverr) {//m pages overflow
+        while (m < iverr) { // m pages overflow
           int x = 0;
           int oversize = f.overflow.get(m).size();
-          while (x < oversize) {//tuples
+          while (x < oversize) { // tuples
             key = columnNameValue.keys();
             boolean flag = true;
             while (key.hasMoreElements()) {
@@ -1541,7 +1495,6 @@ DBApp implements DBAppInterface {
                 if (!(dt.equals(dt2))) {
                   flag = false;
                   break;
-
                 }
               } else if (value instanceof Double) {
                 String srs = value.toString();
@@ -1553,25 +1506,19 @@ DBApp implements DBAppInterface {
                 if (!(big1.equals(big))) {
                   flag = false;
                   break;
-
                 }
-
               }
-
             }
             if (flag) {
               f.overflow.get(m).removeElementAt(x);
               oversize--;
               if (f.overflow.get(m).size() == 0) {
                 break;
-
               }
 
             } else {
               x++;
             }
-
-
           }
           if (f.overflow.get(m).size() == 0) {
             iverr--;
@@ -1607,7 +1554,6 @@ DBApp implements DBAppInterface {
               if (!(dt.equals(dt2))) {
                 flag = false;
                 break;
-
               }
             } else if (value instanceof Double) {
               String srs = value.toString();
@@ -1619,56 +1565,50 @@ DBApp implements DBAppInterface {
               if (!(big1.equals(big))) {
                 flag = false;
                 break;
-
               }
-
             }
-
           }
 
-					if (flag == true) {
+          if (flag == true) {
 
-						f.removeElementAt(j);
-						pagesize = f.size();
-						if (f.isEmpty()) {
-							if (f.overflow.size() > 0) {
-								Vector<Page> overrr = f.overflow;
-								String path = "src/main/resources/data/" + tableName + i + ".ser";
-								File z = new File(path);
-								z.delete();
-								Page ove1 = overrr.get(0);
-								for (int g = 1; g < overrr.size(); g++) {
-									Page ove2 = overrr.get(g);
-									ove1.overflow.add(ove2);
-								}
+            f.removeElementAt(j);
+            pagesize = f.size();
+            if (f.isEmpty()) {
+              if (f.overflow.size() > 0) {
+                Vector<Page> overrr = f.overflow;
+                String path = "src/main/resources/data/" + tableName + i + ".ser";
+                File z = new File(path);
+                z.delete();
+                Page ove1 = overrr.get(0);
+                for (int g = 1; g < overrr.size(); g++) {
+                  Page ove2 = overrr.get(g);
+                  ove1.overflow.add(ove2);
+                }
 
-								overminmax(ove1);
-								ove1.serialP(tableName + i);
-								pageRecord(tableName + i);
-								break;
+                overminmax(ove1);
+                ove1.serialP(tableName + i);
+                pageRecord(tableName + i);
+                break;
 
-							} else {
-								deleteRecord(tableName + i);
-								String path = "src/main/resources/data/" + tableName + i + ".ser";
-								File k = new File(path);
-								k.delete();
-								Table.deleteFrom(tableName);
-								break;
-							}
-						}
+              } else {
+                deleteRecord(tableName + i);
+                String path = "src/main/resources/data/" + tableName + i + ".ser";
+                File k = new File(path);
+                k.delete();
+                Table.deleteFrom(tableName);
+                break;
+              }
+            }
 
-					} else {
-						j++;
-					}
-
+          } else {
+            j++;
+          }
         }
         if (f.size() > 0) {
           overminmax(f);
           f.serialP(tableName + i);
           pageRecord(tableName + i);
         }
-
-
       }
     }
   }
@@ -1688,15 +1628,15 @@ DBApp implements DBAppInterface {
       String line = "";
       String splitBy = ",";
 
-      FileWriter fw = new FileWriter(temp, true); //start
+      FileWriter fw = new FileWriter(temp, true); // start
       BufferedWriter bw = new BufferedWriter(fw);
       PrintWriter pw = new PrintWriter(bw);
 
       BufferedReader br = new BufferedReader(new FileReader(path));
 
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         name = row[0];
         colu = row[1];
         indexd = row[4];
@@ -1731,12 +1671,8 @@ DBApp implements DBAppInterface {
       System.out.println("Rename status: " + r);
     } catch (Exception e) {
       System.out.println("Error!");
-
     }
-
-
   }
-
 
   @Override
   public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators)
@@ -1754,8 +1690,10 @@ DBApp implements DBAppInterface {
       if (!checkColumns(tname, h) || !tableExists(tname)) {
         throw new DBAppException();
       }
-      if (((x instanceof Integer) && ty != 0) || ((x instanceof Double) && ty != 1) || (
-          (x instanceof String) && ty != 2) || ((x instanceof Date) && ty != 3)) {
+      if (((x instanceof Integer) && ty != 0)
+          || ((x instanceof Double) && ty != 1)
+          || ((x instanceof String) && ty != 2)
+          || ((x instanceof Date) && ty != 3)) {
         throw new DBAppException();
       }
     }
@@ -1771,7 +1709,7 @@ DBApp implements DBAppInterface {
   }
 
   public Vector<ArrayList<Object>> execterm(SQLTerm sqlTerm) {
-    //no index on column
+    // no index on column
     String oper = sqlTerm._strOperator;
     switch (oper) {
       case ">":
@@ -1792,22 +1730,181 @@ DBApp implements DBAppInterface {
 
     return null;
   }
-  public Vector<ArrayList<Object>> execlesseq(SQLTerm sqlTerm) throws DBAppException{
+
+  public Vector<ArrayList<Object>> execgreat(SQLTerm sqlTerm) throws DBAppException {
     Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
     Object valu = sqlTerm._objValue;
     String tname = sqlTerm._strTableName;
     String col = sqlTerm._strColumnName;
-    int i = getType(tname,col); //int 0 Double 1 String 2 Date 3
-    String index1d=tname+col;
-    String filePathString ="src/main/resources/data/"+index1d+".ser";
+    int i = getType(tname, col); // int 0 Double 1 String 2 Date 3
+    String index1d = tname + col;
+    String filePathString = "src/main/resources/data/" + index1d + ".ser";
     File f = new File(filePathString);
-    if(f.exists() && !f.isDirectory()) {
+    if (f.exists() && !f.isDirectory()) {
       ArrayList<Object> a = new ArrayList<>();
       a.add(valu);
       Grid g = Grid.deserialG(index1d);
       assert g != null;
-      Vector<Integer> v =g.returnCell(index1d,a);
-      Bucket bj = Grid.returnbuck(g.grid,v,0);
+      Vector<Integer> v = g.returnCell(index1d, a);
+      Bucket bj = Grid.returnbuck(g.grid, v, 0);
+      if (bj != null) {
+        for (ArrayList<Object> ao : bj) {
+          Object vall = ao.get(5);
+          boolean flag = false;
+          if (i == 0) {
+            if ((int) vall > (int) valu) flag = true;
+          } else if (i == 1) {
+            BigDecimal b = BigDecimal.valueOf((Double) vall);
+            BigDecimal b1 = BigDecimal.valueOf((Double) valu);
+            int k = b.compareTo(b1);
+            if (k > 0) flag = true;
+          } else if (i == 2) {
+            int k = ((String) vall).compareTo((String) valu);
+            if (k > 0) flag = true;
+          } else {
+            int k = ((Date) vall).compareTo((Date) valu);
+            if (k > 0) flag = true;
+          }
+          if (flag) {
+            int pnum = (int) ao.get(0);
+            int tpnum = (int) ao.get(1);
+            boolean of = (boolean) ao.get(2);
+            int pnumof = (int) ao.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+        }
+      }
+      int jk = v.get(0) + 1;
+      v.set(0, jk);
+      while (v.get(0) < 10) {
+        String filePathStrin = "src/main/resources/data/" + index1d + v.get(0) + ".ser";
+        File fb = new File(filePathStrin);
+        if (fb.exists() && !fb.isDirectory()) {
+          Bucket bb = Grid.returnbuck(g.grid, v, 0);
+          for (ArrayList<Object> aa : bb) {
+            int pnum = (int) aa.get(0);
+            int tpnum = (int) aa.get(1);
+            boolean of = (boolean) aa.get(2);
+            int pnumof = (int) aa.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+        }
+        int jkk = v.get(0) + 1;
+        v.set(0, jkk);
+      }
+    } else {
+
+    }
+    return result;
+  }
+
+  public Vector<ArrayList<Object>> execgreateq(SQLTerm sqlTerm) throws DBAppException {
+    Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
+    Object valu = sqlTerm._objValue;
+    String tname = sqlTerm._strTableName;
+    String col = sqlTerm._strColumnName;
+    int i = getType(tname, col); // int 0 Double 1 String 2 Date 3
+    String index1d = tname + col;
+    String filePathString = "src/main/resources/data/" + index1d + ".ser";
+    File f = new File(filePathString);
+    if (f.exists() && !f.isDirectory()) {
+      ArrayList<Object> a = new ArrayList<>();
+      a.add(valu);
+      Grid g = Grid.deserialG(index1d);
+      assert g != null;
+      Vector<Integer> v = g.returnCell(index1d, a);
+      Bucket bj = Grid.returnbuck(g.grid, v, 0);
+      if (bj != null) {
+        for (ArrayList<Object> ao : bj) {
+          Object vall = ao.get(5);
+          boolean flag = false;
+          if (i == 0) {
+            if ((int) vall >= (int) valu) flag = true;
+          } else if (i == 1) {
+            BigDecimal b = BigDecimal.valueOf((Double) vall);
+            BigDecimal b1 = BigDecimal.valueOf((Double) valu);
+            int k = b.compareTo(b1);
+            if (k >= 0) flag = true;
+          } else if (i == 2) {
+            int k = ((String) vall).compareTo((String) valu);
+            if (k >= 0) flag = true;
+          } else {
+            int k = ((Date) vall).compareTo((Date) valu);
+            if (k >= 0) flag = true;
+          }
+          if (flag) {
+            int pnum = (int) ao.get(0);
+            int tpnum = (int) ao.get(1);
+            boolean of = (boolean) ao.get(2);
+            int pnumof = (int) ao.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+        }
+      }
+      int jk = v.get(0) + 1;
+      v.set(0, jk);
+      while (v.get(0) < 10) {
+        String filePathStrin = "src/main/resources/data/" + index1d + v.get(0) + ".ser";
+        File fb = new File(filePathStrin);
+        if (fb.exists() && !fb.isDirectory()) {
+          Bucket bb = Grid.returnbuck(g.grid, v, 0);
+          for (ArrayList<Object> aa : bb) {
+            int pnum = (int) aa.get(0);
+            int tpnum = (int) aa.get(1);
+            boolean of = (boolean) aa.get(2);
+            int pnumof = (int) aa.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+        }
+        int jkk = v.get(0) + 1;
+        v.set(0, jkk);
+      }
+    } else {
+
+    }
+    return result;
+  }
+
+  public Vector<ArrayList<Object>> execlesseq(SQLTerm sqlTerm) throws DBAppException {
+    Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
+    Object valu = sqlTerm._objValue;
+    String tname = sqlTerm._strTableName;
+    String col = sqlTerm._strColumnName;
+    int i = getType(tname, col); // int 0 Double 1 String 2 Date 3
+    String index1d = tname + col;
+    String filePathString = "src/main/resources/data/" + index1d + ".ser";
+    File f = new File(filePathString);
+    if (f.exists() && !f.isDirectory()) {
+      ArrayList<Object> a = new ArrayList<>();
+      a.add(valu);
+      Grid g = Grid.deserialG(index1d);
+      assert g != null;
+      Vector<Integer> v = g.returnCell(index1d, a);
+      Bucket bj = Grid.returnbuck(g.grid, v, 0);
       if (bj != null) {
         for (ArrayList<Object> ao : bj) {
           Object vall = ao.get(5);
@@ -1841,8 +1938,8 @@ DBApp implements DBAppInterface {
           }
         }
       }
-      int jk=v.get(0)-1;
-      v.set(0,jk);
+      int jk = v.get(0) - 1;
+      v.set(0, jk);
       while (v.get(0) > -1) {
         String filePathStrin = "src/main/resources/data/" + index1d + v.get(0) + ".ser";
         File fb = new File(filePathStrin);
@@ -1861,33 +1958,32 @@ DBApp implements DBAppInterface {
               result.add(p.get(tpnum));
             }
           }
-
         }
         int jkk = v.get(0) - 1;
         v.set(0, jkk);
       }
-    }
-    else{
+    } else {
 
     }
     return result;
   }
-  public Vector<ArrayList<Object>> execless(SQLTerm sqlTerm) throws DBAppException{
+
+  public Vector<ArrayList<Object>> execless(SQLTerm sqlTerm) throws DBAppException {
     Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
     Object valu = sqlTerm._objValue;
     String tname = sqlTerm._strTableName;
     String col = sqlTerm._strColumnName;
-    int i = getType(tname,col); //int 0 Double 1 String 2 Date 3
-    String index1d=tname+col;
-    String filePathString ="src/main/resources/data/"+index1d+".ser";
+    int i = getType(tname, col); // int 0 Double 1 String 2 Date 3
+    String index1d = tname + col;
+    String filePathString = "src/main/resources/data/" + index1d + ".ser";
     File f = new File(filePathString);
-    if(f.exists() && !f.isDirectory()) {
+    if (f.exists() && !f.isDirectory()) {
       ArrayList<Object> a = new ArrayList<>();
       a.add(valu);
-     Grid g = Grid.deserialG(index1d);
+      Grid g = Grid.deserialG(index1d);
       assert g != null;
-      Vector<Integer> v =g.returnCell(index1d,a);
-      Bucket bj = Grid.returnbuck(g.grid,v,0);
+      Vector<Integer> v = g.returnCell(index1d, a);
+      Bucket bj = Grid.returnbuck(g.grid, v, 0);
       if (bj != null) {
         for (ArrayList<Object> ao : bj) {
           Object vall = ao.get(5);
@@ -1921,8 +2017,8 @@ DBApp implements DBAppInterface {
           }
         }
       }
-      int jk=v.get(0)-1;
-      v.set(0,jk);
+      int jk = v.get(0) - 1;
+      v.set(0, jk);
       while (v.get(0) > -1) {
         String filePathStrin = "src/main/resources/data/" + index1d + v.get(0) + ".ser";
         File fb = new File(filePathStrin);
@@ -1941,13 +2037,11 @@ DBApp implements DBAppInterface {
               result.add(p.get(tpnum));
             }
           }
-
         }
         int jkk = v.get(0) - 1;
         v.set(0, jkk);
       }
-    }
-    else{
+    } else {
 
     }
     return result;
@@ -2001,7 +2095,6 @@ DBApp implements DBAppInterface {
           }
         }
 
-
       } else {
         int tablesize = Table.deserialT(tname);
         for (int i = 0; i < tablesize; i++) {
@@ -2043,11 +2136,9 @@ DBApp implements DBAppInterface {
               }
             }
           }
-
-
         }
       }
-    } else {//not equal to the cluster key
+    } else { // not equal to the cluster key
       int tablesize = Table.deserialT(tname);
       int A = coloumnnum(col, tname);
       for (int i = 0; i < tablesize; i++) {
@@ -2079,7 +2170,6 @@ DBApp implements DBAppInterface {
             Date dt2 = (Date) f.get(j).get(A);
             if (!(dt.equals(dt2))) {
               flag = false;
-
             }
           } else if (valu instanceof Double) {
             String srs = valu.toString();
@@ -2090,9 +2180,7 @@ DBApp implements DBAppInterface {
             BigDecimal big1 = BigDecimal.valueOf(doo1);
             if (!(big1.equals(big))) {
               flag = false;
-
             }
-
           }
           if (flag == false) {
             result.add(f.get(j));
@@ -2102,7 +2190,7 @@ DBApp implements DBAppInterface {
             j++;
           }
         }
-        while (m < iverr) {//m pages overflow
+        while (m < iverr) { // m pages overflow
           int x = 0;
           int oversize = f.overflow.get(m).size();
           boolean flagover = true;
@@ -2124,7 +2212,6 @@ DBApp implements DBAppInterface {
               Date dt2 = (Date) f.overflow.get(m).get(x).get(A);
               if (!(dt.equals(dt2))) {
                 flagover = false;
-
               }
             } else if (valu instanceof Double) {
               String srs = valu.toString();
@@ -2135,9 +2222,7 @@ DBApp implements DBAppInterface {
               BigDecimal big1 = BigDecimal.valueOf(doo1);
               if (!(big1.equals(big))) {
                 flagover = false;
-
               }
-
             }
             if (!flagover) {
               result.add(f.overflow.get(m).get(x));
@@ -2147,13 +2232,10 @@ DBApp implements DBAppInterface {
 
               x++;
             }
-
           }
           m++;
         }
-
       }
-
     }
     return result;
   }
@@ -2184,20 +2266,20 @@ DBApp implements DBAppInterface {
           } else if (valu instanceof Date) {
             pos[1] = binarysearchdate(overflow, (Date) valu);
           }
-					if (pos[1] >= 0) {
-						break;
-					}
+          if (pos[1] >= 0) {
+            break;
+          }
         }
       }
       if (pos[0] == -1 || pos[1] == -1) {
         return null;
       }
       Page p = Page.deserialP(tname + pos[0]);
-			if (!flagover) {
-				result.add(p.get(pos[1]));
-			} else {
-				result.add(p.overflow.get(k).get(pos[1]));
-			}
+      if (!flagover) {
+        result.add(p.get(pos[1]));
+      } else {
+        result.add(p.overflow.get(k).get(pos[1]));
+      }
     } else {
       int tablesize = Table.deserialT(tname);
       int A = coloumnnum(col, tname);
@@ -2230,7 +2312,6 @@ DBApp implements DBAppInterface {
             Date dt2 = (Date) f.get(j).get(A);
             if (!(dt.equals(dt2))) {
               flag = false;
-
             }
           } else if (valu instanceof Double) {
             String srs = valu.toString();
@@ -2241,9 +2322,7 @@ DBApp implements DBAppInterface {
             BigDecimal big1 = BigDecimal.valueOf(doo1);
             if (!(big1.equals(big))) {
               flag = false;
-
             }
-
           }
           if (flag == true) {
             result.add(f.get(j));
@@ -2253,7 +2332,7 @@ DBApp implements DBAppInterface {
             j++;
           }
         }
-        while (m < iverr) {//m pages overflow
+        while (m < iverr) { // m pages overflow
           int x = 0;
           int oversize = f.overflow.get(m).size();
           boolean flagover = true;
@@ -2275,7 +2354,6 @@ DBApp implements DBAppInterface {
               Date dt2 = (Date) f.overflow.get(m).get(x).get(A);
               if (!(dt.equals(dt2))) {
                 flagover = false;
-
               }
             } else if (valu instanceof Double) {
               String srs = valu.toString();
@@ -2286,9 +2364,7 @@ DBApp implements DBAppInterface {
               BigDecimal big1 = BigDecimal.valueOf(doo1);
               if (!(big1.equals(big))) {
                 flagover = false;
-
               }
-
             }
             if (flagover) {
               result.add(f.overflow.get(m).get(x));
@@ -2297,13 +2373,10 @@ DBApp implements DBAppInterface {
               flagover = true;
               x++;
             }
-
           }
           m++;
         }
-
       }
-
     }
     return result;
   }
@@ -2316,16 +2389,16 @@ DBApp implements DBAppInterface {
 
       int midVal = (int) (v1.get(mid).get(0));
 
-			if (midVal < key) {
-				low = mid + 1;
-			} else if (midVal > key) {
-				high = mid - 1;
-			} else {
-				return mid; // key found
-			}
+      if (midVal < key) {
+        low = mid + 1;
+      } else if (midVal > key) {
+        high = mid - 1;
+      } else {
+        return mid; // key found
+      }
       mid = (low + high) / 2;
     }
-    return -1;  // key not found
+    return -1; // key not found
   }
 
   public static int binarysearchstring(Page v1, String key) {
@@ -2337,16 +2410,16 @@ DBApp implements DBAppInterface {
       String midVal = (String) (v1.get(mid).get(0));
       int comp = midVal.compareTo(key);
 
-			if (comp < 0) {
-				low = mid + 1;
-			} else if (comp > 0) {
-				high = mid - 1;
-			} else {
-				return mid; // key found
-			}
+      if (comp < 0) {
+        low = mid + 1;
+      } else if (comp > 0) {
+        high = mid - 1;
+      } else {
+        return mid; // key found
+      }
       mid = (low + high) / 2;
     }
-    return -1;  // key not found
+    return -1; // key not found
   }
 
   public static int binarysearchdate(Page v1, Date key) {
@@ -2358,16 +2431,16 @@ DBApp implements DBAppInterface {
       Date midVal = (Date) (v1.get(mid).get(0));
       int comp = midVal.compareTo(key);
 
-			if (comp < 0) {
-				low = mid + 1;
-			} else if (comp > 0) {
-				high = mid - 1;
-			} else {
-				return mid; // key found
-			}
+      if (comp < 0) {
+        low = mid + 1;
+      } else if (comp > 0) {
+        high = mid - 1;
+      } else {
+        return mid; // key found
+      }
       mid = (low + high) / 2;
     }
-    return -1;  // key not found
+    return -1; // key not found
   }
 
   public static int binarysearchdouble(Page v1, Double key) {
@@ -2381,19 +2454,18 @@ DBApp implements DBAppInterface {
       BigDecimal key1 = BigDecimal.valueOf(key);
       int cond = comp.compareTo(key1);
 
-			if (cond < 0) {
-				low = mid + 1;
-			} else if (cond == 0) {
-				return mid; // key found
-			} else {
-				high = mid - 1;
-			}
+      if (cond < 0) {
+        low = mid + 1;
+      } else if (cond == 0) {
+        return mid; // key found
+      } else {
+        high = mid - 1;
+      }
 
       mid = (low + high) / 2;
     }
-    return -1;  // key not found
+    return -1; // key not found
   }
-
 
   public static int searchtableall(String tableName, Object key) throws DBAppException {
     int tablesize = Table.deserialT(tableName);
@@ -2406,21 +2478,21 @@ DBApp implements DBAppInterface {
       String min = range[0];
       String max = range[1];
       String cluster = Table.returnCluster(tableName);
-      int type = DBApp.getType(tableName, cluster); //int 0 Double 1 String 2 Date 3
+      int type = DBApp.getType(tableName, cluster); // int 0 Double 1 String 2 Date 3
       if (type == 0) {
         Integer minn = Integer.valueOf(min);
         Integer maxx = Integer.valueOf(max);
         Integer keyy = (Integer) key;
-				if (minn <= keyy && keyy <= maxx) {
-					return i;
-				}
+        if (minn <= keyy && keyy <= maxx) {
+          return i;
+        }
       } else if (type == 2) {
         String keyy = (String) key;
         int compmin = keyy.compareTo(min);
         int compmax = keyy.compareTo(max);
-				if (compmin >= 0 && compmax <= 0) {
-					return i;
-				}
+        if (compmin >= 0 && compmax <= 0) {
+          return i;
+        }
       } else if (type == 3) {
         Date minn;
         try {
@@ -2432,9 +2504,9 @@ DBApp implements DBAppInterface {
           Date keyy = (Date) key;
           int compmin = keyy.compareTo(minn);
           int compmax = keyy.compareTo(maxx);
-					if (compmin >= 0 && compmax <= 0) {
-						return i;
-					}
+          if (compmin >= 0 && compmax <= 0) {
+            return i;
+          }
         } catch (ParseException e) {
           throw new DBAppException();
         }
@@ -2447,17 +2519,16 @@ DBApp implements DBAppInterface {
         BigDecimal keybig = BigDecimal.valueOf(keyy);
         int compmin = keybig.compareTo(minbig);
         int compmax = keybig.compareTo(maxbig);
-				if (compmin >= 0 && compmax <= 0) {
-					return i;
-				}
+        if (compmin >= 0 && compmax <= 0) {
+          return i;
+        }
       }
     }
     return -1;
-
   }
 
   public static int[] searchtable(String t, Object key)
-      throws DBAppException {//[page,index inside specified page]
+      throws DBAppException { // [page,index inside specified page]
     int[] res = new int[2];
     if (key instanceof Integer) {
       int b1 = searchtableall(t, key);
@@ -2499,22 +2570,20 @@ DBApp implements DBAppInterface {
     res[0] = -1;
     res[1] = -1;
     return res;
-
   }
 
   public static int coloumnnum(String coloumn, String t1) {
     String[] array = Table.returnColumns(t1);
     for (int i = 0; i < array.length; i++) {
-			if (array[i].equals(coloumn)) {
-				return i;
-			}
-
+      if (array[i].equals(coloumn)) {
+        return i;
+      }
     }
     return -1;
   }
 
   public static boolean insertexist(String t, Object key)
-      throws DBAppException {//[page,index inside specified page]
+      throws DBAppException { // [page,index inside specified page]
     int[] res = new int[2];
     int b1 = -1;
     int b2 = -1;
@@ -2536,7 +2605,6 @@ DBApp implements DBAppInterface {
       if (b1 >= 0) {
         Page p1 = Page.deserialP(t + b1);
         b2 = binarysearchdate(p1, (Date) key);
-
       }
     } else if (key instanceof String) {
       b1 = searchtableall(t, key);
@@ -2568,7 +2636,6 @@ DBApp implements DBAppInterface {
       }
     }
     return false;
-
   }
 
   public static String[] returnMinMax(String tname, String col) {
@@ -2577,9 +2644,9 @@ DBApp implements DBAppInterface {
     String splitBy = ",";
     try {
       BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
-      while ((line = br.readLine()) != null)   //returns a Boolean value
+      while ((line = br.readLine()) != null) // returns a Boolean value
       {
-        String[] row = line.split(splitBy);    // use comma as separator
+        String[] row = line.split(splitBy); // use comma as separator
         String line0 = row[0];
 
         if (line0.equalsIgnoreCase(tname) && row[1].equals(col)) {
@@ -2587,112 +2654,109 @@ DBApp implements DBAppInterface {
           ret[1] = row[6];
           break;
         }
-
       }
       br.close();
     } catch (IOException e) {
       e.printStackTrace();
-
     }
 
     return ret;
   }
 
-
   public static void main(String[] args) throws DBAppException, ParseException {
     DBApp db = new DBApp();
     db.init();
 
-//    Hashtable htblColNameType = new Hashtable();
-//    htblColNameType.put("id", "java.lang.Integer");
-//    htblColNameType.put("name", "java.lang.String");
-//    htblColNameType.put("gpa", "java.lang.double");
-//    Hashtable htblColNameMin = new Hashtable();
-//    htblColNameMin.put("id", "0");
-//    htblColNameMin.put("name", " ");
-//    htblColNameMin.put("gpa", "0");
-//    Hashtable htblColNameMax = new Hashtable();
-//    htblColNameMax.put("id", "213981");
-//    htblColNameMax.put("name", "ZZZZZZZZZZ");
-//    htblColNameMax.put("gpa", "5");
-//
-//    	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-//
-//    Hashtable htblColNameValue = new Hashtable();
-//		 htblColNameValue.put("id", new Integer(5));
-//		 htblColNameValue.put("name", new String("aaaa"));
-//		 htblColNameValue.put("gpa", new Double(2.3));
-//		 db.insertIntoTable("trial",htblColNameValue);
-//
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(10));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(1.3));
-//		db.insertIntoTable("trial",htblColNameValue);
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(15));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.6));
-//		db.insertIntoTable("trial",htblColNameValue);
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(20));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.0));
-//		db.insertIntoTable("trial",htblColNameValue);
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(3));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.3));
-//		db.insertIntoTable("trial",htblColNameValue);
-//
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(7));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.3));
-//		db.insertIntoTable("trial",htblColNameValue);
-//
-//		htblColNameValue.clear( );
-//		htblColNameValue.put("id", new Integer(2));
-//		htblColNameValue.put("name", new String("aaaa"));
-//		htblColNameValue.put("gpa", new Double(2.0));
-//		db.insertIntoTable("trial",htblColNameValue);
-//
-//    htblColNameValue.clear();
-//    htblColNameValue.put("id", new Integer(1));
-//    htblColNameValue.put("gpa", new Double(2.1));
-//    db.insertIntoTable("trial",htblColNameValue);
+    //    Hashtable htblColNameType = new Hashtable();
+    //    htblColNameType.put("id", "java.lang.Integer");
+    //    htblColNameType.put("name", "java.lang.String");
+    //    htblColNameType.put("gpa", "java.lang.double");
+    //    Hashtable htblColNameMin = new Hashtable();
+    //    htblColNameMin.put("id", "0");
+    //    htblColNameMin.put("name", " ");
+    //    htblColNameMin.put("gpa", "0");
+    //    Hashtable htblColNameMax = new Hashtable();
+    //    htblColNameMax.put("id", "213981");
+    //    htblColNameMax.put("name", "ZZZZZZZZZZ");
+    //    htblColNameMax.put("gpa", "5");
+    //
+    //    	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+    //
+    //    Hashtable htblColNameValue = new Hashtable();
+    //		 htblColNameValue.put("id", new Integer(5));
+    //		 htblColNameValue.put("name", new String("aaaa"));
+    //		 htblColNameValue.put("gpa", new Double(2.3));
+    //		 db.insertIntoTable("trial",htblColNameValue);
+    //
+    //		htblColNameValue.clear( );
+    //		htblColNameValue.put("id", new Integer(10));
+    //		htblColNameValue.put("name", new String("aaaa"));
+    //		htblColNameValue.put("gpa", new Double(1.3));
+    //		db.insertIntoTable("trial",htblColNameValue);
+    //		htblColNameValue.clear( );
+    //		htblColNameValue.put("id", new Integer(15));
+    //		htblColNameValue.put("name", new String("aaaa"));
+    //		htblColNameValue.put("gpa", new Double(2.6));
+    //		db.insertIntoTable("trial",htblColNameValue);
+    //		htblColNameValue.clear( );
+    //		htblColNameValue.put("id", new Integer(20));
+    //		htblColNameValue.put("name", new String("aaaa"));
+    //		htblColNameValue.put("gpa", new Double(2.0));
+    //		db.insertIntoTable("trial",htblColNameValue);
+    //		htblColNameValue.clear( );
+    //		htblColNameValue.put("id", new Integer(3));
+    //		htblColNameValue.put("name", new String("aaaa"));
+    //		htblColNameValue.put("gpa", new Double(2.3));
+    //		db.insertIntoTable("trial",htblColNameValue);
+    //
+    //		htblColNameValue.clear( );
+    //		htblColNameValue.put("id", new Integer(7));
+    //		htblColNameValue.put("name", new String("aaaa"));
+    //		htblColNameValue.put("gpa", new Double(2.3));
+    //		db.insertIntoTable("trial",htblColNameValue);
+    //
+    //		htblColNameValue.clear( );
+    //		htblColNameValue.put("id", new Integer(2));
+    //		htblColNameValue.put("name", new String("aaaa"));
+    //		htblColNameValue.put("gpa", new Double(2.0));
+    //		db.insertIntoTable("trial",htblColNameValue);
+    //
+    //    htblColNameValue.clear();
+    //    htblColNameValue.put("id", new Integer(1));
+    //    htblColNameValue.put("gpa", new Double(2.1));
+    //    db.insertIntoTable("trial",htblColNameValue);
 
     System.out.println(Page.deserialP("trial0"));
     System.out.println(Page.deserialP("trial1"));
     System.out.println((Page.deserialP("trial0")).overflow);
-		SQLTerm sql = new SQLTerm();
-		sql._objValue=2.1;
-		sql._strColumnName="gpa";
-		sql._strOperator="<";
-		sql._strTableName="trial";
-		System.out.println(db.execlesseq(sql));
-//////		Vector<Integer> bucketnumber=new Vector<Integer>();
-//		bucketnumber.add(0);
-//		bucketnumber.add(1);
-//    String[] p = {"gpa"};
-//    db.createIndex("trial",p);
-//   // System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
-    //insertintoindex("trialgpaname",bucketnumber,16);
-//    System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
-//    System.out.println(Bucket.deserialB("trialgpaname24"));
-//
-//    System.out.println(Bucket.deserialB("trialgpaname34"));
-//
-//    System.out.println(Bucket.deserialB("trialgpaname40"));
-//
-//    System.out.println(Bucket.deserialB("trialgpaname44"));
-//    System.out.println(Bucket.deserialB("trialgpaname44").overflow);
-//    System.out.println(Bucket.deserialB("trialgpaname54"));
-//    Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
-//    columnNameValue.put("gpa",2.0);
-//    //db.updateTablewithindex("trial","5",columnNameValue);
-//    System.out.println(Bucket.deserialB("trialid0"));
-//    System.out.println(Bucket.deserialB("trialid0").overflow);
-//    System.out.println(Page.deserialP("trial0").overflow);
+    SQLTerm sql = new SQLTerm();
+    sql._objValue = 2.7;
+    sql._strColumnName = "gpa";
+    sql._strOperator = "<";
+    sql._strTableName = "trial";
+    System.out.println(db.execgreat(sql));
+    //////		Vector<Integer> bucketnumber=new Vector<Integer>();
+    //		bucketnumber.add(0);
+    //		bucketnumber.add(1);
+    //    String[] p = {"gpa"};
+    //    db.createIndex("trial",p);
+    //   // System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
+    // insertintoindex("trialgpaname",bucketnumber,16);
+    //    System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
+    //    System.out.println(Bucket.deserialB("trialgpaname24"));
+    //
+    //    System.out.println(Bucket.deserialB("trialgpaname34"));
+    //
+    //    System.out.println(Bucket.deserialB("trialgpaname40"));
+    //
+    //    System.out.println(Bucket.deserialB("trialgpaname44"));
+    //    System.out.println(Bucket.deserialB("trialgpaname44").overflow);
+    //    System.out.println(Bucket.deserialB("trialgpaname54"));
+    //    Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
+    //    columnNameValue.put("gpa",2.0);
+    //    //db.updateTablewithindex("trial","5",columnNameValue);
+    //    System.out.println(Bucket.deserialB("trialid0"));
+    //    System.out.println(Bucket.deserialB("trialid0").overflow);
+    //    System.out.println(Page.deserialP("trial0").overflow);
   }
 }

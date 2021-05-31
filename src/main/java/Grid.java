@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
-
 public class Grid implements Serializable {
 
   String name;
@@ -53,7 +52,10 @@ public class Grid implements Serializable {
     return x;
   }
 
-  public void populate(int tablesize) {// row structure [page number,tuple number,overflow or no,page number in overflow, primary key, info
+  public void populate(
+      int
+          tablesize) { // row structure [page number,tuple number,overflow or no,page number in
+                       // overflow, primary key, info
     ComB comp = new ComB();
     for (int i = 0; i < tablesize; i++) {
       while (DBApp.checkdeleted(this.tableName, i)) {
@@ -103,7 +105,7 @@ public class Grid implements Serializable {
             buck.serialB(buckname);
           }
         }
-      }//overflow
+      } // overflow
       for (int j = 0; j < p.overflow.size(); j++) {
         Page over = p.overflow.get(j);
         for (int k = 0; k < over.size(); k++) {
@@ -168,8 +170,8 @@ public class Grid implements Serializable {
     return s;
   }
 
-  public static boolean setStuffInArray(Object[] Grid, Vector<Integer> bucketnumber, int i,
-      Object reference) {
+  public static boolean setStuffInArray(
+      Object[] Grid, Vector<Integer> bucketnumber, int i, Object reference) {
     boolean b = true;
     if (i < bucketnumber.size() - 1) {
       int ii = bucketnumber.get(i);
@@ -201,7 +203,8 @@ public class Grid implements Serializable {
     }
     return false;
   }
-  public static Bucket returnbuck(Object[] Grid, Vector<Integer> bucketnumber, int i){
+
+  public static Bucket returnbuck(Object[] Grid, Vector<Integer> bucketnumber, int i) {
     if (i < bucketnumber.size() - 1) {
       int ii = bucketnumber.get(i);
       Object[] grid2 = (Object[]) Grid[ii];
@@ -210,14 +213,13 @@ public class Grid implements Serializable {
     }
 
     int ii = bucketnumber.get(i);
-    String ff =(String)Grid[ii];
-    String filePathString ="src/main/resources/data/"+ff+".ser";
+    String ff = (String) Grid[ii];
+    String filePathString = "src/main/resources/data/" + ff + ".ser";
     File f = new File(filePathString);
     if (f.exists() && !f.isDirectory()) {
       Bucket b = Bucket.deserialB((String) Grid[ii]);
       return b;
-    }
-    else return null;
+    } else return null;
   }
 
   public static Grid deserialG(String s) {
@@ -257,7 +259,6 @@ public class Grid implements Serializable {
     } catch (IOException ex) {
       System.out.println("IOException is caught");
     }
-
   }
 
   public Vector<Integer> returnCell(String gridName, ArrayList<Object> inserted) {
@@ -279,7 +280,6 @@ public class Grid implements Serializable {
       } else {
 
       }
-
     }
 
     return ret;
@@ -306,11 +306,9 @@ public class Grid implements Serializable {
       }
     }
     return 9;
+  }
 
-  }
-  public static void updatebucket(){
-    
-  }
+  public static void updatebucket() {}
 
   public static int doubleCell(String colName, String tableName, Double inserted) {
     String[] minMax = DBApp.returnMinMax(tableName, colName);
@@ -322,7 +320,6 @@ public class Grid implements Serializable {
       }
     }
     return 9;
-
   }
 
   public static int integCell(String colName, String tableName, int inserted) {
@@ -335,21 +332,20 @@ public class Grid implements Serializable {
       }
     }
     return 9;
-
-
   }
-  public static void insertIntoBucket(String gridName,  ArrayList<Object> key,ArrayList<Object> bucketinfo){
-    ComB comp =new ComB();
+
+  public static void insertIntoBucket(
+      String gridName, ArrayList<Object> key, ArrayList<Object> bucketinfo) {
+    ComB comp = new ComB();
     Grid g = deserialG(gridName);
-    Vector<Integer> v = g.returnCell(gridName,key);
-    String buckname = g.checkBucket(v,g.name);
+    Vector<Integer> v = g.returnCell(gridName, key);
+    String buckname = g.checkBucket(v, g.name);
     Bucket buck = Bucket.deserialB(buckname);
-    if(!buck.isFull()){
+    if (!buck.isFull()) {
       buck.add(bucketinfo);
       Collections.sort(buck, comp);
       buck.serialB(buckname);
-    }
-    else {
+    } else {
       boolean flag = false;
       for (int k = 0; k < buck.overflow.size(); k++) {
         if (!buck.overflow.get(k).isFull()) {
@@ -367,21 +363,15 @@ public class Grid implements Serializable {
         buck.serialB(buckname);
       }
     }
-
-
-
-
   }
 
   public static void main(String[] args) throws DBAppException {
-    //String[] s = {"id","name"};
-//        Vector<Integer> v=new Vector<Integer>();
-//        v.add(0);
-//        v.add(1);
-//        String name="trialgpaname";
-//        createbucket(v,name);
+    // String[] s = {"id","name"};
+    //        Vector<Integer> v=new Vector<Integer>();
+    //        v.add(0);
+    //        v.add(1);
+    //        String name="trialgpaname";
+    //        createbucket(v,name);
     Object[] o = {3.9, "AAAA"};
-
   }
-
 }
