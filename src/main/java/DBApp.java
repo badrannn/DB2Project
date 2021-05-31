@@ -1708,27 +1708,31 @@ public class DBApp implements DBAppInterface {
     return null;
   }
 
-  public Vector<ArrayList<Object>> execterm(SQLTerm sqlTerm) {
+  public Vector<ArrayList<Object>> execterm(SQLTerm sqlTerm) throws DBAppException {
     // no index on column
     String oper = sqlTerm._strOperator;
     switch (oper) {
       case ">":
-        ;
-      case "=":
-        ;
-      case "<":
-        ;
-      case ">=":
-        ;
-      case " <=":
-        ;
-      case "!=":
-        ;
-      default:
-        ;
-    }
+        return execgreateq(sqlTerm);
 
-    return null;
+      case "=":
+        return execEq(sqlTerm);
+
+      case "<":
+        return execless(sqlTerm);
+
+      case ">=":
+        return execgreateq(sqlTerm);
+
+      case " <=":
+        return execlesseq(sqlTerm);
+
+      case "!=":
+        execnoteq(sqlTerm);
+
+      default:
+        return null;
+    }
   }
 
   public Vector<ArrayList<Object>> execgreat(SQLTerm sqlTerm) throws DBAppException {
@@ -2246,7 +2250,57 @@ public class DBApp implements DBAppInterface {
     String tname = sqlTerm._strTableName;
     String col = sqlTerm._strColumnName;
     String cluster = Table.returnCluster(tname);
-    if (cluster.equals(col)) {
+    String index1d = tname + col;
+    String filePathString = "src/main/resources/data/" + index1d + ".ser";
+    File ff = new File(filePathString);
+    if (ff.exists() && !ff.isDirectory()) {
+      int i = getType(tname, col);
+      ArrayList<Object> a = new ArrayList<>();
+      a.add(valu);
+      Grid g = Grid.deserialG(index1d);
+      assert g != null;
+      Vector<Integer> v = g.returnCell(index1d, a);
+      Bucket bj = Grid.returnbuck(g.grid, v, 0);
+      if (bj != null) {
+        for (ArrayList<Object> ao : bj) {
+          Object vall = ao.get(5);
+          boolean flag = false;
+          if (i == 0) {
+            if ((int) vall == (int) valu) flag = true;
+          } else if (i == 1) {
+            BigDecimal b = BigDecimal.valueOf((Double) vall);
+            BigDecimal b1 = BigDecimal.valueOf((Double) valu);
+            if (b.equals(b1)) flag = true;
+
+          } else if (i == 2) {
+            int k = ((String) vall).compareTo((String) valu);
+            if (k == 0) flag = true;
+          } else {
+            int k = ((Date) vall).compareTo((Date) valu);
+            if (k == 0) flag = true;
+          }
+          if (flag) {
+            int pnum = (int) ao.get(0);
+            int tpnum = (int) ao.get(1);
+            boolean of = (boolean) ao.get(2);
+            int pnumof = (int) ao.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+        }
+      }
+      else {
+        return result;
+      }
+    }
+
+    // 1D index
+    else if (cluster.equals(col)) {
       boolean flagover = false;
       int[] pos = searchtable(tname, valu);
       int k = -1;
@@ -2730,11 +2784,11 @@ public class DBApp implements DBAppInterface {
     System.out.println(Page.deserialP("trial1"));
     System.out.println((Page.deserialP("trial0")).overflow);
     SQLTerm sql = new SQLTerm();
-    sql._objValue = 2.7;
+    sql._objValue = 6.0;
     sql._strColumnName = "gpa";
     sql._strOperator = "<";
     sql._strTableName = "trial";
-    System.out.println(db.execgreat(sql));
+    System.out.println(db.execEq(sql));
     //////		Vector<Integer> bucketnumber=new Vector<Integer>();
     //		bucketnumber.add(0);
     //		bucketnumber.add(1);
