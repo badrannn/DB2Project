@@ -53,7 +53,7 @@ public class Grid implements Serializable {
     return x;
   }
 
-  public void populate(int tablesize) {// row structure page number,tuple number,overflow or no,page number in overflow, primary key, info
+  public void populate(int tablesize) {// row structure [page number,tuple number,overflow or no,page number in overflow, primary key, info
     ComB comp = new ComB();
     for (int i = 0; i < tablesize; i++) {
       while (DBApp.checkdeleted(this.tableName, i)) {
@@ -210,9 +210,14 @@ public class Grid implements Serializable {
     }
 
     int ii = bucketnumber.get(i);
-    Bucket b= Bucket.deserialB((String)Grid[ii]) ;
-    return b;
-
+    String ff =(String)Grid[ii];
+    String filePathString ="src/main/resources/data/"+ff+".ser";
+    File f = new File(filePathString);
+    if (f.exists() && !f.isDirectory()) {
+      Bucket b = Bucket.deserialB((String) Grid[ii]);
+      return b;
+    }
+    else return null;
   }
 
   public static Grid deserialG(String s) {

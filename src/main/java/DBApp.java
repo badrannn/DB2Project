@@ -18,7 +18,7 @@ DBApp implements DBAppInterface {
   public void init() {
 
     try {
-
+      removeBlanksCsv();
       BufferedReader br = new BufferedReader(new FileReader("src/main/resources/metadata.csv"));
 
       if (br.readLine() == null) {
@@ -75,7 +75,8 @@ DBApp implements DBAppInterface {
     }
     String[] coll=new String[1];
     coll[0]=strClusteringKeyColumn;
-    Grid g= new Grid(strTableName,coll);
+    DBApp db = new DBApp();
+    db.createIndex(strTableName,coll);
 
   }
 
@@ -85,6 +86,7 @@ DBApp implements DBAppInterface {
       Hashtable<String, String> htblColNameMin,
       Hashtable<String, String> htblColNameMax) throws IOException, DBAppException {
 
+    removeBlanksCsv();
     FileWriter pw = new FileWriter("src/main/resources/metadata.csv", true);
     Enumeration<String> type = htblColNameType.keys();
 
@@ -390,7 +392,7 @@ DBApp implements DBAppInterface {
 
   @Override
   public void createIndex(String tableName, String[] columnNames) throws DBAppException {
-
+    removeBlanksCsv();
     Hashtable h = new Hashtable();
     for (int i = 0; i < columnNames.length; i++) {
       h.put(columnNames[i], "");
@@ -400,6 +402,7 @@ DBApp implements DBAppInterface {
     }
     new Grid(tableName, columnNames);
     for (int i = 0; i < columnNames.length; i++) {
+      removeBlanksCsv();
       updateIndex(tableName, columnNames[i]);
     }
   }
@@ -436,6 +439,31 @@ DBApp implements DBAppInterface {
 
   }
 
+  public static void removeBlanksCsv() {
+    Scanner file;
+    PrintWriter writer;
+    String path = "src/main/resources/metadata.csv";
+    try {
+      file = new Scanner(new File("src/main/resources/metadata.csv")); // sourcefile
+      writer = new PrintWriter("tempp.txt"); // destinationfile
+      while (file.hasNext()) {
+        String line = file.nextLine();
+        if (!line.isEmpty()) {
+          writer.write(line);
+          writer.write("\n");
+        }
+      }
+      file.close();
+      writer.close();
+      Files.delete(Paths.get(path));
+      File newfile = new File("tempp.txt");
+      File dump = new File(path);
+
+      boolean r = newfile.renameTo(dump);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    }
   public static void removeBlanks() {
     Scanner file;
     PrintWriter writer;
@@ -1765,6 +1793,87 @@ DBApp implements DBAppInterface {
     return null;
   }
 
+  public Vector<ArrayList<Object>> execless(SQLTerm sqlTerm) throws DBAppException{
+    Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
+    Object valu = sqlTerm._objValue;
+    String tname = sqlTerm._strTableName;
+    String col = sqlTerm._strColumnName;
+    int i = getType(tname,col); //int 0 Double 1 String 2 Date 3
+    String index1d=tname+col;
+    String filePathString ="src/main/resources/data/"+index1d+".ser";
+    File f = new File(filePathString);
+    if(f.exists() && !f.isDirectory()) {
+      ArrayList<Object> a = new ArrayList<>();
+      a.add(valu);
+     Grid g = Grid.deserialG(index1d);
+      assert g != null;
+      Vector<Integer> v =g.returnCell(index1d,a);
+      Bucket bj = Grid.returnbuck(g.grid,v,0);
+      if (bj != null) {
+        for (ArrayList<Object> ao : bj) {
+          Object vall = ao.get(5);
+          boolean flag = false;
+          if (i == 0) {
+            if ((int) vall < (int) valu) flag = true;
+          } else if (i == 1) {
+            BigDecimal b = BigDecimal.valueOf((Double) vall);
+            BigDecimal b1 = BigDecimal.valueOf((Double) valu);
+            int k = b.compareTo(b1);
+            if (k < 0) flag = true;
+          } else if (i == 2) {
+            int k = ((String) vall).compareTo((String) valu);
+            if (k < 0) flag = true;
+          } else {
+            int k = ((Date) vall).compareTo((Date) valu);
+            if (k < 0) flag = true;
+          }
+          if (flag) {
+            int pnum = (int) ao.get(0);
+            int tpnum = (int) ao.get(1);
+            boolean of = (boolean) ao.get(2);
+            int pnumof = (int) ao.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+        }
+      }
+      int jk=v.get(0)-1;
+      v.set(0,jk);
+      while (v.get(0) > -1) {
+        String filePathStrin = "src/main/resources/data/" + index1d + v.get(0) + ".ser";
+        File fb = new File(filePathStrin);
+        if (fb.exists() && !fb.isDirectory()) {
+          Bucket bb = Grid.returnbuck(g.grid, v, 0);
+          for (ArrayList<Object> aa : bb) {
+            int pnum = (int) aa.get(0);
+            int tpnum = (int) aa.get(1);
+            boolean of = (boolean) aa.get(2);
+            int pnumof = (int) aa.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+
+        }
+        int jkk = v.get(0) - 1;
+        v.set(0, jkk);
+      }
+    }
+    else{
+
+    }
+    return result;
+  }
+
   public Vector<ArrayList<Object>> execnoteq(SQLTerm sqlTerm) throws DBAppException {
     Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
     Object valu = sqlTerm._objValue;
@@ -2415,27 +2524,27 @@ DBApp implements DBAppInterface {
     DBApp db = new DBApp();
     db.init();
 
-    Hashtable htblColNameType = new Hashtable();
-    htblColNameType.put("id", "java.lang.Integer");
-    htblColNameType.put("name", "java.lang.String");
-    htblColNameType.put("gpa", "java.lang.double");
-    Hashtable htblColNameMin = new Hashtable();
-    htblColNameMin.put("id", "0");
-    htblColNameMin.put("name", " ");
-    htblColNameMin.put("gpa", "0");
-    Hashtable htblColNameMax = new Hashtable();
-    htblColNameMax.put("id", "213981");
-    htblColNameMax.put("name", "ZZZZZZZZZZ");
-    htblColNameMax.put("gpa", "5");
-
-    	//db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-
-    Hashtable htblColNameValue = new Hashtable();
-		 htblColNameValue.put("id", new Integer(5));
-		 htblColNameValue.put("name", new String("aaaa"));
-		 htblColNameValue.put("gpa", new Double(2.3));
-		 //db.insertIntoTable("trial",htblColNameValue);
-
+//    Hashtable htblColNameType = new Hashtable();
+//    htblColNameType.put("id", "java.lang.Integer");
+//    htblColNameType.put("name", "java.lang.String");
+//    htblColNameType.put("gpa", "java.lang.double");
+//    Hashtable htblColNameMin = new Hashtable();
+//    htblColNameMin.put("id", "0");
+//    htblColNameMin.put("name", " ");
+//    htblColNameMin.put("gpa", "0");
+//    Hashtable htblColNameMax = new Hashtable();
+//    htblColNameMax.put("id", "213981");
+//    htblColNameMax.put("name", "ZZZZZZZZZZ");
+//    htblColNameMax.put("gpa", "5");
+//
+//    	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+//
+//    Hashtable htblColNameValue = new Hashtable();
+//		 htblColNameValue.put("id", new Integer(5));
+//		 htblColNameValue.put("name", new String("aaaa"));
+//		 htblColNameValue.put("gpa", new Double(2.3));
+//		 db.insertIntoTable("trial",htblColNameValue);
+//
 //		htblColNameValue.clear( );
 //		htblColNameValue.put("id", new Integer(10));
 //		htblColNameValue.put("name", new String("aaaa"));
@@ -2478,17 +2587,17 @@ DBApp implements DBAppInterface {
 //    System.out.println(Page.deserialP("trial1"));
 //    System.out.println((Page.deserialP("trial0")).overflow);
 //		SQLTerm sql = new SQLTerm();
-//		sql._objValue="aaaaa";
-//		sql._strColumnName="name";
-//		sql._strOperator="!=";
+//		sql._objValue=4;
+//		sql._strColumnName="gpa";
+//		sql._strOperator="<";
 //		sql._strTableName="trial";
-//		System.out.println(db.execnoteq(sql))
-//		Vector<Integer> bucketnumber=new Vector<Integer>();
+//		System.out.println(db.execless(sql));
+//////		Vector<Integer> bucketnumber=new Vector<Integer>();
 //		bucketnumber.add(0);
 //		bucketnumber.add(1);
-    String[] p = {"id"};
-  //db.createIndex("trial",p);
-   // System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
+//    String[] p = {"gpa"};
+//    db.createIndex("trial",p);
+//   // System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
     //insertintoindex("trialgpaname",bucketnumber,16);
 //    System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
 //    System.out.println(Bucket.deserialB("trialgpaname24"));
@@ -2500,11 +2609,11 @@ DBApp implements DBAppInterface {
 //    System.out.println(Bucket.deserialB("trialgpaname44"));
 //    System.out.println(Bucket.deserialB("trialgpaname44").overflow);
 //    System.out.println(Bucket.deserialB("trialgpaname54"));
-    Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
-    columnNameValue.put("gpa",2.0);
-    //db.updateTablewithindex("trial","5",columnNameValue);
-    System.out.println(Bucket.deserialB("trialid0"));
-    System.out.println(Bucket.deserialB("trialid0").overflow);
-    System.out.println(Page.deserialP("trial0").overflow);
+//    Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
+//    columnNameValue.put("gpa",2.0);
+//    //db.updateTablewithindex("trial","5",columnNameValue);
+//    System.out.println(Bucket.deserialB("trialid0"));
+//    System.out.println(Bucket.deserialB("trialid0").overflow);
+//    System.out.println(Page.deserialP("trial0").overflow);
   }
 }
