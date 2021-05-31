@@ -1792,7 +1792,86 @@ DBApp implements DBAppInterface {
 
     return null;
   }
+  public Vector<ArrayList<Object>> execlesseq(SQLTerm sqlTerm) throws DBAppException{
+    Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
+    Object valu = sqlTerm._objValue;
+    String tname = sqlTerm._strTableName;
+    String col = sqlTerm._strColumnName;
+    int i = getType(tname,col); //int 0 Double 1 String 2 Date 3
+    String index1d=tname+col;
+    String filePathString ="src/main/resources/data/"+index1d+".ser";
+    File f = new File(filePathString);
+    if(f.exists() && !f.isDirectory()) {
+      ArrayList<Object> a = new ArrayList<>();
+      a.add(valu);
+      Grid g = Grid.deserialG(index1d);
+      assert g != null;
+      Vector<Integer> v =g.returnCell(index1d,a);
+      Bucket bj = Grid.returnbuck(g.grid,v,0);
+      if (bj != null) {
+        for (ArrayList<Object> ao : bj) {
+          Object vall = ao.get(5);
+          boolean flag = false;
+          if (i == 0) {
+            if ((int) vall <= (int) valu) flag = true;
+          } else if (i == 1) {
+            BigDecimal b = BigDecimal.valueOf((Double) vall);
+            BigDecimal b1 = BigDecimal.valueOf((Double) valu);
+            int k = b.compareTo(b1);
+            if (k <= 0) flag = true;
+          } else if (i == 2) {
+            int k = ((String) vall).compareTo((String) valu);
+            if (k <= 0) flag = true;
+          } else {
+            int k = ((Date) vall).compareTo((Date) valu);
+            if (k <= 0) flag = true;
+          }
+          if (flag) {
+            int pnum = (int) ao.get(0);
+            int tpnum = (int) ao.get(1);
+            boolean of = (boolean) ao.get(2);
+            int pnumof = (int) ao.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
+        }
+      }
+      int jk=v.get(0)-1;
+      v.set(0,jk);
+      while (v.get(0) > -1) {
+        String filePathStrin = "src/main/resources/data/" + index1d + v.get(0) + ".ser";
+        File fb = new File(filePathStrin);
+        if (fb.exists() && !fb.isDirectory()) {
+          Bucket bb = Grid.returnbuck(g.grid, v, 0);
+          for (ArrayList<Object> aa : bb) {
+            int pnum = (int) aa.get(0);
+            int tpnum = (int) aa.get(1);
+            boolean of = (boolean) aa.get(2);
+            int pnumof = (int) aa.get(3);
+            if (of) {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.overflow.get(pnumof).get(tpnum));
+            } else {
+              Page p = Page.deserialP(tname + pnum);
+              result.add(p.get(tpnum));
+            }
+          }
 
+        }
+        int jkk = v.get(0) - 1;
+        v.set(0, jkk);
+      }
+    }
+    else{
+
+    }
+    return result;
+  }
   public Vector<ArrayList<Object>> execless(SQLTerm sqlTerm) throws DBAppException{
     Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
     Object valu = sqlTerm._objValue;
@@ -2583,15 +2662,15 @@ DBApp implements DBAppInterface {
 //    htblColNameValue.put("gpa", new Double(2.1));
 //    db.insertIntoTable("trial",htblColNameValue);
 
-//    System.out.println(Page.deserialP("trial0"));
-//    System.out.println(Page.deserialP("trial1"));
-//    System.out.println((Page.deserialP("trial0")).overflow);
-//		SQLTerm sql = new SQLTerm();
-//		sql._objValue=4;
-//		sql._strColumnName="gpa";
-//		sql._strOperator="<";
-//		sql._strTableName="trial";
-//		System.out.println(db.execless(sql));
+    System.out.println(Page.deserialP("trial0"));
+    System.out.println(Page.deserialP("trial1"));
+    System.out.println((Page.deserialP("trial0")).overflow);
+		SQLTerm sql = new SQLTerm();
+		sql._objValue=2.1;
+		sql._strColumnName="gpa";
+		sql._strOperator="<";
+		sql._strTableName="trial";
+		System.out.println(db.execlesseq(sql));
 //////		Vector<Integer> bucketnumber=new Vector<Integer>();
 //		bucketnumber.add(0);
 //		bucketnumber.add(1);
