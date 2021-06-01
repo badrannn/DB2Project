@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 public class DBApp implements DBAppInterface {
 
@@ -1678,7 +1679,6 @@ public class DBApp implements DBAppInterface {
   public Iterator selectFromTable(SQLTerm[] sqlTerms, String[] arrayOperators)
       throws DBAppException {
 
-    Vector<ArrayList<Object>> res = new Vector<ArrayList<Object>>();
     for (int i = 0; i < sqlTerms.length; i++) {
       String tname = sqlTerms[i]._strTableName;
       Hashtable<String, Object> h = new Hashtable();
@@ -1699,17 +1699,71 @@ public class DBApp implements DBAppInterface {
     }
     Vector<Vector<ArrayList<Object>>> intermid = new Vector<Vector<ArrayList<Object>>>();
 
-    for (int i = 0; i < sqlTerms.length; i++) {
-      intermid.add(execterm(sqlTerms[i]));
+    for (SQLTerm sq : sqlTerms) {
+      intermid.add(execterm(sq));
     }
+    Arrays.sort(arrayOperators); // sort AND OR XOR
+    List<String> list = Arrays.asList(arrayOperators);
+    while (intermid.size() > 1) {
+      intermid.add(0, execOperator(intermid.remove(0), intermid.remove(1), list.remove(0)));
+    }
+    Iterator value = intermid.get(0).iterator();
+    return value;
+  }
 
-    Iterator result = res.iterator();
+  public static Vector<ArrayList<Object>> execOperator(
+      Vector<ArrayList<Object>> a, Vector<ArrayList<Object>> b, String op) {
+    switch (op) {
+      case "AND":
+        return execAnd(a, b);
+      case "OR":
+        return execOR(a, b);
 
-    return null;
+      case "XOR":
+        return execXOR(a, b);
+
+      default:
+        return null;
+    }
+  }
+
+  public static Vector<ArrayList<Object>> execXOR(
+      Vector<ArrayList<Object>> a, Vector<ArrayList<Object>> b) {
+
+    Vector<ArrayList<Object>> returned = new Vector<ArrayList<Object>>();
+    for (ArrayList<Object> i : a) {
+      for (ArrayList<Object> j : b) {
+        if (!i.equals(j)) returned.add(i);
+      }
+    }
+    return returned;
+  }
+
+  public static Vector<ArrayList<Object>> execAnd(
+      Vector<ArrayList<Object>> a, Vector<ArrayList<Object>> b) {
+    Vector<ArrayList<Object>> returned = new Vector<ArrayList<Object>>();
+    for (ArrayList<Object> i : a) {
+      for (ArrayList<Object> j : b) {
+        if (i.equals(j)) returned.add(i);
+      }
+    }
+    return returned;
+  }
+
+  public static Vector<ArrayList<Object>> execOR(
+      Vector<ArrayList<Object>> a, Vector<ArrayList<Object>> b) {
+    Vector<ArrayList<Object>> returned = new Vector<ArrayList<Object>>();
+    for (int i = 0; i < a.size(); i++) {
+      for (int j = 0; j < b.size(); j++) {
+        if (a.get(i).equals(b.get(j))) a.remove(i);
+      }
+    }
+    returned.addAll(a);
+    returned.addAll(b);
+    return returned;
   }
 
   public Vector<ArrayList<Object>> execterm(SQLTerm sqlTerm) throws DBAppException {
-    // no index on column
     String oper = sqlTerm._strOperator;
     switch (oper) {
       case ">":
@@ -2293,8 +2347,7 @@ public class DBApp implements DBAppInterface {
             }
           }
         }
-      }
-      else {
+      } else {
         return result;
       }
     }
@@ -2784,11 +2837,15 @@ public class DBApp implements DBAppInterface {
     System.out.println(Page.deserialP("trial1"));
     System.out.println((Page.deserialP("trial0")).overflow);
     SQLTerm sql = new SQLTerm();
-    sql._objValue = 6.0;
+    sql._objValue = 2.1;
     sql._strColumnName = "gpa";
     sql._strOperator = "<";
     sql._strTableName = "trial";
-    System.out.println(db.execEq(sql));
+    Vector<ArrayList<Object>> a = db.execgreateq(sql);
+    Vector<ArrayList<Object>> b = db.execEq(sql);
+    System.out.println(a);
+    System.out.println(b);
+    System.out.println(execOperator(a, b, "XOR"));
     //////		Vector<Integer> bucketnumber=new Vector<Integer>();
     //		bucketnumber.add(0);
     //		bucketnumber.add(1);
