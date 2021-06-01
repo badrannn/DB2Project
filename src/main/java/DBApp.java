@@ -975,84 +975,7 @@ public class DBApp implements DBAppInterface {
     }
   }
 
-  @Override
   public void updateTable(
-      String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
-      throws DBAppException {
-    boolean check = checkColumns(tableName, columnNameValue);
-    if (!check) {
-      throw new DBAppException();
-    }
-    boolean flagover = false;
-    Page overflow = null;
-    int k = 0;
-    String[] columns = Table.returnColumns(tableName);
-    int type = getType(tableName, columns[0]);
-    Object clusterkey = -1;
-    if (type == 0) {
-      clusterkey = Integer.parseInt(clusteringKeyValue);
-    } else if (type == 1) {
-      clusterkey = Double.parseDouble(clusteringKeyValue);
-    } else if (type == 3) {
-      DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-      try {
-        clusterkey = format.parse(clusteringKeyValue);
-      } catch (ParseException e) {
-        throw new DBAppException();
-      }
-
-    } else {
-      clusterkey = clusteringKeyValue;
-    }
-    int[] pos = searchtable(tableName, clusterkey);
-    if (pos[0] >= 0 && pos[1] == -1) {
-      flagover = true;
-      Page p = Page.deserialP(tableName + pos[0]);
-      for (k = 0; k < p.overflow.size(); k++) {
-        overflow = p.overflow.get(k);
-        if (clusterkey instanceof Integer) {
-          pos[1] = binarysearchint(overflow, (int) clusterkey);
-        } else if (clusterkey instanceof String) {
-          pos[1] = binarysearchstring(overflow, (String) clusterkey);
-        } else if (clusterkey instanceof Double) {
-          pos[1] = binarysearchdouble(overflow, (double) clusterkey);
-        } else if (clusterkey instanceof Date) {
-          pos[1] = binarysearchdate(overflow, (Date) clusterkey);
-        }
-        if (pos[1] >= 0) {
-          break;
-        }
-      }
-    }
-    if (pos[0] == -1 || pos[1] == -1) {
-      return;
-    }
-    Enumeration<String> keys = columnNameValue.keys();
-    String s = tableName + pos[0];
-    Page p = Page.deserialP(s);
-    while (keys.hasMoreElements()) {
-      String key = keys.nextElement();
-      int j = coloumnnum(key, tableName);
-      if (j == -1) {
-        throw new DBAppException();
-      }
-      Object Change = columnNameValue.get(key);
-      if (!checkMinMax(tableName, columns[j], Change)) {
-        throw new DBAppException();
-      }
-
-      if (!flagover) {
-        p.get(pos[1]).set(j, Change);
-      } else {
-        p.overflow.get(k).get(pos[1]).set(j, Change);
-      }
-    }
-
-    p.serialP(s);
-  }
-
-  public void updateTablewithindex(
       String tableName, String clusteringKeyValue, Hashtable<String, Object> columnNameValue)
       throws DBAppException {
     boolean check = checkColumns(tableName, columnNameValue);
@@ -1105,12 +1028,12 @@ public class DBApp implements DBAppInterface {
 
     int[] pos = new int[2];
     pos[0] = (int) t.get(0);
-    pos[1] = (int) t.get(1);
-    flagover = (boolean) t.get(2);
-    k = (int) t.get(3);
-    Enumeration<String> keys = columnNameValue.keys();
     String ss = tableName + pos[0];
     Page p = Page.deserialP(ss);
+    pos[1] = binarysearchpage(p,t.get(3));
+    flagover = (boolean) t.get(1);
+    k = (int) t.get(2);
+    Enumeration<String> keys = columnNameValue.keys();
     while (keys.hasMoreElements()) {
       String key = keys.nextElement();
       int j = coloumnnum(key, tableName);
@@ -1807,7 +1730,7 @@ public class DBApp implements DBAppInterface {
       Bucket bj = Grid.returnbuck(g.grid, v, 0);
       if (bj != null) {
         for (ArrayList<Object> ao : bj) {
-          Object vall = ao.get(5);
+          Object vall = ao.get(4);
           boolean flag = false;
           if (i == 0) {
             if ((int) vall > (int) valu) flag = true;
@@ -1825,14 +1748,14 @@ public class DBApp implements DBAppInterface {
           }
           if (flag) {
             int pnum = (int) ao.get(0);
-            int tpnum = (int) ao.get(1);
-            boolean of = (boolean) ao.get(2);
-            int pnumof = (int) ao.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,ao.get(3));
+            boolean of = (boolean) ao.get(1);
+            int pnumof = (int) ao.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
+
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -1847,14 +1770,13 @@ public class DBApp implements DBAppInterface {
           Bucket bb = Grid.returnbuck(g.grid, v, 0);
           for (ArrayList<Object> aa : bb) {
             int pnum = (int) aa.get(0);
-            int tpnum = (int) aa.get(1);
-            boolean of = (boolean) aa.get(2);
-            int pnumof = (int) aa.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,aa.get(3));
+            boolean of = (boolean) aa.get(1);
+            int pnumof = (int) aa.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -1982,7 +1904,7 @@ public class DBApp implements DBAppInterface {
       Bucket bj = Grid.returnbuck(g.grid, v, 0);
       if (bj != null) {
         for (ArrayList<Object> ao : bj) {
-          Object vall = ao.get(5);
+          Object vall = ao.get(4);
           boolean flag = false;
           if (i == 0) {
             if ((int) vall >= (int) valu) flag = true;
@@ -2000,14 +1922,14 @@ public class DBApp implements DBAppInterface {
           }
           if (flag) {
             int pnum = (int) ao.get(0);
-            int tpnum = (int) ao.get(1);
-            boolean of = (boolean) ao.get(2);
-            int pnumof = (int) ao.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum =binarysearchpage(p,ao.get(3));
+            boolean of = (boolean) ao.get(1);
+            int pnumof = (int) ao.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
+
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -2022,14 +1944,13 @@ public class DBApp implements DBAppInterface {
           Bucket bb = Grid.returnbuck(g.grid, v, 0);
           for (ArrayList<Object> aa : bb) {
             int pnum = (int) aa.get(0);
-            int tpnum = (int) aa.get(1);
-            boolean of = (boolean) aa.get(2);
-            int pnumof = (int) aa.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,aa.get(3));
+            boolean of = (boolean) aa.get(1);
+            int pnumof = (int) aa.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -2157,7 +2078,7 @@ public class DBApp implements DBAppInterface {
       Bucket bj = Grid.returnbuck(g.grid, v, 0);
       if (bj != null) {
         for (ArrayList<Object> ao : bj) {
-          Object vall = ao.get(5);
+          Object vall = ao.get(4);
           boolean flag = false;
           if (i == 0) {
             if ((int) vall <= (int) valu) flag = true;
@@ -2175,14 +2096,13 @@ public class DBApp implements DBAppInterface {
           }
           if (flag) {
             int pnum = (int) ao.get(0);
-            int tpnum = (int) ao.get(1);
-            boolean of = (boolean) ao.get(2);
-            int pnumof = (int) ao.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,ao.get(3));
+            boolean of = (boolean) ao.get(1);
+            int pnumof = (int) ao.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -2197,14 +2117,13 @@ public class DBApp implements DBAppInterface {
           Bucket bb = Grid.returnbuck(g.grid, v, 0);
           for (ArrayList<Object> aa : bb) {
             int pnum = (int) aa.get(0);
-            int tpnum = (int) aa.get(1);
-            boolean of = (boolean) aa.get(2);
-            int pnumof = (int) aa.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,aa.get(3));
+            boolean of = (boolean) aa.get(1);
+            int pnumof = (int) aa.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -2332,7 +2251,7 @@ public class DBApp implements DBAppInterface {
       Bucket bj = Grid.returnbuck(g.grid, v, 0);
       if (bj != null) {
         for (ArrayList<Object> ao : bj) {
-          Object vall = ao.get(5);
+          Object vall = ao.get(4);
           boolean flag = false;
           if (i == 0) {
             if ((int) vall < (int) valu) flag = true;
@@ -2350,14 +2269,13 @@ public class DBApp implements DBAppInterface {
           }
           if (flag) {
             int pnum = (int) ao.get(0);
-            int tpnum = (int) ao.get(1);
-            boolean of = (boolean) ao.get(2);
-            int pnumof = (int) ao.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,ao.get(3));
+            boolean of = (boolean) ao.get(1);
+            int pnumof = (int) ao.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -2372,14 +2290,13 @@ public class DBApp implements DBAppInterface {
           Bucket bb = Grid.returnbuck(g.grid, v, 0);
           for (ArrayList<Object> aa : bb) {
             int pnum = (int) aa.get(0);
-            int tpnum = (int) aa.get(1);
-            boolean of = (boolean) aa.get(2);
-            int pnumof = (int) aa.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,aa.get(3));
+            boolean of = (boolean) aa.get(1);
+            int pnumof = (int) aa.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -2489,7 +2406,7 @@ public class DBApp implements DBAppInterface {
     return result;
   }
 
-  public Vector<ArrayList<Object>> execnoteq(SQLTerm sqlTerm) throws DBAppException {
+  public Vector<ArrayList<Object>> execnoteq(SQLTerm sqlTerm) throws DBAppException {//no index
     Vector<ArrayList<Object>> result = new Vector<ArrayList<Object>>();
     Object valu = sqlTerm._objValue;
     String tname = sqlTerm._strTableName;
@@ -2701,7 +2618,7 @@ public class DBApp implements DBAppInterface {
       Bucket bj = Grid.returnbuck(g.grid, v, 0);
       if (bj != null) {
         for (ArrayList<Object> ao : bj) {
-          Object vall = ao.get(5);
+          Object vall = ao.get(4);
           boolean flag = false;
           if (i == 0) {
             if ((int) vall == (int) valu) flag = true;
@@ -2719,14 +2636,13 @@ public class DBApp implements DBAppInterface {
           }
           if (flag) {
             int pnum = (int) ao.get(0);
-            int tpnum = (int) ao.get(1);
-            boolean of = (boolean) ao.get(2);
-            int pnumof = (int) ao.get(3);
+            Page p = Page.deserialP(tname + pnum);
+            int tpnum = binarysearchpage(p,ao.get(3));
+            boolean of = (boolean) ao.get(1);
+            int pnumof = (int) ao.get(2);
             if (of) {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.overflow.get(pnumof).get(tpnum));
             } else {
-              Page p = Page.deserialP(tname + pnum);
               result.add(p.get(tpnum));
             }
           }
@@ -2956,6 +2872,22 @@ public class DBApp implements DBAppInterface {
       mid = (low + high) / 2;
     }
     return -1; // key not found
+  }
+  public static int binarysearchpage(Page v1, Object key){
+    int ret=-1;
+    if(key instanceof Integer){
+      ret=binarysearchint( v1, (Integer) key);
+    }
+    else if(key instanceof Double){
+      ret=binarysearchdouble( v1,(Double)  key);
+    }
+    else if(key instanceof String){
+      ret=binarysearchstring( v1, (String) key);
+    }
+    else{
+      ret=binarysearchdate( v1, (Date) key);
+    }
+    return ret;
   }
 
   public static int searchtableall(String tableName, Object key) throws DBAppException {
@@ -3220,25 +3152,27 @@ public class DBApp implements DBAppInterface {
 //    System.out.println(Page.deserialP("trial0"));
 //    System.out.println(Page.deserialP("trial1"));
 //    System.out.println((Page.deserialP("trial0")).overflow);
+//    String[] p = {"id"};
+//    db.createIndex("trial",p);
+
 //    SQLTerm sql = new SQLTerm();
 //    sql._objValue = 2.1;
 //    sql._strColumnName = "gpa";
 //    sql._strOperator = "<";
 //    sql._strTableName = "trial";
 //
-//    Vector<ArrayList<Object>> a = db.execgreateq(sql);
-//    Vector<ArrayList<Object>> b = db.execEq(sql);
+//    Vector<ArrayList<Object>> a = db.execlesseq(sql);
+//   Vector<ArrayList<Object>> b = db.execless(sql);
 //    System.out.println(a);
-//    System.out.println(b);
+//   System.out.println(b);
 //    System.out.println(execOperator(a, b, "XOR"));
 
-    System.out.println(db.execgreateq(sql));
+//    System.out.println(db.execgreateq(sql));
 
     //////		Vector<Integer> bucketnumber=new Vector<Integer>();
     //		bucketnumber.add(0);
     //		bucketnumber.add(1);
-    //    String[] p = {"gpa"};
-    //    db.createIndex("trial",p);
+
     //   // System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
     // insertintoindex("trialgpaname",bucketnumber,16);
     //    System.out.println(Arrays.deepToString(Grid.deserialG("trialgpaname").grid));
@@ -3251,11 +3185,11 @@ public class DBApp implements DBAppInterface {
     //    System.out.println(Bucket.deserialB("trialgpaname44"));
     //    System.out.println(Bucket.deserialB("trialgpaname44").overflow);
     //    System.out.println(Bucket.deserialB("trialgpaname54"));
-    //    Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
-    //    columnNameValue.put("gpa",2.0);
-    //    //db.updateTablewithindex("trial","5",columnNameValue);
-    //    System.out.println(Bucket.deserialB("trialid0"));
+        Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
+        columnNameValue.put("gpa",3.0);
+      db.updateTable("trial","10",columnNameValue);
+        System.out.println(Bucket.deserialB("trialid0"));
     //    System.out.println(Bucket.deserialB("trialid0").overflow);
-    //    System.out.println(Page.deserialP("trial0").overflow);
+       System.out.println(Page.deserialP("trial0"));
   }
 }

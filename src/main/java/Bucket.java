@@ -103,7 +103,7 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
     int mid = high / 2;
     while (low <= high) {
 
-      int midVal = (int) (b.get(mid).get(4));
+      int midVal = (int) (b.get(mid).get(3));
 
       if (midVal < key) {
         low = mid + 1;
@@ -124,7 +124,7 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
     int mid = (low + high) / 2;
     while (low <= high) {
 
-      String midVal = (String) (b.get(mid).get(4));
+      String midVal = (String) (b.get(mid).get(3));
       int comp = midVal.compareTo(key);
 
       if (comp < 0) {
@@ -146,7 +146,7 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
     int mid = (low + high) / 2;
     while (low <= high) {
 
-      Date midVal = (Date) (b.get(mid).get(4));
+      Date midVal = (Date) (b.get(mid).get(3));
       int comp = midVal.compareTo(key);
 
       if (comp < 0) {
@@ -167,7 +167,7 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
     int mid = (low + high) / 2;
     while (low <= high) {
 
-      Double midVal = (Double) (b.get(mid).get(4));
+      Double midVal = (Double) (b.get(mid).get(3));
       BigDecimal comp = BigDecimal.valueOf(midVal);
       BigDecimal key1 = BigDecimal.valueOf(key);
       int cond = comp.compareTo(key1);
