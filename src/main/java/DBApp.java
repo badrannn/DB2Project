@@ -1863,6 +1863,102 @@ public class DBApp implements DBAppInterface {
         v.set(0, jkk);
       }
     } else {
+      int tablesize = Table.deserialT(tname);
+      int A = coloumnnum(col, tname);
+      for (int k = 0; k < tablesize; k++) {
+        while (checkdeleted(tname, k)) {
+          k++;
+          tablesize++;
+        }
+        Page ff = Page.deserialP(tname + k);
+        int pagesize = ff.size();
+        int j = 0;
+        int m = 0;
+        int iverr = ff.overflow.size();
+        boolean flag = true;
+        while (j < pagesize) {
+          if (valu instanceof Integer) {
+            int int1 = (int) valu;
+            int int2 = (int) ff.get(j).get(A);
+            if (!(int2 > int1)) {
+              flag = false;
+            }
+          } else if (valu instanceof String) {
+            String str = (String) valu;
+            String Str2 = (String) ff.get(j).get(A);
+            if (Str2.compareTo(str)<=0) {
+              flag = false;
+            }
+          } else if (valu instanceof Date) {
+            Date dt = (Date) valu;
+            Date dt2 = (Date) ff.get(j).get(A);
+            if (dt2.compareTo(dt)<=0) {
+              flag = false;
+            }
+          } else if (valu instanceof Double) {
+            String srs = valu.toString();
+            Double doo = Double.valueOf(srs);
+            BigDecimal big = BigDecimal.valueOf(doo);
+            String srs1 = ff.get(j).get(A).toString();
+            Double doo1 = Double.valueOf(srs1);
+            BigDecimal big1 = BigDecimal.valueOf(doo1);
+            if (big1.compareTo(big)<=0) {
+              flag = false;
+            }
+          }
+          if (flag == true) {
+            result.add(ff.get(j));
+            j++;
+          } else {
+            flag = true;
+            j++;
+          }
+        }
+        while (m < iverr) { // m pages overflow
+          int x = 0;
+          int oversize = ff.overflow.get(m).size();
+          boolean flagover = true;
+          while (x < oversize) {
+            if (valu instanceof Integer) {
+              int int1 = (int) valu;
+              int int2 = (int) ff.overflow.get(m).get(x).get(A);
+              if (!(int2 > int1)) {
+                flagover = false;
+              }
+            } else if (valu instanceof String) {
+              String str = (String) valu;
+              String Str2 = (String) ff.overflow.get(m).get(x).get(A);
+              if (Str2.compareTo(str)<=0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Date) {
+              Date dt = (Date) valu;
+              Date dt2 = (Date) ff.overflow.get(m).get(x).get(A);
+              if (dt2.compareTo(dt)<=0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Double) {
+              String srs = valu.toString();
+              Double doo = Double.valueOf(srs);
+              BigDecimal big = BigDecimal.valueOf(doo);
+              String srs1 = ff.overflow.get(m).get(x).get(A).toString();
+              Double doo1 = Double.valueOf(srs1);
+              BigDecimal big1 = BigDecimal.valueOf(doo1);
+              if (big1.compareTo(big)<=0) {
+                flagover = false;
+              }
+            }
+            if (flagover) {
+              result.add(ff.overflow.get(m).get(x));
+              x++;
+            } else {
+              flagover = true;
+              x++;
+            }
+          }
+          m++;
+        }
+      }
 
     }
     return result;
@@ -1942,6 +2038,102 @@ public class DBApp implements DBAppInterface {
         v.set(0, jkk);
       }
     } else {
+      int tablesize = Table.deserialT(tname);
+      int A = coloumnnum(col, tname);
+      for (int k = 0; k < tablesize; k++) {
+        while (checkdeleted(tname, k)) {
+          k++;
+          tablesize++;
+        }
+        Page ff = Page.deserialP(tname + k);
+        int pagesize = ff.size();
+        int j = 0;
+        int m = 0;
+        int iverr = ff.overflow.size();
+        boolean flag = true;
+        while (j < pagesize) {
+          if (valu instanceof Integer) {
+            int int1 = (int) valu;
+            int int2 = (int) ff.get(j).get(A);
+            if (!(int2 >= int1)) {
+              flag = false;
+            }
+          } else if (valu instanceof String) {
+            String str = (String) valu;
+            String Str2 = (String) ff.get(j).get(A);
+            if (Str2.compareTo(str)<0) {
+              flag = false;
+            }
+          } else if (valu instanceof Date) {
+            Date dt = (Date) valu;
+            Date dt2 = (Date) ff.get(j).get(A);
+            if (dt2.compareTo(dt)<0) {
+              flag = false;
+            }
+          } else if (valu instanceof Double) {
+            String srs = valu.toString();
+            Double doo = Double.valueOf(srs);
+            BigDecimal big = BigDecimal.valueOf(doo);
+            String srs1 = ff.get(j).get(A).toString();
+            Double doo1 = Double.valueOf(srs1);
+            BigDecimal big1 = BigDecimal.valueOf(doo1);
+            if (big1.compareTo(big)<0) {
+              flag = false;
+            }
+          }
+          if (flag == true) {
+            result.add(ff.get(j));
+            j++;
+          } else {
+            flag = true;
+            j++;
+          }
+        }
+        while (m < iverr) { // m pages overflow
+          int x = 0;
+          int oversize = ff.overflow.get(m).size();
+          boolean flagover = true;
+          while (x < oversize) {
+            if (valu instanceof Integer) {
+              int int1 = (int) valu;
+              int int2 = (int) ff.overflow.get(m).get(x).get(A);
+              if (!(int2 >= int1)) {
+                flagover = false;
+              }
+            } else if (valu instanceof String) {
+              String str = (String) valu;
+              String Str2 = (String) ff.overflow.get(m).get(x).get(A);
+              if (Str2.compareTo(str)<0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Date) {
+              Date dt = (Date) valu;
+              Date dt2 = (Date) ff.overflow.get(m).get(x).get(A);
+              if (dt2.compareTo(dt)<0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Double) {
+              String srs = valu.toString();
+              Double doo = Double.valueOf(srs);
+              BigDecimal big = BigDecimal.valueOf(doo);
+              String srs1 = ff.overflow.get(m).get(x).get(A).toString();
+              Double doo1 = Double.valueOf(srs1);
+              BigDecimal big1 = BigDecimal.valueOf(doo1);
+              if (big1.compareTo(big)<0) {
+                flagover = false;
+              }
+            }
+            if (flagover) {
+              result.add(ff.overflow.get(m).get(x));
+              x++;
+            } else {
+              flagover = true;
+              x++;
+            }
+          }
+          m++;
+        }
+      }
 
     }
     return result;
@@ -2021,6 +2213,102 @@ public class DBApp implements DBAppInterface {
         v.set(0, jkk);
       }
     } else {
+      int tablesize = Table.deserialT(tname);
+      int A = coloumnnum(col, tname);
+      for (int k = 0; k < tablesize; k++) {
+        while (checkdeleted(tname, k)) {
+          k++;
+          tablesize++;
+        }
+        Page ff = Page.deserialP(tname + k);
+        int pagesize = ff.size();
+        int j = 0;
+        int m = 0;
+        int iverr = ff.overflow.size();
+        boolean flag = true;
+        while (j < pagesize) {
+          if (valu instanceof Integer) {
+            int int1 = (int) valu;
+            int int2 = (int) ff.get(j).get(A);
+            if (!(int2 <= int1)) {
+              flag = false;
+            }
+          } else if (valu instanceof String) {
+            String str = (String) valu;
+            String Str2 = (String) ff.get(j).get(A);
+            if (Str2.compareTo(str)>0) {
+              flag = false;
+            }
+          } else if (valu instanceof Date) {
+            Date dt = (Date) valu;
+            Date dt2 = (Date) ff.get(j).get(A);
+            if (dt2.compareTo(dt)>0) {
+              flag = false;
+            }
+          } else if (valu instanceof Double) {
+            String srs = valu.toString();
+            Double doo = Double.valueOf(srs);
+            BigDecimal big = BigDecimal.valueOf(doo);
+            String srs1 = ff.get(j).get(A).toString();
+            Double doo1 = Double.valueOf(srs1);
+            BigDecimal big1 = BigDecimal.valueOf(doo1);
+            if (big1.compareTo(big)>0) {
+              flag = false;
+            }
+          }
+          if (flag == true) {
+            result.add(ff.get(j));
+            j++;
+          } else {
+            flag = true;
+            j++;
+          }
+        }
+        while (m < iverr) { // m pages overflow
+          int x = 0;
+          int oversize = ff.overflow.get(m).size();
+          boolean flagover = true;
+          while (x < oversize) {
+            if (valu instanceof Integer) {
+              int int1 = (int) valu;
+              int int2 = (int) ff.overflow.get(m).get(x).get(A);
+              if (!(int2 <= int1)) {
+                flagover = false;
+              }
+            } else if (valu instanceof String) {
+              String str = (String) valu;
+              String Str2 = (String) ff.overflow.get(m).get(x).get(A);
+              if (Str2.compareTo(str)>0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Date) {
+              Date dt = (Date) valu;
+              Date dt2 = (Date) ff.overflow.get(m).get(x).get(A);
+              if (dt2.compareTo(dt)>0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Double) {
+              String srs = valu.toString();
+              Double doo = Double.valueOf(srs);
+              BigDecimal big = BigDecimal.valueOf(doo);
+              String srs1 = ff.overflow.get(m).get(x).get(A).toString();
+              Double doo1 = Double.valueOf(srs1);
+              BigDecimal big1 = BigDecimal.valueOf(doo1);
+              if (big1.compareTo(big)>0) {
+                flagover = false;
+              }
+            }
+            if (flagover) {
+              result.add(ff.overflow.get(m).get(x));
+              x++;
+            } else {
+              flagover = true;
+              x++;
+            }
+          }
+          m++;
+        }
+      }
 
     }
     return result;
@@ -2100,8 +2388,104 @@ public class DBApp implements DBAppInterface {
         v.set(0, jkk);
       }
     } else {
-
+      int tablesize = Table.deserialT(tname);
+      int A = coloumnnum(col, tname);
+      for (int k = 0; k < tablesize; k++) {
+        while (checkdeleted(tname, k)) {
+          k++;
+          tablesize++;
+        }
+        Page ff = Page.deserialP(tname + k);
+        int pagesize = ff.size();
+        int j = 0;
+        int m = 0;
+        int iverr = ff.overflow.size();
+        boolean flag = true;
+        while (j < pagesize) {
+          if (valu instanceof Integer) {
+            int int1 = (int) valu;
+            int int2 = (int) ff.get(j).get(A);
+            if (!(int2 < int1)) {
+              flag = false;
+            }
+          } else if (valu instanceof String) {
+            String str = (String) valu;
+            String Str2 = (String) ff.get(j).get(A);
+            if (Str2.compareTo(str)>=0) {
+              flag = false;
+            }
+          } else if (valu instanceof Date) {
+            Date dt = (Date) valu;
+            Date dt2 = (Date) ff.get(j).get(A);
+            if (dt2.compareTo(dt)>=0) {
+              flag = false;
+            }
+          } else if (valu instanceof Double) {
+            String srs = valu.toString();
+            Double doo = Double.valueOf(srs);
+            BigDecimal big = BigDecimal.valueOf(doo);
+            String srs1 = ff.get(j).get(A).toString();
+            Double doo1 = Double.valueOf(srs1);
+            BigDecimal big1 = BigDecimal.valueOf(doo1);
+            if (big1.compareTo(big)>=0) {
+              flag = false;
+            }
+          }
+          if (flag == true) {
+            result.add(ff.get(j));
+            j++;
+          } else {
+            flag = true;
+            j++;
+          }
+        }
+        while (m < iverr) { // m pages overflow
+          int x = 0;
+          int oversize = ff.overflow.get(m).size();
+          boolean flagover = true;
+          while (x < oversize) {
+            if (valu instanceof Integer) {
+              int int1 = (int) valu;
+              int int2 = (int) ff.overflow.get(m).get(x).get(A);
+              if (!(int2 < int1)) {
+                flagover = false;
+              }
+            } else if (valu instanceof String) {
+              String str = (String) valu;
+              String Str2 = (String) ff.overflow.get(m).get(x).get(A);
+              if (Str2.compareTo(str)>=0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Date) {
+              Date dt = (Date) valu;
+              Date dt2 = (Date) ff.overflow.get(m).get(x).get(A);
+              if (dt2.compareTo(dt)>=0) {
+                flagover = false;
+              }
+            } else if (valu instanceof Double) {
+              String srs = valu.toString();
+              Double doo = Double.valueOf(srs);
+              BigDecimal big = BigDecimal.valueOf(doo);
+              String srs1 = ff.overflow.get(m).get(x).get(A).toString();
+              Double doo1 = Double.valueOf(srs1);
+              BigDecimal big1 = BigDecimal.valueOf(doo1);
+              if (big1.compareTo(big)>=0) {
+                flagover = false;
+              }
+            }
+            if (flagover) {
+              result.add(ff.overflow.get(m).get(x));
+              x++;
+            } else {
+              flagover = true;
+              x++;
+            }
+          }
+          m++;
+        }
+      }
     }
+
     return result;
   }
 
@@ -2774,78 +3158,82 @@ public class DBApp implements DBAppInterface {
     DBApp db = new DBApp();
     db.init();
 
-    //    Hashtable htblColNameType = new Hashtable();
-    //    htblColNameType.put("id", "java.lang.Integer");
-    //    htblColNameType.put("name", "java.lang.String");
-    //    htblColNameType.put("gpa", "java.lang.double");
-    //    Hashtable htblColNameMin = new Hashtable();
-    //    htblColNameMin.put("id", "0");
-    //    htblColNameMin.put("name", " ");
-    //    htblColNameMin.put("gpa", "0");
-    //    Hashtable htblColNameMax = new Hashtable();
-    //    htblColNameMax.put("id", "213981");
-    //    htblColNameMax.put("name", "ZZZZZZZZZZ");
-    //    htblColNameMax.put("gpa", "5");
-    //
-    //    	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-    //
-    //    Hashtable htblColNameValue = new Hashtable();
-    //		 htblColNameValue.put("id", new Integer(5));
-    //		 htblColNameValue.put("name", new String("aaaa"));
-    //		 htblColNameValue.put("gpa", new Double(2.3));
-    //		 db.insertIntoTable("trial",htblColNameValue);
-    //
-    //		htblColNameValue.clear( );
-    //		htblColNameValue.put("id", new Integer(10));
-    //		htblColNameValue.put("name", new String("aaaa"));
-    //		htblColNameValue.put("gpa", new Double(1.3));
-    //		db.insertIntoTable("trial",htblColNameValue);
-    //		htblColNameValue.clear( );
-    //		htblColNameValue.put("id", new Integer(15));
-    //		htblColNameValue.put("name", new String("aaaa"));
-    //		htblColNameValue.put("gpa", new Double(2.6));
-    //		db.insertIntoTable("trial",htblColNameValue);
-    //		htblColNameValue.clear( );
-    //		htblColNameValue.put("id", new Integer(20));
-    //		htblColNameValue.put("name", new String("aaaa"));
-    //		htblColNameValue.put("gpa", new Double(2.0));
-    //		db.insertIntoTable("trial",htblColNameValue);
-    //		htblColNameValue.clear( );
-    //		htblColNameValue.put("id", new Integer(3));
-    //		htblColNameValue.put("name", new String("aaaa"));
-    //		htblColNameValue.put("gpa", new Double(2.3));
-    //		db.insertIntoTable("trial",htblColNameValue);
-    //
-    //		htblColNameValue.clear( );
-    //		htblColNameValue.put("id", new Integer(7));
-    //		htblColNameValue.put("name", new String("aaaa"));
-    //		htblColNameValue.put("gpa", new Double(2.3));
-    //		db.insertIntoTable("trial",htblColNameValue);
-    //
-    //		htblColNameValue.clear( );
-    //		htblColNameValue.put("id", new Integer(2));
-    //		htblColNameValue.put("name", new String("aaaa"));
-    //		htblColNameValue.put("gpa", new Double(2.0));
-    //		db.insertIntoTable("trial",htblColNameValue);
-    //
-    //    htblColNameValue.clear();
-    //    htblColNameValue.put("id", new Integer(1));
-    //    htblColNameValue.put("gpa", new Double(2.1));
-    //    db.insertIntoTable("trial",htblColNameValue);
+        Hashtable htblColNameType = new Hashtable();
+        htblColNameType.put("id", "java.lang.Integer");
+        htblColNameType.put("name", "java.lang.String");
+        htblColNameType.put("gpa", "java.lang.double");
+        Hashtable htblColNameMin = new Hashtable();
+        htblColNameMin.put("id", "0");
+        htblColNameMin.put("name", " ");
+        htblColNameMin.put("gpa", "0");
+        Hashtable htblColNameMax = new Hashtable();
+        htblColNameMax.put("id", "213981");
+        htblColNameMax.put("name", "ZZZZZZZZZZ");
+        htblColNameMax.put("gpa", "5");
+//
+//        	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+//
+//        Hashtable htblColNameValue = new Hashtable();
+//    		 htblColNameValue.put("id", new Integer(5));
+//    		 htblColNameValue.put("name", new String("aaaa"));
+//    		 htblColNameValue.put("gpa", new Double(2.3));
+//    		 db.insertIntoTable("trial",htblColNameValue);
+//
+//    		htblColNameValue.clear( );
+//    		htblColNameValue.put("id", new Integer(10));
+//    		htblColNameValue.put("name", new String("aaaa"));
+//    		htblColNameValue.put("gpa", new Double(1.3));
+//    		db.insertIntoTable("trial",htblColNameValue);
+//    		htblColNameValue.clear( );
+//    		htblColNameValue.put("id", new Integer(15));
+//    		htblColNameValue.put("name", new String("aaaa"));
+//    		htblColNameValue.put("gpa", new Double(2.6));
+//    		db.insertIntoTable("trial",htblColNameValue);
+//    		htblColNameValue.clear( );
+//    		htblColNameValue.put("id", new Integer(20));
+//    		htblColNameValue.put("name", new String("aaaa"));
+//    		htblColNameValue.put("gpa", new Double(2.0));
+//    		db.insertIntoTable("trial",htblColNameValue);
+//    		htblColNameValue.clear( );
+//    		htblColNameValue.put("id", new Integer(3));
+//    		htblColNameValue.put("name", new String("aaaa"));
+//    		htblColNameValue.put("gpa", new Double(2.3));
+//    		db.insertIntoTable("trial",htblColNameValue);
+//
+//    		htblColNameValue.clear( );
+//    		htblColNameValue.put("id", new Integer(7));
+//    		htblColNameValue.put("name", new String("aaaa"));
+//    		htblColNameValue.put("gpa", new Double(2.3));
+//    		db.insertIntoTable("trial",htblColNameValue);
+//
+//    		htblColNameValue.clear( );
+//    		htblColNameValue.put("id", new Integer(2));
+//    		htblColNameValue.put("name", new String("aaaa"));
+//    		htblColNameValue.put("gpa", new Double(2.0));
+//    		db.insertIntoTable("trial",htblColNameValue);
+//
+//        htblColNameValue.clear();
+//        htblColNameValue.put("id", new Integer(1));
+//        htblColNameValue.put("gpa", new Double(2.1));
+//        db.insertIntoTable("trial",htblColNameValue);
 
-    System.out.println(Page.deserialP("trial0"));
-    System.out.println(Page.deserialP("trial1"));
-    System.out.println((Page.deserialP("trial0")).overflow);
-    SQLTerm sql = new SQLTerm();
-    sql._objValue = 2.1;
-    sql._strColumnName = "gpa";
-    sql._strOperator = "<";
-    sql._strTableName = "trial";
-    Vector<ArrayList<Object>> a = db.execgreateq(sql);
-    Vector<ArrayList<Object>> b = db.execEq(sql);
-    System.out.println(a);
-    System.out.println(b);
-    System.out.println(execOperator(a, b, "XOR"));
+//    System.out.println(Page.deserialP("trial0"));
+//    System.out.println(Page.deserialP("trial1"));
+//    System.out.println((Page.deserialP("trial0")).overflow);
+//    SQLTerm sql = new SQLTerm();
+//    sql._objValue = 2.1;
+//    sql._strColumnName = "gpa";
+//    sql._strOperator = "<";
+//    sql._strTableName = "trial";
+//
+//    Vector<ArrayList<Object>> a = db.execgreateq(sql);
+//    Vector<ArrayList<Object>> b = db.execEq(sql);
+//    System.out.println(a);
+//    System.out.println(b);
+//    System.out.println(execOperator(a, b, "XOR"));
+
+    System.out.println(db.execgreateq(sql));
+
     //////		Vector<Integer> bucketnumber=new Vector<Integer>();
     //		bucketnumber.add(0);
     //		bucketnumber.add(1);
