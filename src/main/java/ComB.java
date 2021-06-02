@@ -8,8 +8,8 @@ public class ComB implements Comparator<ArrayList<Object>> {
   @Override
   public int compare(ArrayList<Object> o1, ArrayList<Object> o2) {
     int res = -1;
-    Object key1 = o1.get(4);
-    Object key2 = o2.get(4);
+    Object key1 = o1.get(1);
+    Object key2 = o2.get(1);
 
     if (key1 instanceof Integer) {
       int k = (int) key1;

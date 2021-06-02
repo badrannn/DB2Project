@@ -54,8 +54,7 @@ public class Grid implements Serializable {
 
   public void populate(
       int
-          tablesize) { // row structure [0page number,1overflow or no,2page number in
-                       // overflow, 3primary key, 4info
+          tablesize) { // row structure [0page number, 1primary key, 2info
     ComB comp = new ComB();
     for (int i = 0; i < tablesize; i++) {
       while (DBApp.checkdeleted(this.tableName, i)) {
@@ -76,8 +75,6 @@ public class Grid implements Serializable {
         Bucket buck = Bucket.deserialB(buckname);
         ArrayList bucketinfo = new ArrayList();
         bucketinfo.add(i);
-        bucketinfo.add(false);
-        bucketinfo.add(-1);
         bucketinfo.add(tuple.get(0));
         for (int k = 0; k < inserted.size(); k++) {
           bucketinfo.add(inserted.get(k));
@@ -120,8 +117,6 @@ public class Grid implements Serializable {
           Bucket buck = Bucket.deserialB(buckname);
           ArrayList bucketinfo = new ArrayList();
           bucketinfo.add(i);
-          bucketinfo.add(true);
-          bucketinfo.add(j);
           bucketinfo.add(tuple.get(0));
           for (Object col : inserted) {
             bucketinfo.add(col);
