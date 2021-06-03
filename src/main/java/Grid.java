@@ -1,8 +1,12 @@
 import java.io.*;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
+import java.util.Scanner;
 import java.util.Vector;
 
 public class Grid implements Serializable {
@@ -35,6 +39,7 @@ public class Grid implements Serializable {
     }
 
     this.serialG();
+    addIndex(this.name);
   }
 
   public static String[] sortCols(String tableName, String[] cols) {
@@ -357,6 +362,63 @@ public class Grid implements Serializable {
       }
     }
   }
+  public static ArrayList<String> returnindex(String name){
+    ArrayList<String> result = new ArrayList<>();
+    try {
+      Scanner scanner = new Scanner(new File("src/main/resources/data/Index.txt"));
+      while (scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        if(line.toLowerCase().contains(name.toLowerCase()))
+          result.add(line);
+
+      }
+      scanner.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+  public static void addIndex(String name){
+
+    try {
+      //removeBlanksIndex();
+      FileWriter pww = new FileWriter("src/main/resources/data/Index.txt", true);
+      StringBuilder builder = new StringBuilder();
+      builder.append(name+"\n");
+      pww.append(builder.toString());
+      pww.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    }
+
+
+  public static void removeBlanksIndex() {
+    Scanner file;
+    PrintWriter writer;
+    String path = "src/main/resources/data/Index.txt";
+    try {
+      file = new Scanner(new File("src/main/resources/data/range.txt")); // sourcefile
+      writer = new PrintWriter("temppp.txt"); // destinationfile
+      while (file.hasNext()) {
+        String line = file.nextLine();
+        if (!line.isEmpty()) {
+          writer.write(line);
+          writer.write("\n");
+        }
+      }
+      file.close();
+      writer.close();
+      Files.delete(Paths.get(path));
+      File newfile = new File("temppp.txt");
+      File dump = new File(path);
+
+      boolean r = newfile.renameTo(dump);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
 
   public static void main(String[] args) throws DBAppException {
     // String[] s = {"id","name"};
