@@ -202,6 +202,7 @@ public class Grid implements Serializable {
     return false;
   }
 
+
   public static Bucket returnbuck(Object[] Grid, Vector<Integer> bucketnumber, int i) {
     if (i < bucketnumber.size() - 1) {
       int ii = bucketnumber.get(i);
@@ -331,12 +332,49 @@ public class Grid implements Serializable {
     }
     return 9;
   }
+  public static void deletefrombucket(Object key,String buckname ){
+    Bucket buck=Bucket.deserialB(buckname);
+   int tupl= buck.binarysearch(key);
+   int overflowbuck=-1;
+    if (tupl == -1) {
+      for (int i = 0; i < buck.overflow.size(); i++) {
+        Bucket overbuck = buck.overflow.get(i);
+        tupl = overbuck.binarysearch(key);
+        if (tupl != -1) {
+          buck.overflow.get(i).removeElementAt(tupl);
+
+          break;
+        }
+      }
+    } else {
+      buck.removeElementAt(tupl);
+    }
+    buck.serialB(buckname);
+  }
+  public static void deletefromindex(String tablename,ArrayList<Object> tuple) {
+    ArrayList<String> indexes=returnindex(tablename);
+    for (int i = 0; i < indexes.size(); i++) {
+      Grid g=Grid.deserialG(indexes.get(i));
+      ArrayList<Object> key=new ArrayList<Object>();
+      String[] columns=g.cols;
+      for (int j = 0; j <columns.length ; j++) {
+        int col= DBApp.coloumnnum(columns[j],tablename);
+        key.add(tuple.get(col));
+      }
+      Vector<Integer> v = g.returnCell(g.name,key);
+      String s = indexes.get(i);
+      for (int k = 0; k < v.size(); k++) {
+        s = s + v.get(k);
+      }
+      deletefrombucket(tuple.get(0),s);
+
+    }
+  }
 
   public static void insertIntoBucket(
-      String gridName, ArrayList<Object> key, ArrayList<Object> bucketinfo) {
+      Grid g, ArrayList<Object> key, ArrayList<Object> bucketinfo) {
     ComB comp = new ComB();
-    Grid g = deserialG(gridName);
-    Vector<Integer> v = g.returnCell(gridName, key);
+    Vector<Integer> v = g.returnCell(g.name, key);
     String buckname = g.checkBucket(v, g.name);
     Bucket buck = Bucket.deserialB(buckname);
     if (!buck.isFull()) {
@@ -360,6 +398,23 @@ public class Grid implements Serializable {
         buck.overflow.add(b);
         buck.serialB(buckname);
       }
+    }
+  }
+  public static void insertupletoindex(String tablename,ArrayList<Object> tuple,Integer pagenum){
+    ArrayList<String> indexes=returnindex(tablename);
+    for (int i = 0; i <indexes.size() ; i++) {
+      ArrayList<Object> bucketinfo=new ArrayList<Object>();
+      ArrayList<Object> key=new ArrayList<Object>();
+      bucketinfo.add(pagenum);
+      bucketinfo.add(tuple.get(0));
+      Grid g=deserialG(indexes.get(i));
+      String[] columns=g.cols;
+      for (int j = 0; j <columns.length ; j++) {
+       int col= DBApp.coloumnnum(columns[j],tablename);
+       bucketinfo.add(tuple.get(col));
+       key.add(tuple.get(col));
+      }
+      insertIntoBucket(g,key,bucketinfo);
     }
   }
   public static ArrayList<String> returnindex(String name){
