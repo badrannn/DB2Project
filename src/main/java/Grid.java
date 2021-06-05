@@ -2,9 +2,15 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.Vector;
@@ -23,11 +29,6 @@ public class Grid implements Serializable {
     this.cols = cols;
     for (int i = 0; i < cols.length; i++) {
       name = name + cols[i];
-    }
-    String filepath = "src/main/resources/data/" + name + ".ser";
-    File f = new File(filepath);
-    if (f.exists() && !f.isDirectory()) {
-      throw new DBAppException();
     }
     final int[] dimensions = new int[cols.length];
     Arrays.fill(dimensions, 10);
@@ -277,6 +278,8 @@ public class Grid implements Serializable {
         ret.add(j);
 
       } else {
+        int j = dateCell(this.cols[i], this.tableName, (Date) inserted.get(i));
+        ret.add(j);
 
       }
     }
@@ -301,6 +304,53 @@ public class Grid implements Serializable {
     int diff = max - min;
     for (int i = 0; i < 10; i++) {
       if (valu <= (min) + (((i + 1) * (diff / 10)))) {
+        return i;
+      }
+    }
+    return 9;
+  }
+  public static int dateCell(String colName, String tableName, Date inserted)  {
+    String[] minMax = DBApp.returnMinMax(tableName, colName);
+    String minDate=minMax[0];
+    String maxDate=minMax[1];
+    DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    Date minDate1= null;
+    Date maxDate1=null;
+    try {
+      minDate1 = format.parse(minDate);
+      maxDate1=format.parse(maxDate);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+
+
+    //creating local dates
+    LocalDate localDateMin = minDate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    LocalDate localDateMax = maxDate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    LocalDate localDateV = inserted.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+    //creating max int
+    int maxYear=localDateMax.getYear()*1000;
+    int maxMonth=localDateMax.getMonthValue()*100;
+    int maxDay=localDateMax.getDayOfMonth();
+    int maxno=maxYear+maxMonth+maxDay;
+
+    //creating min int
+    int minYear=localDateMin.getYear()*1000;
+    int minMonth=localDateMin.getMonthValue()*100;
+    int minDay=localDateMin.getDayOfMonth();
+    int minno=minYear+minMonth+minDay;
+
+    //creating inserted int
+    int insYear=localDateV.getYear()*1000;
+    int insMonth=localDateV.getMonthValue()*100;
+    int insDay=localDateV.getDayOfMonth();
+    int insno=insYear+insMonth+insDay;
+
+    int diff=maxno-minno;
+
+    for (int i = 0; i < 10; i++) {
+      if (insno <= (minno) + (((i + 1) * (diff / 10)))) {
         return i;
       }
     }
