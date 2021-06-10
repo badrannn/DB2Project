@@ -3245,6 +3245,12 @@ public class DBApp implements DBAppInterface {
 
     return ret;
   }
+  public void executeQuerySQL(String query){
+
+  }
+  public Iterator executeSelectSQL(String query){
+    return null;
+  }
 
   public static void main(String[] args) throws DBAppException, ParseException {
     DBApp db = new DBApp();
