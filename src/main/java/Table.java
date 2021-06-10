@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.Vector;
 
-
 public class Table extends Vector<Page> implements Serializable {
 
   int len;
@@ -32,7 +31,6 @@ public class Table extends Vector<Page> implements Serializable {
     } catch (IOException ex) {
       System.out.println("IOException is caught");
     }
-
   }
 
   public static void insertInto(String s) {
@@ -52,10 +50,8 @@ public class Table extends Vector<Page> implements Serializable {
     } catch (ClassNotFoundException c) {
       System.out.println(" class not found");
       c.printStackTrace();
-
     }
   }
-
 
   public static void deleteFrom(String s) {
     Table t;
@@ -72,11 +68,10 @@ public class Table extends Vector<Page> implements Serializable {
     } catch (ClassNotFoundException c) {
       System.out.println(" class not found");
       c.printStackTrace();
-
     }
   }
 
-  public static int deserialT(String s) { //return size
+  public static int deserialT(String s) { // return size
     Table t;
     try {
       FileInputStream fileIn = new FileInputStream("src/main/resources/data/" + s + ".ser");
@@ -132,11 +127,7 @@ public class Table extends Vector<Page> implements Serializable {
       c.printStackTrace();
       return null;
     }
-
   }
 
-
-  public static void main(String[] args) {
-
-  }
+  public static void main(String[] args) {}
 }

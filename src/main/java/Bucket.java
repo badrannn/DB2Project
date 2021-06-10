@@ -9,7 +9,6 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
 
   Vector<Bucket> overflow;
 
-
   public Bucket() {
     overflow = new Vector<>();
   }
@@ -56,7 +55,6 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
     } catch (IOException ex) {
       System.out.println("IOException is caught");
     }
-
   }
 
   public static Bucket deserialB(String s) {
@@ -76,27 +74,24 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
       c.printStackTrace();
       return null;
     }
-
   }
-  public int binarysearch(Object key){
-    int ret=-1;
-    if (key instanceof Integer){
-      ret=binarysearchint(this,(int)key);
 
-      }
-    else if(key instanceof String){
-      ret=binarysearchstring(this,(String)key);
-    }
-    else if(key instanceof Date){
-      ret=binarysearchdate(this,(Date)key);
-    }
-    else if(key instanceof Double){
-     ret=binarysearchdouble(this,(double)key);
+  public int binarysearch(Object key) {
+    int ret = -1;
+    if (key instanceof Integer) {
+      ret = binarysearchint(this, (int) key);
+
+    } else if (key instanceof String) {
+      ret = binarysearchstring(this, (String) key);
+    } else if (key instanceof Date) {
+      ret = binarysearchdate(this, (Date) key);
+    } else if (key instanceof Double) {
+      ret = binarysearchdouble(this, (double) key);
     }
     return ret;
   }
 
-  public static int binarysearchint(Bucket b,int key) {
+  public static int binarysearchint(Bucket b, int key) {
     int bucketsize = b.size();
     int low = 0;
     int high = bucketsize - 1;
@@ -114,10 +109,10 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
       }
       mid = (low + high) / 2;
     }
-    return -1;  // key not found  }
-
+    return -1; // key not found  }
   }
-  public static int binarysearchstring( Bucket b,String key) {
+
+  public static int binarysearchstring(Bucket b, String key) {
     int bucketsize = b.size();
     int low = 0;
     int high = b.size() - 1;
@@ -136,7 +131,7 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
       }
       mid = (low + high) / 2;
     }
-    return -1;  // key not found
+    return -1; // key not found
   }
 
   public static int binarysearchdate(Bucket b, Date key) {
@@ -158,10 +153,10 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
       }
       mid = (low + high) / 2;
     }
-    return -1;  // key not found
+    return -1; // key not found
   }
 
-  public static int binarysearchdouble(Bucket b,Double key) {
+  public static int binarysearchdouble(Bucket b, Double key) {
     int low = 0;
     int high = b.size() - 1;
     int mid = (low + high) / 2;
@@ -182,7 +177,6 @@ public class Bucket extends Vector<ArrayList<Object>> implements Serializable {
 
       mid = (low + high) / 2;
     }
-    return -1;  // key not found
+    return -1; // key not found
   }
 }
-

@@ -58,9 +58,7 @@ public class Grid implements Serializable {
     return x;
   }
 
-  public void populate(
-      int
-          tablesize) { // row structure [0page number, 1primary key, 2info
+  public void populate(int tablesize) { // row structure [0page number, 1primary key, 2info
     ComB comp = new ComB();
     for (int i = 0; i < tablesize; i++) {
       while (DBApp.checkdeleted(this.tableName, i)) {
@@ -203,7 +201,6 @@ public class Grid implements Serializable {
     return false;
   }
 
-
   public static Bucket returnbuck(Object[] Grid, Vector<Integer> bucketnumber, int i) {
     if (i < bucketnumber.size() - 1) {
       int ii = bucketnumber.get(i);
@@ -280,7 +277,6 @@ public class Grid implements Serializable {
       } else {
         int j = dateCell(this.cols[i], this.tableName, (Date) inserted.get(i));
         ret.add(j);
-
       }
     }
 
@@ -309,45 +305,45 @@ public class Grid implements Serializable {
     }
     return 9;
   }
-  public static int dateCell(String colName, String tableName, Date inserted)  {
+
+  public static int dateCell(String colName, String tableName, Date inserted) {
     String[] minMax = DBApp.returnMinMax(tableName, colName);
-    String minDate=minMax[0];
-    String maxDate=minMax[1];
+    String minDate = minMax[0];
+    String maxDate = minMax[1];
     DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    Date minDate1= null;
-    Date maxDate1=null;
+    Date minDate1 = null;
+    Date maxDate1 = null;
     try {
       minDate1 = format.parse(minDate);
-      maxDate1=format.parse(maxDate);
+      maxDate1 = format.parse(maxDate);
     } catch (ParseException e) {
       e.printStackTrace();
     }
 
-
-    //creating local dates
+    // creating local dates
     LocalDate localDateMin = minDate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     LocalDate localDateMax = maxDate1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     LocalDate localDateV = inserted.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-    //creating max int
-    int maxYear=localDateMax.getYear()*1000;
-    int maxMonth=localDateMax.getMonthValue()*100;
-    int maxDay=localDateMax.getDayOfMonth();
-    int maxno=maxYear+maxMonth+maxDay;
+    // creating max int
+    int maxYear = localDateMax.getYear() * 1000;
+    int maxMonth = localDateMax.getMonthValue() * 100;
+    int maxDay = localDateMax.getDayOfMonth();
+    int maxno = maxYear + maxMonth + maxDay;
 
-    //creating min int
-    int minYear=localDateMin.getYear()*1000;
-    int minMonth=localDateMin.getMonthValue()*100;
-    int minDay=localDateMin.getDayOfMonth();
-    int minno=minYear+minMonth+minDay;
+    // creating min int
+    int minYear = localDateMin.getYear() * 1000;
+    int minMonth = localDateMin.getMonthValue() * 100;
+    int minDay = localDateMin.getDayOfMonth();
+    int minno = minYear + minMonth + minDay;
 
-    //creating inserted int
-    int insYear=localDateV.getYear()*1000;
-    int insMonth=localDateV.getMonthValue()*100;
-    int insDay=localDateV.getDayOfMonth();
-    int insno=insYear+insMonth+insDay;
+    // creating inserted int
+    int insYear = localDateV.getYear() * 1000;
+    int insMonth = localDateV.getMonthValue() * 100;
+    int insDay = localDateV.getDayOfMonth();
+    int insno = insYear + insMonth + insDay;
 
-    int diff=maxno-minno;
+    int diff = maxno - minno;
 
     for (int i = 0; i < 10; i++) {
       if (insno <= (minno) + (((i + 1) * (diff / 10)))) {
@@ -382,10 +378,11 @@ public class Grid implements Serializable {
     }
     return 9;
   }
-  public static void deletefrombucket(Object key,String buckname ){
-    Bucket buck=Bucket.deserialB(buckname);
-   int tupl= buck.binarysearch(key);
-   int overflowbuck=-1;
+
+  public static void deletefrombucket(Object key, String buckname) {
+    Bucket buck = Bucket.deserialB(buckname);
+    int tupl = buck.binarysearch(key);
+    int overflowbuck = -1;
     if (tupl == -1) {
       for (int i = 0; i < buck.overflow.size(); i++) {
         Bucket overbuck = buck.overflow.get(i);
@@ -401,28 +398,27 @@ public class Grid implements Serializable {
     }
     buck.serialB(buckname);
   }
-  public static void deletefromindex(String tablename,ArrayList<Object> tuple) {
-    ArrayList<String> indexes=returnindex(tablename);
+
+  public static void deletefromindex(String tablename, ArrayList<Object> tuple) {
+    ArrayList<String> indexes = returnindex(tablename);
     for (int i = 0; i < indexes.size(); i++) {
-      Grid g=Grid.deserialG(indexes.get(i));
-      ArrayList<Object> key=new ArrayList<Object>();
-      String[] columns=g.cols;
-      for (int j = 0; j <columns.length ; j++) {
-        int col= DBApp.coloumnnum(columns[j],tablename);
+      Grid g = Grid.deserialG(indexes.get(i));
+      ArrayList<Object> key = new ArrayList<Object>();
+      String[] columns = g.cols;
+      for (int j = 0; j < columns.length; j++) {
+        int col = DBApp.coloumnnum(columns[j], tablename);
         key.add(tuple.get(col));
       }
-      Vector<Integer> v = g.returnCell(g.name,key);
+      Vector<Integer> v = g.returnCell(g.name, key);
       String s = indexes.get(i);
       for (int k = 0; k < v.size(); k++) {
         s = s + v.get(k);
       }
-      deletefrombucket(tuple.get(0),s);
-
+      deletefrombucket(tuple.get(0), s);
     }
   }
 
-  public static void insertIntoBucket(
-      Grid g, ArrayList<Object> key, ArrayList<Object> bucketinfo) {
+  public static void insertIntoBucket(Grid g, ArrayList<Object> key, ArrayList<Object> bucketinfo) {
     ComB comp = new ComB();
     Vector<Integer> v = g.returnCell(g.name, key);
     String buckname = g.checkBucket(v, g.name);
@@ -450,32 +446,32 @@ public class Grid implements Serializable {
       }
     }
   }
-  public static void insertupletoindex(String tablename,ArrayList<Object> tuple,Integer pagenum){
-    ArrayList<String> indexes=returnindex(tablename);
-    for (int i = 0; i <indexes.size() ; i++) {
-      ArrayList<Object> bucketinfo=new ArrayList<Object>();
-      ArrayList<Object> key=new ArrayList<Object>();
+
+  public static void insertupletoindex(String tablename, ArrayList<Object> tuple, Integer pagenum) {
+    ArrayList<String> indexes = returnindex(tablename);
+    for (int i = 0; i < indexes.size(); i++) {
+      ArrayList<Object> bucketinfo = new ArrayList<Object>();
+      ArrayList<Object> key = new ArrayList<Object>();
       bucketinfo.add(pagenum);
       bucketinfo.add(tuple.get(0));
-      Grid g=deserialG(indexes.get(i));
-      String[] columns=g.cols;
-      for (int j = 0; j <columns.length ; j++) {
-       int col= DBApp.coloumnnum(columns[j],tablename);
-       bucketinfo.add(tuple.get(col));
-       key.add(tuple.get(col));
+      Grid g = deserialG(indexes.get(i));
+      String[] columns = g.cols;
+      for (int j = 0; j < columns.length; j++) {
+        int col = DBApp.coloumnnum(columns[j], tablename);
+        bucketinfo.add(tuple.get(col));
+        key.add(tuple.get(col));
       }
-      insertIntoBucket(g,key,bucketinfo);
+      insertIntoBucket(g, key, bucketinfo);
     }
   }
-  public static ArrayList<String> returnindex(String name){
+
+  public static ArrayList<String> returnindex(String name) {
     ArrayList<String> result = new ArrayList<>();
     try {
       Scanner scanner = new Scanner(new File("src/main/resources/data/Index.txt"));
       while (scanner.hasNextLine()) {
         String line = scanner.nextLine();
-        if(line.toLowerCase().contains(name.toLowerCase()))
-          result.add(line);
-
+        if (line.toLowerCase().contains(name.toLowerCase())) result.add(line);
       }
       scanner.close();
     } catch (FileNotFoundException e) {
@@ -483,20 +479,20 @@ public class Grid implements Serializable {
     }
     return result;
   }
-  public static void addIndex(String name){
+
+  public static void addIndex(String name) {
 
     try {
-      //removeBlanksIndex();
+      // removeBlanksIndex();
       FileWriter pww = new FileWriter("src/main/resources/data/Index.txt", true);
       StringBuilder builder = new StringBuilder();
-      builder.append(name+"\n");
+      builder.append(name + "\n");
       pww.append(builder.toString());
       pww.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    }
-
+  }
 
   public static void removeBlanksIndex() {
     Scanner file;
@@ -523,7 +519,6 @@ public class Grid implements Serializable {
       ex.printStackTrace();
     }
   }
-
 
   public static void main(String[] args) throws DBAppException {
     // String[] s = {"id","name"};

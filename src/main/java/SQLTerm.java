@@ -5,9 +5,5 @@ public class SQLTerm {
   String _strOperator = "";
   Object _objValue = null;
 
-  public SQLTerm() {
-
-  }
-
-
+  public SQLTerm() {}
 }
