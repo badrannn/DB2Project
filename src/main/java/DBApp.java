@@ -1659,7 +1659,6 @@ public class DBApp implements DBAppInterface {
     for (SQLTerm sq : sqlTerms) {
       intermid.add(execterm(sq));
     }
-    Arrays.sort(arrayOperators); // sort AND OR XOR
     List<String> list = new LinkedList<String>(Arrays.asList(arrayOperators));
     while (intermid.size() > 1) {
       Vector<ArrayList<Object>> ggg = intermid.remove(0);
