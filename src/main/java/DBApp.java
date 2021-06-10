@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -9,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import net.sf.jsqlparser.JSQLParserException;
 
 public class DBApp implements DBAppInterface {
 
@@ -689,7 +689,7 @@ public class DBApp implements DBAppInterface {
         builder.append(tableName + 0 + "," + " " + "," + " " + "\n");
         pw.write(builder.toString());
         pw.close();
-        Grid.insertupletoindex(tableName,row,0);
+        Grid.insertupletoindex(tableName, row, 0);
         p.add(row);
         p.serialP(tableName + 0);
         Table.insertInto(tableName);
@@ -713,7 +713,7 @@ public class DBApp implements DBAppInterface {
           Collections.sort(p, comparator);
           p.serialP(tableName + i);
           pageRecord(tableName + i);
-          Grid.insertupletoindex(tableName,row,i);
+          Grid.insertupletoindex(tableName, row, i);
         } else { // first check if there's a next page
           if (Table.deserialT(tableName) == 1) {
             try {
@@ -729,7 +729,7 @@ public class DBApp implements DBAppInterface {
               Page next = new Page();
               next.add(removed);
               p.add(row);
-              Grid.insertupletoindex(tableName,row,i);
+              Grid.insertupletoindex(tableName, row, i);
 
               Collections.sort(p, comparator);
 
@@ -765,7 +765,7 @@ public class DBApp implements DBAppInterface {
                 p.addOverflow(oo);
                 p.serialP(tableName + i);
                 pageRecord(tableName + i);
-                Grid.insertupletoindex(tableName,row,i);
+                Grid.insertupletoindex(tableName, row, i);
 
               } else {
                 ArrayList removed = p.remove(0);
@@ -776,7 +776,7 @@ public class DBApp implements DBAppInterface {
 
                 p.serialP(tableName + i);
                 pageRecord(tableName + i);
-                Grid.insertupletoindex(tableName,row,i);
+                Grid.insertupletoindex(tableName, row, i);
               }
 
             } else {
@@ -798,8 +798,8 @@ public class DBApp implements DBAppInterface {
                 p.addOverflow(oo);
                 p.serialP(tableName + i);
                 pageRecord(tableName + i);
-                Grid.insertupletoindex(tableName,row,i);
-              } else {//here we are supposed to move things on grid
+                Grid.insertupletoindex(tableName, row, i);
+              } else { // here we are supposed to move things on grid
                 ArrayList removed = p.remove(p.size() - 1);
                 ne.add(removed);
                 p.add(row);
@@ -809,9 +809,9 @@ public class DBApp implements DBAppInterface {
                 ne.serialP(tableName + j);
                 pageRecord(tableName + i);
                 pageRecord(tableName + j);
-                Grid.deletefromindex(tableName,removed);
-                Grid.insertupletoindex(tableName,row,i);
-                Grid.insertupletoindex(tableName,removed,j);
+                Grid.deletefromindex(tableName, removed);
+                Grid.insertupletoindex(tableName, row, i);
+                Grid.insertupletoindex(tableName, removed, j);
               }
             }
           }
@@ -844,7 +844,7 @@ public class DBApp implements DBAppInterface {
             Page newP = new Page();
 
             newP.add(row);
-            Grid.insertupletoindex(tableName,row,newPi);
+            Grid.insertupletoindex(tableName, row, newPi);
 
             Table.insertInto(tableName);
 
@@ -858,7 +858,7 @@ public class DBApp implements DBAppInterface {
 
         } else {
           p.add(row);
-          Grid.insertupletoindex(tableName,row,i);
+          Grid.insertupletoindex(tableName, row, i);
           Collections.sort(p, comparator);
 
           p.serialP(tableName + i);
@@ -875,7 +875,7 @@ public class DBApp implements DBAppInterface {
           Collections.sort(p, comparator);
           p.serialP(tableName + pnum);
           pageRecord(tableName + pnum);
-          Grid.insertupletoindex(tableName,row,pnum);
+          Grid.insertupletoindex(tableName, row, pnum);
         } else {
           int i = 0;
           int dum = Table.deserialT(tableName);
@@ -888,7 +888,7 @@ public class DBApp implements DBAppInterface {
             }
           }
           i = i - 1;
-          if (pnum == i) {//here we are supposed to move things on grid
+          if (pnum == i) { // here we are supposed to move things on grid
             int newPi = i + 1;
             try {
               FileWriter pw = new FileWriter("src/main/resources/data/range.txt", true);
@@ -909,9 +909,9 @@ public class DBApp implements DBAppInterface {
               newP.serialP(tableName + newPi);
               pageRecord(tableName + pnum);
               pageRecord(tableName + newPi);
-              Grid.deletefromindex(tableName,removed);
-              Grid.insertupletoindex(tableName,row,pnum);
-              Grid.insertupletoindex(tableName,removed,newPi);
+              Grid.deletefromindex(tableName, removed);
+              Grid.insertupletoindex(tableName, row, pnum);
+              Grid.insertupletoindex(tableName, removed, newPi);
             } catch (Exception e) {
               e.printStackTrace();
             }
@@ -940,7 +940,7 @@ public class DBApp implements DBAppInterface {
                 p.addOverflow(oo);
                 p.serialP(tableName + pnum);
                 pageRecord(tableName + pnum);
-                Grid.insertupletoindex(tableName,row,pnum);
+                Grid.insertupletoindex(tableName, row, pnum);
               } else {
                 p.add(temm.get(1));
                 oo.add(temm.get(0));
@@ -949,7 +949,7 @@ public class DBApp implements DBAppInterface {
 
                 p.serialP(tableName + pnum);
                 pageRecord(tableName + pnum);
-                Grid.insertupletoindex(tableName,row,pnum);
+                Grid.insertupletoindex(tableName, row, pnum);
               }
 
             } else {
@@ -971,8 +971,8 @@ public class DBApp implements DBAppInterface {
                 p.addOverflow(oo);
                 p.serialP(tableName + pnum);
                 pageRecord(tableName + pnum);
-                Grid.insertupletoindex(tableName,row,pnum);
-              } else {//here we are supposed to move things on grid
+                Grid.insertupletoindex(tableName, row, pnum);
+              } else { // here we are supposed to move things on grid
 
                 next.add(temm.get(1));
                 p.add(temm.get(0));
@@ -982,9 +982,9 @@ public class DBApp implements DBAppInterface {
                 next.serialP(tableName + j);
                 pageRecord(tableName + pnum);
                 pageRecord(tableName + j);
-                Grid.deletefromindex(tableName,r);
-                Grid.insertupletoindex(tableName,temm.get(0),pnum);
-                Grid.insertupletoindex(tableName,temm.get(1),j);
+                Grid.deletefromindex(tableName, r);
+                Grid.insertupletoindex(tableName, temm.get(0), pnum);
+                Grid.insertupletoindex(tableName, temm.get(1), j);
               }
             }
           }
@@ -1074,13 +1074,12 @@ public class DBApp implements DBAppInterface {
       if (!flagover) {
         Grid.deletefromindex(tableName, p.get(pos[1]));
         p.get(pos[1]).set(j, Change);
-        Grid.insertupletoindex(tableName,p.get(pos[1]),pos[0]);
+        Grid.insertupletoindex(tableName, p.get(pos[1]), pos[0]);
       } else {
         Grid.deletefromindex(tableName, p.overflow.get(k).get(pos[1]));
         p.overflow.get(k).get(pos[1]).set(j, Change);
-        Grid.insertupletoindex(tableName,p.overflow.get(k).get(pos[1]),pos[0]);
+        Grid.insertupletoindex(tableName, p.overflow.get(k).get(pos[1]), pos[0]);
       }
-
     }
 
     p.serialP(ss);
@@ -1356,7 +1355,7 @@ public class DBApp implements DBAppInterface {
       if (flag == true) {
         if (!flagover) { // deleting from page
           Page p = Page.deserialP(tableName + A[0]);
-          Grid.deletefromindex(tableName,p.get(A[1]));
+          Grid.deletefromindex(tableName, p.get(A[1]));
           p.removeElementAt(A[1]);
           if (p.isEmpty()) {
             if (p.overflow.size() == 0) { // if there no overflow
@@ -1400,7 +1399,7 @@ public class DBApp implements DBAppInterface {
           }
         } else { // deleting from overflow
           Page p1 = Page.deserialP(tableName + A[0]);
-          Grid.deletefromindex(tableName,p1.overflow.get(e).get(A[1]));
+          Grid.deletefromindex(tableName, p1.overflow.get(e).get(A[1]));
           p1.overflow.get(e).removeElementAt(A[1]);
           Page p = p1.overflow.get(e);
           if (p.isEmpty()) {
@@ -1467,7 +1466,7 @@ public class DBApp implements DBAppInterface {
               }
             }
             if (flag) {
-              Grid.deletefromindex(tableName,f.overflow.get(m).get(x));
+              Grid.deletefromindex(tableName, f.overflow.get(m).get(x));
               f.overflow.get(m).removeElementAt(x);
               oversize--;
               if (f.overflow.get(m).size() == 0) {
@@ -1528,7 +1527,7 @@ public class DBApp implements DBAppInterface {
           }
 
           if (flag == true) {
-            Grid.deletefromindex(tableName,f.get(j));
+            Grid.deletefromindex(tableName, f.get(j));
             f.removeElementAt(j);
             pagesize = f.size();
             if (f.isEmpty()) {
@@ -3247,7 +3246,6 @@ public class DBApp implements DBAppInterface {
     return ret;
   }
 
-
   public static void main(String[] args) throws DBAppException, ParseException {
     DBApp db = new DBApp();
     db.init();
@@ -3265,82 +3263,82 @@ public class DBApp implements DBAppInterface {
     htblColNameMax.put("name", "ZZZZZZZZZZ");
     htblColNameMax.put("gpa", "5");
     //
-          //	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
-//      db.createTable("trial1", "id", htblColNameType, htblColNameMin, htblColNameMax);
-//
-//            String[] e = {"gpa"};
-//            db.createIndex("trial",e);
-//
-//
-//
-//            Hashtable htblColNameValue = new Hashtable();
-//        		 htblColNameValue.put("id", new Integer(1));
-//        		 htblColNameValue.put("name", new String("aaaa"));
-//        		 htblColNameValue.put("gpa", new Double(1.0));
-//        	 db.insertIntoTable("trial",htblColNameValue);
-//
-//        		htblColNameValue.clear( );
-//        		htblColNameValue.put("id", new Integer(10));
-//        		htblColNameValue.put("name", new String("aaaa"));
-//        		htblColNameValue.put("gpa", new Double(1.3));
-//        		db.insertIntoTable("trial",htblColNameValue);
-//        		htblColNameValue.clear( );
-//        		htblColNameValue.put("id", new Integer(15));
-//        		htblColNameValue.put("name", new String("aaaa"));
-//        		htblColNameValue.put("gpa", new Double(2.6));
-//        		db.insertIntoTable("trial",htblColNameValue);
-//        		htblColNameValue.clear( );
-//        		htblColNameValue.put("id", new Integer(7));
-//        		htblColNameValue.put("name", new String("aaaa"));
-//        		htblColNameValue.put("gpa", new Double(2.0));
-//        		db.insertIntoTable("trial",htblColNameValue);
-//        		htblColNameValue.clear( );
-//        		htblColNameValue.put("id", new Integer(20));
-//        		htblColNameValue.put("name", new String("aaaa"));
-//        		htblColNameValue.put("gpa", new Double(2.3));
-//        		db.insertIntoTable("trial",htblColNameValue);
-//
-//        		htblColNameValue.clear( );
-//        		htblColNameValue.put("id", new Integer(2));
-//        		htblColNameValue.put("name", new String("aaaa"));
-//        		htblColNameValue.put("gpa", new Double(2.3));
-//        		db.insertIntoTable("trial",htblColNameValue);
-//
-//        		htblColNameValue.clear( );
-//        		htblColNameValue.put("id", new Integer(3));
-//        		htblColNameValue.put("name", new String("aaaa"));
-//        		htblColNameValue.put("gpa", new Double(2.0));
-//        		db.insertIntoTable("trial",htblColNameValue);
-//
-//            htblColNameValue.clear();
-//            htblColNameValue.put("id", new Integer(4));
-//            htblColNameValue.put("gpa", new Double(2.1));
-//            db.insertIntoTable("trial",htblColNameValue);
+    //	db.createTable("trial", "id", htblColNameType, htblColNameMin, htblColNameMax);
+    //      db.createTable("trial1", "id", htblColNameType, htblColNameMin, htblColNameMax);
+    //
+    //            String[] e = {"gpa"};
+    //            db.createIndex("trial",e);
+    //
+    //
+    //
+    //            Hashtable htblColNameValue = new Hashtable();
+    //        		 htblColNameValue.put("id", new Integer(1));
+    //        		 htblColNameValue.put("name", new String("aaaa"));
+    //        		 htblColNameValue.put("gpa", new Double(1.0));
+    //        	 db.insertIntoTable("trial",htblColNameValue);
+    //
+    //        		htblColNameValue.clear( );
+    //        		htblColNameValue.put("id", new Integer(10));
+    //        		htblColNameValue.put("name", new String("aaaa"));
+    //        		htblColNameValue.put("gpa", new Double(1.3));
+    //        		db.insertIntoTable("trial",htblColNameValue);
+    //        		htblColNameValue.clear( );
+    //        		htblColNameValue.put("id", new Integer(15));
+    //        		htblColNameValue.put("name", new String("aaaa"));
+    //        		htblColNameValue.put("gpa", new Double(2.6));
+    //        		db.insertIntoTable("trial",htblColNameValue);
+    //        		htblColNameValue.clear( );
+    //        		htblColNameValue.put("id", new Integer(7));
+    //        		htblColNameValue.put("name", new String("aaaa"));
+    //        		htblColNameValue.put("gpa", new Double(2.0));
+    //        		db.insertIntoTable("trial",htblColNameValue);
+    //        		htblColNameValue.clear( );
+    //        		htblColNameValue.put("id", new Integer(20));
+    //        		htblColNameValue.put("name", new String("aaaa"));
+    //        		htblColNameValue.put("gpa", new Double(2.3));
+    //        		db.insertIntoTable("trial",htblColNameValue);
+    //
+    //        		htblColNameValue.clear( );
+    //        		htblColNameValue.put("id", new Integer(2));
+    //        		htblColNameValue.put("name", new String("aaaa"));
+    //        		htblColNameValue.put("gpa", new Double(2.3));
+    //        		db.insertIntoTable("trial",htblColNameValue);
+    //
+    //        		htblColNameValue.clear( );
+    //        		htblColNameValue.put("id", new Integer(3));
+    //        		htblColNameValue.put("name", new String("aaaa"));
+    //        		htblColNameValue.put("gpa", new Double(2.0));
+    //        		db.insertIntoTable("trial",htblColNameValue);
+    //
+    //            htblColNameValue.clear();
+    //            htblColNameValue.put("id", new Integer(4));
+    //            htblColNameValue.put("gpa", new Double(2.1));
+    //            db.insertIntoTable("trial",htblColNameValue);
 
     //    System.out.println(Page.deserialP("trial0"));
     //    System.out.println(Page.deserialP("trial1"));
     //    System.out.println((Page.deserialP("trial0")).overflow);
-//    System.out.println(Grid.returnindex("trial"));
-//    SQLTerm sql = new SQLTerm();
-//    sql._objValue = 5.0;
-//    sql._strColumnName = "gpa";
-//    sql._strOperator = ">";
-//    sql._strTableName = "trial";
-//    SQLTerm sqll = new SQLTerm();
-//    sqll._objValue = 5.0;
-//    sqll._strColumnName = "gpa";
-//    sqll._strOperator = ">=";
-//    sqll._strTableName = "trial";
+    //    System.out.println(Grid.returnindex("trial"));
+    //    SQLTerm sql = new SQLTerm();
+    //    sql._objValue = 5.0;
+    //    sql._strColumnName = "gpa";
+    //    sql._strOperator = ">";
+    //    sql._strTableName = "trial";
+    //    SQLTerm sqll = new SQLTerm();
+    //    sqll._objValue = 5.0;
+    //    sqll._strColumnName = "gpa";
+    //    sqll._strOperator = ">=";
+    //    sqll._strTableName = "trial";
     //    Vector<ArrayList<Object>> lll = db.execgreat(sql);
     //    Vector<ArrayList<Object>> b = db.execlesseq(sqll);
     //    System.out.println(lll);
     //    System.out.println(b);
-//    SQLTerm[] sequl = new SQLTerm[2];
-//    sequl[0] = sql;
-//    sequl[1] = sqll;
-//    String[] arrayopp = new String[1];
-//    arrayopp[0] = "XOR";
-//    Iterator a = db.selectFromTable(sequl, arrayopp);
+    //    SQLTerm[] sequl = new SQLTerm[2];
+    //    sequl[0] = sql;
+    //    sequl[1] = sqll;
+    //    String[] arrayopp = new String[1];
+    //    arrayopp[0] = "XOR";
+    //    Iterator a = db.selectFromTable(sequl, arrayopp);
     //    System.out.println(a.next());
     //    System.out.println(a.next());
     //    System.out.println(a.next());
@@ -3357,8 +3355,8 @@ public class DBApp implements DBAppInterface {
 
     //   // System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
     // insertintoindex("trialgpaname",bucketnumber,16);
-//        System.out.println(Arrays.deepToString(Grid.deserialG("trialgpa").grid));
-//    System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
+    //        System.out.println(Arrays.deepToString(Grid.deserialG("trialgpa").grid));
+    //    System.out.println(Arrays.deepToString(Grid.deserialG("trialid").grid));
     //    System.out.println(Bucket.deserialB("trialgpaname24"));
     //
     //    System.out.println(Bucket.deserialB("trialgpaname34"));
@@ -3368,15 +3366,15 @@ public class DBApp implements DBAppInterface {
     //    System.out.println(Bucket.deserialB("trialgpaname44"));
     //    System.out.println(Bucket.deserialB("trialgpaname44").overflow);
     //    System.out.println(Bucket.deserialB("trialgpaname54"));
-            Hashtable<String, Object> columnNameValue=new Hashtable<String,Object>();
-            columnNameValue.put("gpa",1.3);
-         db.updateTable("trial","10",columnNameValue);
-//    db.deleteFromTable("trial",columnNameValue);
-//    System.out.println(Page.deserialP("trial0"));
-//    System.out.println(Page.deserialP("trial1"));
-//    System.out.println(Page.deserialP("trial0").overflow);
-//    System.out.println(Page.deserialP("trial1").overflow);
-//
+    Hashtable<String, Object> columnNameValue = new Hashtable<String, Object>();
+    columnNameValue.put("gpa", 1.3);
+    db.updateTable("trial", "10", columnNameValue);
+    //    db.deleteFromTable("trial",columnNameValue);
+    //    System.out.println(Page.deserialP("trial0"));
+    //    System.out.println(Page.deserialP("trial1"));
+    //    System.out.println(Page.deserialP("trial0").overflow);
+    //    System.out.println(Page.deserialP("trial1").overflow);
+    //
     System.out.println(Bucket.deserialB("trialid0"));
     System.out.println(Bucket.deserialB("trialid0").overflow);
     System.out.println(Bucket.deserialB("trialgpa1"));
@@ -3386,7 +3384,6 @@ public class DBApp implements DBAppInterface {
     System.out.println(Bucket.deserialB("trialgpa5"));
     System.out.println(Bucket.deserialB("trialgpa6"));
 
-
-//
+    //
   }
 }

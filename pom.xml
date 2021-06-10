@@ -28,5 +28,10 @@
             <version>1.5.2</version>
             <!--            <scope>test</scope>-->
         </dependency>
+        <dependency>
+            <groupId>net.sf.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>0.8.0</version>
+        </dependency>
     </dependencies>
 </project>
