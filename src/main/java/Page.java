@@ -3,11 +3,9 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Vector;
 
-
 public class Page extends Vector<ArrayList<Object>> implements Serializable {
 
   Vector<Page> overflow;
-
 
   public Page() {
     overflow = new Vector<>();
@@ -21,7 +19,7 @@ public class Page extends Vector<ArrayList<Object>> implements Serializable {
     overflow.remove(i);
   }
 
-  public boolean isFull() {        //full = false --- can accept entries=true
+  public boolean isFull() { // full = false --- can accept entries=true
     boolean res = false;
     Properties prop = new Properties();
     String fileName = "src/main/resources/DBApp.config";
@@ -34,11 +32,11 @@ public class Page extends Vector<ArrayList<Object>> implements Serializable {
     try {
       prop.load(is);
       int max = Integer.parseInt(prop.getProperty("MaximumRowsCountinPage"));
-			if (this.size() == max) {
-				res = true;
-			} else {
-				res = false;
-			}
+      if (this.size() == max) {
+        res = true;
+      } else {
+        res = false;
+      }
     } catch (IOException ex) {
 
     }
@@ -63,7 +61,6 @@ public class Page extends Vector<ArrayList<Object>> implements Serializable {
     } catch (IOException ex) {
       System.out.println("IOException is caught");
     }
-
   }
 
   public static Page deserialP(String s) {
@@ -84,6 +81,4 @@ public class Page extends Vector<ArrayList<Object>> implements Serializable {
       return null;
     }
   }
-
-
 }

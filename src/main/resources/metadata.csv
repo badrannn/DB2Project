@@ -1,4 +1,0 @@
-Table Name, Column Name, Column Type, ClusteringKey, Indexed, min, max 
-trial,gpa,java.lang.double,false,false,0,5
-trial,name,java.lang.String,false,false, ,ZZZZZZZZZZ
-trial,id,java.lang.Integer,true,false,0,213981

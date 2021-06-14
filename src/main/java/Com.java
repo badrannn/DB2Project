@@ -25,28 +25,28 @@ public class Com implements Comparator<ArrayList<Object>> {
       BigDecimal kk = BigDecimal.valueOf(k);
       BigDecimal kk2 = BigDecimal.valueOf(k1);
 
-        if (kk.compareTo(kk2) > 0) {
-            return 1;
-        } else {
-            return -1;
-        }
+      if (kk.compareTo(kk2) > 0) {
+        return 1;
+      } else {
+        return -1;
+      }
     } else if (key1 instanceof String) {
       String k = (String) key1;
       String k1 = (String) key2;
-        if (k.compareTo(k1) > 0) {
-            return 1;
-        } else {
-            return -1;
-        }
+      if (k.compareTo(k1) > 0) {
+        return 1;
+      } else {
+        return -1;
+      }
     } else {
       Date k = (Date) key1;
       Date k1 = (Date) key2;
 
-        if (k.compareTo(k1) > 0) {
-            return 1;
-        } else {
-            return -1;
-        }
+      if (k.compareTo(k1) > 0) {
+        return 1;
+      } else {
+        return -1;
+      }
     }
   }
 }
