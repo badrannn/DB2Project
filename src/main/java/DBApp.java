@@ -1747,11 +1747,18 @@ public class DBApp implements DBAppInterface {
     Vector<ArrayList<Object>> returned = new Vector<ArrayList<Object>>();
     for (int i = 0; i < a.size(); i++) {
       for (int j = 0; j < b.size(); j++) {
-        if (a.get(i).equals(b.get(j))) a.remove(i);
+        if (a.get(i).equals(b.get(j))) {
+          a.remove(i);
+          break;
+        }
       }
     }
-    returned.addAll(a);
-    returned.addAll(b);
+    if (a.size() > 0) {
+      returned.addAll(a);
+    }
+    if (b.size() > 0) {
+      returned.addAll(b);
+    }
     return returned;
   }
 
